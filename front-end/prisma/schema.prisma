@@ -1,0 +1,55 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["arch_games"]
+}
+
+model activity {
+  id              String   @id @default(uuid())
+  participant     String
+  team            String
+  date            DateTime
+  type            String
+  category        String
+  base_score      Float    @default(0)
+  multiplier      Float    @default(1.0)
+  calculated_score Float   @default(0)
+  key_process     String   @unique
+  activity        Json
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([participant])
+  @@index([team])
+  @@index([category])
+  @@index([key_process])
+  @@schema("arch_games")
+}
+
+model image {
+  id            Int      @id @default(autoincrement())
+  key_process   String
+  hash          String   @unique @db.VarChar(64)
+  name          String   @db.VarChar(100)
+  team          String   @db.VarChar(100)
+  type          String   @db.VarChar(50)
+  activity_date DateTime
+  upload_date   DateTime @default(now())
+  filename      String   @db.VarChar(255)
+
+  @@map("image")
+  @@index([hash])
+  @@schema("arch_games")
+}

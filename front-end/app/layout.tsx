@@ -1,9 +1,10 @@
 import './globals.css'
 import type { Metadata } from 'next'
+import Layout from './components/Layout'
 
 export const metadata: Metadata = {
-  title: 'Arch Games - Dados do Competidor',
-  description: 'Formulário para inserção dos dados do competidor',
+  title: 'Arch Games',
+  description: 'Sistema de gerenciamento de imagens do Arch Games',
 }
 
 export default function RootLayout({
@@ -13,7 +14,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
-      <body>{children}</body>
+      <body>
+        <Layout>{children}</Layout>
+      </body>
     </html>
   )
 } 

@@ -3,38 +3,86 @@
 import React, { useState, FormEvent, ChangeEvent, ClipboardEvent, DragEvent, useRef } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
 
+interface ActivityDataType {
+  description: string;
+  points: number;
+  language?: string;
+  level?: string;
+  start?: string;
+  end?: string;
+  streak_days?: number;
+  xp_goal?: number;
+  platform?: string;
+  screenshot_provided?: boolean;
+  duration_minutes?: number;
+  distance_km?: number;
+  calories_burned?: number | null;
+  tracker?: string | null;
+  location?: string | null;
+  institution?: string | null;
+  duration_hours?: number | null;
+  certificate?: string | null;
+  certificate_url?: string | null;
+  topics?: string[] | null;
+  title?: string | null;
+  participants?: string[] | null;
+  meeting_type?: string | null;
+  summary?: string | null;
+  attendees?: string[] | null;
+  photo_provided?: boolean | null;
+  author?: string | null;
+  pages?: number | null;
+  summary_submitted?: boolean | null;
+  summary_text?: string | null;
+  format?: string | null;
+  game_title?: string | null;
+  type?: string | null;
+  rank?: string | null;
+  recognized_by?: string | null;
+  feedback_given?: boolean | null;
+  certificate_provided?: boolean | null;
+  photo_taken?: boolean | null;
+  event_name?: string | null;
+  position?: string | null;
+  tabs_collected?: number | null;
+}
+
 interface FormDataType {
   name: string;
   team: string;
-  type: 'Participante' | 'Capitão' | 'Governança';
-  activityDate: string;
+  date: string;
+  type: 'participant' | 'captain' | 'governance';
+  groupSize: number;
 }
 
 interface ValidationErrorsType {
   name?: string;
   team?: string;
   images?: string;
-  activityDate?: string;
+  date?: string;
+  groupSize?: string;
 }
 
 export default function Page() {
   const [formData, setFormData] = useState<FormDataType>({
     name: '',
     team: '',
-    type: 'Participante',
-    activityDate: new Date().toISOString().slice(0, 16), // Format: YYYY-MM-DDThh:mm
+    date: new Date().toISOString().slice(0, 10),
+    type: 'participant',
+    groupSize: 1
   });
   const [files, setFiles] = useState<FileList | null>(null);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [isDragging, setIsDragging] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationErrors, setValidationErrors] = useState<ValidationErrorsType>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prev: FormDataType) => ({
+    setFormData(prev => ({
       ...prev,
-      [name]: value as FormDataType[keyof FormDataType]
+      [name]: name === 'groupSize' ? parseInt(value) || 0 : value
     }));
   };
 
@@ -75,20 +123,26 @@ export default function Page() {
 
   const handlePaste = async (e: ClipboardEvent<HTMLTextAreaElement>) => {
     e.preventDefault();
+    console.log('Paste event triggered');
     
     // Handle pasted files
     const items = Array.from(e.clipboardData.items);
     let imageAdded = false;
     
+    console.log('Clipboard items:', items.map(item => ({ type: item.type, kind: item.kind })));
+    
     for (const item of items) {
       if (item.type.startsWith('image/')) {
         const file = item.getAsFile();
         if (file) {
+          console.log('Image file found:', file.name, file.type, file.size);
           const newFile = new File([file], `pasted-image-${Date.now()}.${item.type.split('/')[1]}`, {
-            type: item.type
+            type: item.type,
+            lastModified: new Date().getTime()
           });
           addFiles([newFile]);
           imageAdded = true;
+          console.log('Image added to files state');
           break; // Only add the first image found
         }
       }
@@ -97,25 +151,30 @@ export default function Page() {
     // If no image was added through the first method, try the clipboard API
     if (!imageAdded) {
       try {
+        console.log('Trying Clipboard API');
         const permission = await navigator.permissions.query({ name: 'clipboard-read' as PermissionName });
+        console.log('Clipboard permission:', permission.state);
+        
         if (permission.state === 'granted' || permission.state === 'prompt') {
           const clipboardItems = await navigator.clipboard.read();
           for (const clipboardItem of clipboardItems) {
             for (const type of clipboardItem.types) {
               if (type.startsWith('image/')) {
                 const blob = await clipboardItem.getType(type);
+                console.log('Image blob found:', blob.type, blob.size);
                 const newFile = new File([blob], `pasted-image-${Date.now()}.${type.split('/')[1]}`, {
-                  type: type
+                  type: type,
+                  lastModified: new Date().getTime()
                 });
                 addFiles([newFile]);
-                break; // Only add the first image found
+                console.log('Image added via Clipboard API');
+                break;
               }
             }
           }
         }
       } catch (error) {
-        // Ignore clipboard read errors as they're expected in some cases
-        console.log('Clipboard API not available or denied:', error);
+        console.error('Clipboard API error:', error);
       }
     }
   };
@@ -174,7 +233,7 @@ export default function Page() {
     let isValid = true;
 
     if (!formData.name.trim()) {
-      errors.name = 'O nome é obrigatório';
+      errors.name = 'O nome do participante é obrigatório';
       isValid = false;
     }
 
@@ -183,8 +242,13 @@ export default function Page() {
       isValid = false;
     }
 
-    if (!formData.activityDate) {
-      errors.activityDate = 'A data da atividade é obrigatória';
+    if (!formData.date) {
+      errors.date = 'A data da atividade é obrigatória';
+      isValid = false;
+    }
+
+    if (!formData.groupSize || formData.groupSize < 1) {
+      errors.groupSize = 'O tamanho do grupo deve ser maior que zero';
       isValid = false;
     }
 
@@ -204,83 +268,95 @@ export default function Page() {
       return;
     }
     
+    setIsSubmitting(true);
     const submitData = new FormData();
     submitData.append('name', formData.name);
     submitData.append('team', formData.team);
     submitData.append('type', formData.type);
-    submitData.append('activityDate', formData.activityDate);
+    submitData.append('groupSize', formData.groupSize.toString());
+    submitData.append('activityDate', formData.date);
     
     if (files) {
+      console.log('Files to be sent:', Array.from(files).map(f => ({ name: f.name, type: f.type, size: f.size })));
       Array.from<File>(files).forEach(file => {
-        submitData.append('images', file);
+        submitData.append('files', file);
       });
     }
 
-    // Show loading toast
-    const loadingToast = toast.loading('Enviando dados...', {
-      style: {
-        background: '#1e40af',
-        color: '#fff',
-      },
-    });
-
     try {
+      console.log('Sending form data to API...');
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: submitData,
+        signal: AbortSignal.timeout(20000)
       });
-      
-      const result = await response.json();
-      
-      if (response.ok) {
-        // Dismiss loading toast and show success
-        toast.dismiss(loadingToast);
-        toast.success(
-          <div className="flex flex-col">
-            <span className="font-bold">Upload realizado com sucesso!</span>
-            <span className="text-sm">Suas imagens foram salvas.</span>
-          </div>,
-          {
-            duration: 4000,
-            style: {
-              background: '#059669',
-              color: '#fff',
-            },
-            icon: '🎉',
-          }
-        );
-        handleReset();
-      } else {
-        throw new Error(result.error || 'Falha ao enviar o formulário');
-      }
-    } catch (error) {
-      console.error('Erro ao enviar formulário:', error);
-      // Dismiss loading toast and show error
-      toast.dismiss(loadingToast);
 
-      // Check if it's a duplicate image error
+      const result = await response.json();
+      console.log('API response:', result);
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Error uploading files');
+      }
+
+      toast.success('Atividade registrada com sucesso!');
+      handleReset();
+    } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      if (errorMessage.includes('já foi enviada')) {
+      
+      // Handle timeout error
+      if (error instanceof DOMException && error.name === 'TimeoutError') {
         toast.error(
           <div className="flex flex-col gap-1">
-            <span className="font-bold">Imagem duplicada detectada</span>
-            <span className="text-sm whitespace-normal">{errorMessage}</span>
+            <span className="font-bold">Tempo Limite Excedido</span>
+            <span className="text-sm whitespace-normal">
+              A requisição demorou mais que 20 segundos para completar. Por favor:
+              <ul className="list-disc pl-4 mt-1">
+                <li>Verifique sua conexão com a internet</li>
+                <li>Tente novamente em alguns instantes</li>
+                <li>Se o problema persistir, contate o suporte</li>
+              </ul>
+            </span>
           </div>,
           {
-            duration: 6000,
+            duration: 8000,
             style: {
               background: '#dc2626',
               color: '#fff',
               maxWidth: '400px',
             },
-            icon: '⚠️',
+            icon: '⏱️',
+          }
+        );
+      }
+      // Enhanced N8N error handling
+      else if (errorMessage.includes('NodeApiError') || errorMessage.includes('refused the connection')) {
+        toast.error(
+          <div className="flex flex-col gap-1">
+            <span className="font-bold">Serviço N8N Indisponível</span>
+            <span className="text-sm whitespace-normal">
+              O serviço N8N está fora do ar no momento. Por favor:
+              <ul className="list-disc pl-4 mt-1">
+                <li>Verifique se o serviço N8N está rodando</li>
+                <li>Aguarde alguns minutos e tente novamente</li>
+                <li>Contate o administrador do sistema se o problema persistir</li>
+              </ul>
+            </span>
+          </div>,
+          {
+            duration: 8000,
+            style: {
+              background: '#dc2626',
+              color: '#fff',
+              maxWidth: '400px',
+            },
+            icon: '🔌',
           }
         );
       } else {
         toast.error(
           <div className="flex flex-col">
             <span className="font-bold">Erro ao enviar o formulário</span>
-            <span className="text-sm">Por favor, tente novamente.</span>
+            <span className="text-sm">{errorMessage}</span>
           </div>,
           {
             duration: 5000,
@@ -292,6 +368,8 @@ export default function Page() {
           }
         );
       }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -299,8 +377,9 @@ export default function Page() {
     setFormData({
       name: '',
       team: '',
-      type: 'Participante',
-      activityDate: new Date().toISOString().slice(0, 16),
+      date: new Date().toISOString().slice(0, 10),
+      type: 'participant',
+      groupSize: 1
     });
     setFiles(null);
     previewUrls.forEach(url => URL.revokeObjectURL(url));
@@ -311,214 +390,248 @@ export default function Page() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          className: '',
-          style: {
-            borderRadius: '10px',
-            padding: '16px',
-          },
-        }}
-      />
-      <div className="max-w-md mx-auto">
-        <div className="bg-white p-8 rounded-lg shadow-md">
-          <h1 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-            Insira os dados do competidor
-          </h1>
-          
-          <form id="uploadForm" onSubmit={handleSubmit} className="space-y-6">
+    <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8">
+      {isSubmitting && (
+        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-4 rounded-lg shadow-xl flex items-center space-x-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-600"></div>
+            <span className="text-gray-700 font-medium">Enviando...</span>
+          </div>
+        </div>
+      )}
+      <div className="max-w-3xl mx-auto">
+        <form id="uploadForm" onSubmit={handleSubmit} className="space-y-6 bg-white shadow-sm rounded-lg p-6">
+          <div className="space-y-8 divide-y divide-gray-200">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                Nome *
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm ${
-                  validationErrors.name 
-                    ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                    : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
-                }`}
-              />
-              {validationErrors.name && (
-                <p className="mt-1 text-sm text-red-600">{validationErrors.name}</p>
-              )}
-            </div>
-
-            <div>
-              <label htmlFor="team" className="block text-sm font-medium text-gray-700">
-                Equipe *
-              </label>
-              <input
-                type="text"
-                id="team"
-                name="team"
-                value={formData.team}
-                onChange={handleInputChange}
-                className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm ${
-                  validationErrors.team 
-                    ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                    : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
-                }`}
-              />
-              {validationErrors.team && (
-                <p className="mt-1 text-sm text-red-600">{validationErrors.team}</p>
-              )}
-            </div>
-
-            <div>
-              <label htmlFor="type" className="block text-sm font-medium text-gray-700">
-                Tipo
-              </label>
-              <select
-                id="type"
-                name="type"
-                value={formData.type}
-                onChange={handleInputChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-              >
-                <option value="Participante">Participante</option>
-                <option value="Capitão">Capitão</option>
-                <option value="Governança">Governança</option>
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="activityDate" className="block text-sm font-medium text-gray-700">
-                Data e Hora da Atividade *
-              </label>
-              <input
-                type="datetime-local"
-                id="activityDate"
-                name="activityDate"
-                value={formData.activityDate}
-                onChange={handleInputChange}
-                className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm ${
-                  validationErrors.activityDate 
-                    ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                    : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
-                }`}
-              />
-              {validationErrors.activityDate && (
-                <p className="mt-1 text-sm text-red-600">{validationErrors.activityDate}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Imagens *
-              </label>
-              <div
-                onDragEnter={handleDragEnter}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                className={`
-                  relative cursor-pointer min-h-[200px] p-4
-                  border-2 ${isDragging ? 'border-blue-500 bg-blue-50' : 
-                    validationErrors.images ? 'border-red-300' : 'border-dashed border-gray-300'}
-                  rounded-lg transition-colors duration-200 ease-in-out
-                  flex flex-col items-center justify-center gap-4
-                  focus:outline-none focus:ring-2 
-                  ${validationErrors.images ? 'focus:ring-red-500' : 'focus:ring-blue-500'}
-                `}
-                role="button"
-                aria-label="Upload zone - click to select files or paste images"
-              >
-                <div className="flex flex-col items-center gap-2" onClick={handleZoneClick}>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    id="images"
-                    name="images"
-                    multiple
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
-                  <svg
-                    className="w-8 h-8 text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+              <h3 className="text-lg leading-6 font-medium text-gray-900">
+                Registro de Atividade
+              </h3>
+              
+              {/* Basic Information */}
+              <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                <div className="sm:col-span-3">
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                    Participante
+                  </label>
+                  <div className="mt-1">
+                    <input
+                      type="text"
+                      name="name"
+                      id="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
                     />
-                  </svg>
-                  <p className="text-sm text-gray-500 text-center">
-                    Clique para selecionar ou arraste suas imagens aqui
-                  </p>
+                    {validationErrors.name && (
+                      <p className="mt-1 text-sm text-red-600">{validationErrors.name}</p>
+                    )}
+                  </div>
                 </div>
 
-                <div className="w-full max-w-sm">
-                  <textarea
-                    className="w-full h-[60px] resize-none border rounded-md bg-gray-50 p-2 text-center text-sm"
-                    onPaste={handlePaste}
-                    onClick={(e) => e.stopPropagation()}
-                    placeholder="Clique aqui e use Ctrl+V para colar uma imagem"
-                    spellCheck={false}
-                  />
-                  <p className="text-xs text-gray-400 text-center mt-1">
-                    Cole sua imagem aqui usando Ctrl+V ou botão direito → Colar
-                  </p>
+                <div className="sm:col-span-3">
+                  <label htmlFor="team" className="block text-sm font-medium text-gray-700">
+                    Equipe
+                  </label>
+                  <div className="mt-1">
+                    <input
+                      type="text"
+                      name="team"
+                      id="team"
+                      value={formData.team}
+                      onChange={handleInputChange}
+                      className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                    />
+                    {validationErrors.team && (
+                      <p className="mt-1 text-sm text-red-600">{validationErrors.team}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label htmlFor="date" className="block text-sm font-medium text-gray-700">
+                    Data
+                  </label>
+                  <div className="mt-1">
+                    <input
+                      type="date"
+                      name="date"
+                      id="date"
+                      value={formData.date}
+                      onChange={handleInputChange}
+                      className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                    />
+                    {validationErrors.date && (
+                      <p className="mt-1 text-sm text-red-600">{validationErrors.date}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label htmlFor="type" className="block text-sm font-medium text-gray-700">
+                    Tipo
+                  </label>
+                  <div className="mt-1">
+                    <select
+                      name="type"
+                      id="type"
+                      value={formData.type}
+                      onChange={handleInputChange}
+                      className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                    >
+                      <option value="participant">Participante</option>
+                      <option value="captain">Capitão</option>
+                      <option value="governance">Governança</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label htmlFor="groupSize" className="block text-sm font-medium text-gray-700">
+                    Em grupo de
+                  </label>
+                  <div className="mt-1">
+                    <input
+                      type="number"
+                      name="groupSize"
+                      id="groupSize"
+                      min="1"
+                      value={formData.groupSize}
+                      onChange={handleInputChange}
+                      className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                    />
+                    {validationErrors.groupSize && (
+                      <p className="mt-1 text-sm text-red-600">{validationErrors.groupSize}</p>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              {validationErrors.images && (
-                <p className="mt-1 text-sm text-red-600">{validationErrors.images}</p>
-              )}
-
-              {previewUrls.length > 0 && (
-                <div className="mt-4 grid grid-cols-2 gap-4">
-                  {previewUrls.map((url, index) => (
-                    <div key={url} className="relative group">
-                      <img
-                        src={url}
-                        alt={`Preview ${index + 1}`}
-                        className="w-full h-32 object-cover rounded-lg"
+              {/* Image Upload */}
+              <div className="mt-6">
+                <label className="block text-sm font-medium text-gray-700">
+                  Fotos
+                </label>
+                <div
+                  className={`mt-2 flex justify-center px-6 pt-5 pb-6 border-2 ${
+                    isDragging ? 'border-indigo-500 bg-indigo-50' : 'border-gray-300'
+                  } border-dashed rounded-md relative`}
+                  onDrop={handleDrop}
+                  onDragOver={handleDragOver}
+                  onDragEnter={() => setIsDragging(true)}
+                  onDragLeave={() => setIsDragging(false)}
+                  onClick={handleZoneClick}
+                >
+                  <div className="space-y-1 text-center">
+                    <svg
+                      className="mx-auto h-12 w-12 text-gray-400"
+                      stroke="currentColor"
+                      fill="none"
+                      viewBox="0 0 48 48"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                        strokeWidth={2}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                       />
-                      <button
-                        type="button"
-                        onClick={() => removeImage(index)}
-                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
+                    </svg>
+                    <div className="flex text-sm text-gray-600">
+                      <label className="relative cursor-pointer rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
+                        <span>Envie uma foto</span>
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          multiple
+                          accept="image/*"
+                          className="sr-only"
+                          onChange={handleFileChange}
+                        />
+                      </label>
+                      <p className="pl-1">ou arraste e solte</p>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
+                    <p className="text-xs text-gray-500">PNG, JPG, GIF até 10MB</p>
 
-            <div className="flex gap-4 pt-4">
-              <button
-                type="submit"
-                className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              >
-                Enviar
-              </button>
+                    {/* Paste Area */}
+                    <div className="mt-4 w-full max-w-sm mx-auto">
+                      <div
+                        className="w-full h-[60px] border-2 border-dashed rounded-md bg-gray-50 p-2 text-center flex items-center justify-center cursor-text"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const textarea = e.currentTarget.querySelector('textarea');
+                          if (textarea) textarea.focus();
+                        }}
+                      >
+                        <textarea
+                          className="w-full h-full resize-none bg-transparent border-none focus:outline-none focus:ring-0 text-center text-sm text-gray-500 placeholder-gray-500"
+                          placeholder="Clique aqui e use Ctrl+V para colar uma imagem"
+                          onPaste={handlePaste}
+                          onClick={(e) => e.stopPropagation()}
+                          spellCheck={false}
+                        />
+                      </div>
+                      <p className="text-xs text-gray-400 text-center mt-1">
+                        Cole sua imagem aqui usando Ctrl+V ou botão direito → Colar
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                {validationErrors.images && (
+                  <p className="mt-1 text-sm text-red-600">{validationErrors.images}</p>
+                )}
+
+                {/* Image Preview Grid */}
+                {previewUrls.length > 0 && (
+                  <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+                    {previewUrls.map((url, index) => (
+                      <div key={url} className="relative group">
+                        <div className="aspect-w-1 aspect-h-1 rounded-lg bg-gray-100 overflow-hidden">
+                          <img
+                            src={url}
+                            alt={`Preview ${index + 1}`}
+                            className="object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeImage(index)}
+                            className="absolute top-0 right-0 p-1 bg-red-500 text-white rounded-bl-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-5">
+            <div className="flex justify-end">
               <button
                 type="button"
                 onClick={handleReset}
-                className="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
                 Limpar
               </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className={`ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white ${
+                  isSubmitting ? 'bg-indigo-400' : 'bg-indigo-600 hover:bg-indigo-700'
+                } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
+              >
+                {isSubmitting ? 'Enviando...' : 'Enviar'}
+              </button>
             </div>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
+      <Toaster position="top-right" />
     </div>
   );
 } 
