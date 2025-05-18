@@ -13,9 +13,9 @@ import {
   BaseActivity
 } from '../types/activities';
 
-export interface ValidationResult {
+interface ValidationResult {
   isValid: boolean;
-  errorMessage?: string;
+  error?: string;
 }
 
 // UUID validation regex
@@ -35,21 +35,21 @@ function validateBaseFields(activity: BaseActivity): ValidationResult {
   if (missingFields.length > 0) {
     return {
       isValid: false,
-      errorMessage: `Campos base obrigatórios faltando: ${missingFields.join(', ')}`
+      error: `Campos base obrigatórios faltando: ${missingFields.join(', ')}`
     };
   }
 
   if (!['participant', 'captain', 'governance'].includes(activity.type)) {
     return {
       isValid: false,
-      errorMessage: 'Tipo inválido. Deve ser um dos seguintes: participant, captain, governance'
+      error: 'Tipo inválido. Deve ser um dos seguintes: participant, captain, governance'
     };
   }
 
   if (!UUID_REGEX.test(activity.key_process)) {
     return {
       isValid: false,
-      errorMessage: 'key_process deve ser um UUID válido'
+      error: 'key_process deve ser um UUID válido'
     };
   }
 
@@ -57,40 +57,105 @@ function validateBaseFields(activity: BaseActivity): ValidationResult {
 }
 
 export function validateActivity(activity: ModelActivity): ValidationResult {
-  // First validate base fields
-  const baseValidation = validateBaseFields(activity);
-  if (!baseValidation.isValid) {
-    return baseValidation;
-  }
+  try {
+    // Basic field validation
+    if (!activity.participant) {
+      return { isValid: false, error: 'Participante é obrigatório' };
+    }
+    if (!activity.team) {
+      return { isValid: false, error: 'Time é obrigatório' };
+    }
+    if (!activity.date) {
+      return { isValid: false, error: 'Data é obrigatória' };
+    }
+    if (!activity.type) {
+      return { isValid: false, error: 'Tipo é obrigatório' };
+    }
+    if (!activity.category) {
+      return { isValid: false, error: 'Categoria é obrigatória' };
+    }
+    if (!activity.key_process) {
+      return { isValid: false, error: 'Key process é obrigatório' };
+    }
+    if (!activity.activity) {
+      return { isValid: false, error: 'Detalhes da atividade são obrigatórios' };
+    }
 
-  // Then validate category-specific fields
-  switch (activity.category) {
-    case 'physical_activity':
-      return validatePhysicalActivity(activity);
-    case 'duolingo':
-      return validateDuolingoActivity(activity);
-    case 'professional_training':
-      return validateProfessionalTraining(activity);
-    case 'corporate_meeting':
-      return validateCorporateMeeting(activity);
-    case 'happy_hour':
-      return validateHappyHour(activity);
-    case 'books':
-      return validateBooks(activity);
-    case 'games':
-      return validateGames(activity);
-    case 'amigo_de_valor':
-      return validateAmigoDeValor(activity);
-    case 'blood_donation':
-      return validateBloodDonation(activity);
-    case 'lacre_event':
-      return validateLacreEvent(activity);
-    default:
-      const _exhaustiveCheck: never = activity;
-      return {
-        isValid: false,
-        errorMessage: `Categoria de atividade desconhecida: ${(activity as any).category}`
-      };
+    // Type validation
+    if (!['participant', 'captain', 'governance'].includes(activity.type)) {
+      return { isValid: false, error: 'Tipo de participante inválido' };
+    }
+
+    // Category-specific validation
+    switch (activity.category) {
+      case 'physical_activity':
+        if (!activity.activity.duration_minutes || !activity.activity.distance_km) {
+          return { isValid: false, error: 'Duração e distância são obrigatórios para atividade física' };
+        }
+        break;
+      case 'duolingo':
+        if (!activity.activity.points || !activity.activity.language) {
+          return { isValid: false, error: 'Pontos e idioma são obrigatórios para Duolingo' };
+        }
+        break;
+      case 'professional_training':
+        if (!activity.activity.duration_hours || !activity.activity.institution) {
+          return { isValid: false, error: 'Duração e instituição são obrigatórios para treinamento profissional' };
+        }
+        break;
+      case 'corporate_meeting':
+        if (!activity.activity.duration_minutes || !activity.activity.participants) {
+          return { isValid: false, error: 'Duração e participantes são obrigatórios para reunião corporativa' };
+        }
+        break;
+      case 'happy_hour':
+        if (!activity.activity.location || !activity.activity.participants) {
+          return { isValid: false, error: 'Local e participantes são obrigatórios para happy hour' };
+        }
+        break;
+      case 'books':
+        if (!activity.activity.title || !activity.activity.author || !activity.activity.pages) {
+          return { isValid: false, error: 'Título, autor e número de páginas são obrigatórios para livros' };
+        }
+        break;
+      case 'games':
+        if (!activity.activity.game_title || !activity.activity.type) {
+          return { isValid: false, error: 'Título do jogo e tipo são obrigatórios para jogos' };
+        }
+        break;
+      case 'amigo_de_valor':
+        if (!activity.activity.description) {
+          return { isValid: false, error: 'Descrição é obrigatória para Amigo de Valor' };
+        }
+        break;
+      case 'blood_donation':
+        if (!activity.activity.location || !activity.activity.type) {
+          return { isValid: false, error: 'Local e tipo são obrigatórios para doação de sangue' };
+        }
+        break;
+      case 'lacre_event':
+        if (!activity.activity.event_name || activity.activity.position === undefined) {
+          return { isValid: false, error: 'Nome do evento e posição são obrigatórios para evento Lacre' };
+        }
+        break;
+      default:
+        return { isValid: false, error: 'Categoria de atividade inválida' };
+    }
+
+    // Score validation
+    if (typeof activity.base_score !== 'number' || activity.base_score < 0) {
+      return { isValid: false, error: 'Score base deve ser um número positivo' };
+    }
+    if (typeof activity.multiplier !== 'number' || activity.multiplier < 0) {
+      return { isValid: false, error: 'Multiplicador deve ser um número positivo' };
+    }
+    if (typeof activity.calculated_score !== 'number' || activity.calculated_score < 0) {
+      return { isValid: false, error: 'Score calculado deve ser um número positivo' };
+    }
+
+    return { isValid: true };
+  } catch (error) {
+    return { isValid: false, error: 'Erro ao validar atividade' };
   }
 }
 
@@ -107,7 +172,7 @@ export function validatePhysicalActivity(activity: PhysicalActivity): Validation
   if (missingFields.length > 0) {
     return {
       isValid: false,
-      errorMessage: `Atividade física com campos obrigatórios faltando: ${missingFields.join(', ')}`
+      error: `Atividade física com campos obrigatórios faltando: ${missingFields.join(', ')}`
     };
   }
   
@@ -127,7 +192,7 @@ export function validateDuolingoActivity(activity: DuolingoActivity): Validation
   if (missingFields.length > 0) {
     return {
       isValid: false,
-      errorMessage: `Atividade Duolingo com campos obrigatórios faltando: ${missingFields.join(', ')}`
+      error: `Atividade Duolingo com campos obrigatórios faltando: ${missingFields.join(', ')}`
     };
   }
 
@@ -147,7 +212,7 @@ export function validateProfessionalTraining(activity: ProfessionalTrainingActiv
   if (missingFields.length > 0) {
     return {
       isValid: false,
-      errorMessage: `Treinamento profissional com campos obrigatórios faltando: ${missingFields.join(', ')}`
+      error: `Treinamento profissional com campos obrigatórios faltando: ${missingFields.join(', ')}`
     };
   }
 
@@ -166,7 +231,7 @@ export function validateCorporateMeeting(activity: CorporateMeetingActivity): Va
   if (missingFields.length > 0) {
     return {
       isValid: false,
-      errorMessage: `Reunião corporativa com campos obrigatórios faltando: ${missingFields.join(', ')}`
+      error: `Reunião corporativa com campos obrigatórios faltando: ${missingFields.join(', ')}`
     };
   }
 
@@ -185,7 +250,7 @@ export function validateHappyHour(activity: HappyHourActivity): ValidationResult
   if (missingFields.length > 0) {
     return {
       isValid: false,
-      errorMessage: `Happy hour com campos obrigatórios faltando: ${missingFields.join(', ')}`
+      error: `Happy hour com campos obrigatórios faltando: ${missingFields.join(', ')}`
     };
   }
 
@@ -205,7 +270,7 @@ export function validateBooks(activity: BooksActivity): ValidationResult {
   if (missingFields.length > 0) {
     return {
       isValid: false,
-      errorMessage: `Atividade de livros com campos obrigatórios faltando: ${missingFields.join(', ')}`
+      error: `Atividade de livros com campos obrigatórios faltando: ${missingFields.join(', ')}`
     };
   }
 
@@ -224,7 +289,7 @@ export function validateGames(activity: GamesActivity): ValidationResult {
   if (missingFields.length > 0) {
     return {
       isValid: false,
-      errorMessage: `Atividade de jogos com campos obrigatórios faltando: ${missingFields.join(', ')}`
+      error: `Atividade de jogos com campos obrigatórios faltando: ${missingFields.join(', ')}`
     };
   }
 
@@ -241,7 +306,7 @@ export function validateAmigoDeValor(activity: AmigoDeValorActivity): Validation
   if (missingFields.length > 0) {
     return {
       isValid: false,
-      errorMessage: `Atividade Amigo de Valor com campos obrigatórios faltando: ${missingFields.join(', ')}`
+      error: `Atividade Amigo de Valor com campos obrigatórios faltando: ${missingFields.join(', ')}`
     };
   }
 
@@ -260,7 +325,7 @@ export function validateBloodDonation(activity: BloodDonationActivity): Validati
   if (missingFields.length > 0) {
     return {
       isValid: false,
-      errorMessage: `Doação de sangue com campos obrigatórios faltando: ${missingFields.join(', ')}`
+      error: `Doação de sangue com campos obrigatórios faltando: ${missingFields.join(', ')}`
     };
   }
 
@@ -278,7 +343,7 @@ export function validateLacreEvent(activity: LacreEventActivity): ValidationResu
   if (missingFields.length > 0) {
     return {
       isValid: false,
-      errorMessage: `Evento Lacre com campos obrigatórios faltando: ${missingFields.join(', ')}`
+      error: `Evento Lacre com campos obrigatórios faltando: ${missingFields.join(', ')}`
     };
   }
 

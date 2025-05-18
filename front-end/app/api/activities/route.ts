@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { ModelActivity } from '@/app/types/activities';
-import { validateActivity } from '@/app/utils/activityValidation';
-import { prisma } from '@/app/lib/prisma';
+import { ModelActivity } from '@/types/activities';
+import { validateActivity } from '@/utils/activityValidation';
+import prisma from '@/lib/prisma';
 
 // Helper function to handle CORS
 function corsResponse(response: NextResponse) {
@@ -19,6 +19,17 @@ export async function OPTIONS() {
 export async function POST(request: Request) {
   try {
     const modelActivity: ModelActivity = await request.json();
+
+    // Validate the activity
+    const validationResult = validateActivity(modelActivity);
+    if (!validationResult.isValid) {
+      return corsResponse(
+        NextResponse.json(
+          { error: validationResult.error },
+          { status: 400 }
+        )
+      );
+    }
 
     // Ensure the date string has seconds and milliseconds for proper Date parsing
     const dateStr = modelActivity.date;

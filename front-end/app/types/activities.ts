@@ -136,4 +136,20 @@ export type ModelActivity =
   | GamesActivity
   | AmigoDeValorActivity
   | BloodDonationActivity
-  | LacreEventActivity; 
+  | LacreEventActivity;
+
+export interface Activity {
+  id: string;
+  participant: string;
+  team: string;
+  date: string;
+  type: string;
+  category: string;
+  base_score: number;
+  multiplier: number;
+  calculated_score: number;
+  key_process: string;
+  activity: any; // This will be a specific type based on the category
+  createdAt: string;
+  updatedAt: string;
+} 

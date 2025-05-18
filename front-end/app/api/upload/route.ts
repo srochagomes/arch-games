@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile, mkdir, rm } from 'fs/promises';
 import path from 'path';
-import { env } from '@/app/config/env';
+import { env } from '@/config/env';
 import { randomUUID } from 'crypto';
-import { calculateImageHash } from '@/app/utils/imageHash';
-import { findDuplicateImage, saveImageRecord } from '@/app/utils/dbOperations';
-import { sendToN8N, MULTIPART_FILE_FIELD } from '@/app/utils/webhook';
+import { calculateImageHash } from '@/utils/imageHash';
+import { findDuplicateImage, saveImageRecord } from '@/utils/dbOperations';
+import { sendToN8N, MULTIPART_FILE_FIELD } from '@/utils/webhook';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
