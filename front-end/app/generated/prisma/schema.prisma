@@ -16,6 +16,13 @@ datasource db {
   schemas  = ["arch_games"]
 }
 
+model team {
+  id   Int    @id @default(autoincrement())
+  name String @unique @db.VarChar(100)
+
+  @@schema("arch_games")
+}
+
 model activity {
   id               String   @id @default(uuid())
   participant      String

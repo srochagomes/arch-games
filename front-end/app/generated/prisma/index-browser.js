@@ -120,6 +120,11 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
+exports.Prisma.TeamScalarFieldEnum = {
+  id: 'id',
+  name: 'name'
+};
+
 exports.Prisma.ActivityScalarFieldEnum = {
   id: 'id',
   participant: 'participant',
@@ -170,6 +175,7 @@ exports.Prisma.JsonNullValueFilter = {
 
 
 exports.Prisma.ModelName = {
+  team: 'team',
   activity: 'activity',
   image: 'image'
 };

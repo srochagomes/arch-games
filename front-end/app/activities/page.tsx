@@ -3,7 +3,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { format } from 'date-fns';
 import ActivityDetailsModal from './components/ActivityDetailsModal';
+import ConfirmDialog from '@/components/ConfirmDialog';
 import { Activity } from '@/types/activities';
+import { toast } from 'react-hot-toast';
 
 const PAGE_SIZE = 20;
 
@@ -19,6 +21,8 @@ export default function ActivitiesPage() {
     team: '',
   });
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [activityToDelete, setActivityToDelete] = useState<Activity | null>(null);
   const observer = useRef<IntersectionObserver | null>(null);
   const lastActivityRef = useRef<HTMLTableRowElement | null>(null);
 
@@ -86,25 +90,38 @@ export default function ActivitiesPage() {
     fetchActivities(1, true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Tem certeza que deseja excluir esta atividade?')) {
-      return;
-    }
+  const handleDeleteClick = (activity: Activity) => {
+    setActivityToDelete(activity);
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!activityToDelete) return;
 
     try {
-      const response = await fetch(`/api/activities/${id}`, {
+      const response = await fetch(`/api/activities/${activityToDelete.id}`, {
         method: 'DELETE',
       });
 
       if (response.ok) {
-        setActivities(prev => prev.filter(activity => activity.id !== id));
+        setActivities(prev => prev.filter(activity => activity.id !== activityToDelete.id));
+        toast.success('Atividade excluída com sucesso');
       } else {
-        alert('Erro ao excluir atividade');
+        const data = await response.json();
+        throw new Error(data.error || 'Erro ao excluir atividade');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting activity:', error);
-      alert('Erro ao excluir atividade');
+      toast.error(error.message || 'Erro ao excluir atividade');
+    } finally {
+      setDeleteConfirmOpen(false);
+      setActivityToDelete(null);
     }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteConfirmOpen(false);
+    setActivityToDelete(null);
   };
 
   return (
@@ -231,7 +248,7 @@ export default function ActivitiesPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     <button
-                      onClick={() => handleDelete(activity.id)}
+                      onClick={() => handleDeleteClick(activity)}
                       className="text-red-600 hover:text-red-800"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -258,6 +275,16 @@ export default function ActivitiesPage() {
           onClose={() => setSelectedActivity(null)}
         />
       )}
+
+      <ConfirmDialog
+        isOpen={deleteConfirmOpen}
+        title="Confirmar Exclusão"
+        message={`Tem certeza que deseja excluir esta atividade de ${activityToDelete?.participant}?`}
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+        confirmLabel="Excluir"
+        cancelLabel="Cancelar"
+      />
     </div>
   );
 } 
