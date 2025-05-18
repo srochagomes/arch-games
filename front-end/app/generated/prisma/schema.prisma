@@ -17,8 +17,9 @@ datasource db {
 }
 
 model team {
-  id   Int    @id @default(autoincrement())
-  name String @unique @db.VarChar(100)
+  id           Int           @id @default(autoincrement())
+  name         String        @unique @db.VarChar(100)
+  participants participant[]
 
   @@schema("arch_games")
 }
@@ -58,5 +59,19 @@ model image {
 
   @@index([hash])
   @@map("image")
+  @@schema("arch_games")
+}
+
+model participant {
+  id         String   @id @default(uuid())
+  name       String   @db.VarChar(100)
+  email      String   @unique @db.VarChar(100)
+  type       String   @db.VarChar(20) // participant, captain, governance
+  team_id    Int
+  team       team     @relation(fields: [team_id], references: [id])
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([team_id])
   @@schema("arch_games")
 }

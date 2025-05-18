@@ -153,6 +153,16 @@ exports.Prisma.ImageScalarFieldEnum = {
   filename: 'filename'
 };
 
+exports.Prisma.ParticipantScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  email: 'email',
+  type: 'type',
+  team_id: 'team_id',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -177,7 +187,8 @@ exports.Prisma.JsonNullValueFilter = {
 exports.Prisma.ModelName = {
   team: 'team',
   activity: 'activity',
-  image: 'image'
+  image: 'image',
+  participant: 'participant'
 };
 
 /**

@@ -28,6 +28,11 @@ export type activity = $Result.DefaultSelection<Prisma.$activityPayload>
  * 
  */
 export type image = $Result.DefaultSelection<Prisma.$imagePayload>
+/**
+ * Model participant
+ * 
+ */
+export type participant = $Result.DefaultSelection<Prisma.$participantPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -183,6 +188,16 @@ export class PrismaClient<
     * ```
     */
   get image(): Prisma.imageDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.participant`: Exposes CRUD operations for the **participant** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Participants
+    * const participants = await prisma.participant.findMany()
+    * ```
+    */
+  get participant(): Prisma.participantDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -625,7 +640,8 @@ export namespace Prisma {
   export const ModelName: {
     team: 'team',
     activity: 'activity',
-    image: 'image'
+    image: 'image',
+    participant: 'participant'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -644,7 +660,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "team" | "activity" | "image"
+      modelProps: "team" | "activity" | "image" | "participant"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -870,6 +886,80 @@ export namespace Prisma {
           }
         }
       }
+      participant: {
+        payload: Prisma.$participantPayload<ExtArgs>
+        fields: Prisma.participantFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.participantFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$participantPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.participantFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$participantPayload>
+          }
+          findFirst: {
+            args: Prisma.participantFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$participantPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.participantFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$participantPayload>
+          }
+          findMany: {
+            args: Prisma.participantFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$participantPayload>[]
+          }
+          create: {
+            args: Prisma.participantCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$participantPayload>
+          }
+          createMany: {
+            args: Prisma.participantCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.participantCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$participantPayload>[]
+          }
+          delete: {
+            args: Prisma.participantDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$participantPayload>
+          }
+          update: {
+            args: Prisma.participantUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$participantPayload>
+          }
+          deleteMany: {
+            args: Prisma.participantDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.participantUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.participantUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$participantPayload>[]
+          }
+          upsert: {
+            args: Prisma.participantUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$participantPayload>
+          }
+          aggregate: {
+            args: Prisma.ParticipantAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateParticipant>
+          }
+          groupBy: {
+            args: Prisma.participantGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ParticipantGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.participantCountArgs<ExtArgs>
+            result: $Utils.Optional<ParticipantCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -957,6 +1047,7 @@ export namespace Prisma {
     team?: teamOmit
     activity?: activityOmit
     image?: imageOmit
+    participant?: participantOmit
   }
 
   /* Types for Logging */
@@ -1045,6 +1136,36 @@ export namespace Prisma {
    * Count Types
    */
 
+
+  /**
+   * Count Type TeamCountOutputType
+   */
+
+  export type TeamCountOutputType = {
+    participants: number
+  }
+
+  export type TeamCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    participants?: boolean | TeamCountOutputTypeCountParticipantsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * TeamCountOutputType without action
+   */
+  export type TeamCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TeamCountOutputType
+     */
+    select?: TeamCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * TeamCountOutputType without action
+   */
+  export type TeamCountOutputTypeCountParticipantsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: participantWhereInput
+  }
 
 
   /**
@@ -1225,6 +1346,8 @@ export namespace Prisma {
   export type teamSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
+    participants?: boolean | team$participantsArgs<ExtArgs>
+    _count?: boolean | TeamCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["team"]>
 
   export type teamSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -1243,10 +1366,18 @@ export namespace Prisma {
   }
 
   export type teamOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name", ExtArgs["result"]["team"]>
+  export type teamInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    participants?: boolean | team$participantsArgs<ExtArgs>
+    _count?: boolean | TeamCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type teamIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type teamIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
   export type $teamPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "team"
-    objects: {}
+    objects: {
+      participants: Prisma.$participantPayload<ExtArgs>[]
+    }
     scalars: $Extensions.GetPayloadResult<{
       id: number
       name: string
@@ -1644,6 +1775,7 @@ export namespace Prisma {
    */
   export interface Prisma__teamClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    participants<T extends team$participantsArgs<ExtArgs> = {}>(args?: Subset<T, team$participantsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$participantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1692,6 +1824,10 @@ export namespace Prisma {
      */
     omit?: teamOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: teamInclude<ExtArgs> | null
+    /**
      * Filter, which team to fetch.
      */
     where: teamWhereUniqueInput
@@ -1710,6 +1846,10 @@ export namespace Prisma {
      */
     omit?: teamOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: teamInclude<ExtArgs> | null
+    /**
      * Filter, which team to fetch.
      */
     where: teamWhereUniqueInput
@@ -1727,6 +1867,10 @@ export namespace Prisma {
      * Omit specific fields from the team
      */
     omit?: teamOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: teamInclude<ExtArgs> | null
     /**
      * Filter, which team to fetch.
      */
@@ -1776,6 +1920,10 @@ export namespace Prisma {
      */
     omit?: teamOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: teamInclude<ExtArgs> | null
+    /**
      * Filter, which team to fetch.
      */
     where?: teamWhereInput
@@ -1824,6 +1972,10 @@ export namespace Prisma {
      */
     omit?: teamOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: teamInclude<ExtArgs> | null
+    /**
      * Filter, which teams to fetch.
      */
     where?: teamWhereInput
@@ -1866,6 +2018,10 @@ export namespace Prisma {
      * Omit specific fields from the team
      */
     omit?: teamOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: teamInclude<ExtArgs> | null
     /**
      * The data needed to create a team.
      */
@@ -1914,6 +2070,10 @@ export namespace Prisma {
      * Omit specific fields from the team
      */
     omit?: teamOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: teamInclude<ExtArgs> | null
     /**
      * The data needed to update a team.
      */
@@ -1981,6 +2141,10 @@ export namespace Prisma {
      */
     omit?: teamOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: teamInclude<ExtArgs> | null
+    /**
      * The filter to search for the team to update in case it exists.
      */
     where: teamWhereUniqueInput
@@ -2007,6 +2171,10 @@ export namespace Prisma {
      */
     omit?: teamOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: teamInclude<ExtArgs> | null
+    /**
      * Filter which team to delete.
      */
     where: teamWhereUniqueInput
@@ -2027,6 +2195,30 @@ export namespace Prisma {
   }
 
   /**
+   * team.participants
+   */
+  export type team$participantsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the participant
+     */
+    select?: participantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the participant
+     */
+    omit?: participantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: participantInclude<ExtArgs> | null
+    where?: participantWhereInput
+    orderBy?: participantOrderByWithRelationInput | participantOrderByWithRelationInput[]
+    cursor?: participantWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ParticipantScalarFieldEnum | ParticipantScalarFieldEnum[]
+  }
+
+  /**
    * team without action
    */
   export type teamDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2038,6 +2230,10 @@ export namespace Prisma {
      * Omit specific fields from the team
      */
     omit?: teamOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: teamInclude<ExtArgs> | null
   }
 
 
@@ -4260,6 +4456,1124 @@ export namespace Prisma {
 
 
   /**
+   * Model participant
+   */
+
+  export type AggregateParticipant = {
+    _count: ParticipantCountAggregateOutputType | null
+    _avg: ParticipantAvgAggregateOutputType | null
+    _sum: ParticipantSumAggregateOutputType | null
+    _min: ParticipantMinAggregateOutputType | null
+    _max: ParticipantMaxAggregateOutputType | null
+  }
+
+  export type ParticipantAvgAggregateOutputType = {
+    team_id: number | null
+  }
+
+  export type ParticipantSumAggregateOutputType = {
+    team_id: number | null
+  }
+
+  export type ParticipantMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    email: string | null
+    type: string | null
+    team_id: number | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type ParticipantMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    email: string | null
+    type: string | null
+    team_id: number | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type ParticipantCountAggregateOutputType = {
+    id: number
+    name: number
+    email: number
+    type: number
+    team_id: number
+    created_at: number
+    updated_at: number
+    _all: number
+  }
+
+
+  export type ParticipantAvgAggregateInputType = {
+    team_id?: true
+  }
+
+  export type ParticipantSumAggregateInputType = {
+    team_id?: true
+  }
+
+  export type ParticipantMinAggregateInputType = {
+    id?: true
+    name?: true
+    email?: true
+    type?: true
+    team_id?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type ParticipantMaxAggregateInputType = {
+    id?: true
+    name?: true
+    email?: true
+    type?: true
+    team_id?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type ParticipantCountAggregateInputType = {
+    id?: true
+    name?: true
+    email?: true
+    type?: true
+    team_id?: true
+    created_at?: true
+    updated_at?: true
+    _all?: true
+  }
+
+  export type ParticipantAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which participant to aggregate.
+     */
+    where?: participantWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of participants to fetch.
+     */
+    orderBy?: participantOrderByWithRelationInput | participantOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: participantWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` participants from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` participants.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned participants
+    **/
+    _count?: true | ParticipantCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ParticipantAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ParticipantSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ParticipantMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ParticipantMaxAggregateInputType
+  }
+
+  export type GetParticipantAggregateType<T extends ParticipantAggregateArgs> = {
+        [P in keyof T & keyof AggregateParticipant]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateParticipant[P]>
+      : GetScalarType<T[P], AggregateParticipant[P]>
+  }
+
+
+
+
+  export type participantGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: participantWhereInput
+    orderBy?: participantOrderByWithAggregationInput | participantOrderByWithAggregationInput[]
+    by: ParticipantScalarFieldEnum[] | ParticipantScalarFieldEnum
+    having?: participantScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ParticipantCountAggregateInputType | true
+    _avg?: ParticipantAvgAggregateInputType
+    _sum?: ParticipantSumAggregateInputType
+    _min?: ParticipantMinAggregateInputType
+    _max?: ParticipantMaxAggregateInputType
+  }
+
+  export type ParticipantGroupByOutputType = {
+    id: string
+    name: string
+    email: string
+    type: string
+    team_id: number
+    created_at: Date
+    updated_at: Date
+    _count: ParticipantCountAggregateOutputType | null
+    _avg: ParticipantAvgAggregateOutputType | null
+    _sum: ParticipantSumAggregateOutputType | null
+    _min: ParticipantMinAggregateOutputType | null
+    _max: ParticipantMaxAggregateOutputType | null
+  }
+
+  type GetParticipantGroupByPayload<T extends participantGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ParticipantGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ParticipantGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ParticipantGroupByOutputType[P]>
+            : GetScalarType<T[P], ParticipantGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type participantSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    email?: boolean
+    type?: boolean
+    team_id?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    team?: boolean | teamDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["participant"]>
+
+  export type participantSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    email?: boolean
+    type?: boolean
+    team_id?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    team?: boolean | teamDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["participant"]>
+
+  export type participantSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    email?: boolean
+    type?: boolean
+    team_id?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    team?: boolean | teamDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["participant"]>
+
+  export type participantSelectScalar = {
+    id?: boolean
+    name?: boolean
+    email?: boolean
+    type?: boolean
+    team_id?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+  }
+
+  export type participantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "type" | "team_id" | "created_at" | "updated_at", ExtArgs["result"]["participant"]>
+  export type participantInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    team?: boolean | teamDefaultArgs<ExtArgs>
+  }
+  export type participantIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    team?: boolean | teamDefaultArgs<ExtArgs>
+  }
+  export type participantIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    team?: boolean | teamDefaultArgs<ExtArgs>
+  }
+
+  export type $participantPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "participant"
+    objects: {
+      team: Prisma.$teamPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      email: string
+      type: string
+      team_id: number
+      created_at: Date
+      updated_at: Date
+    }, ExtArgs["result"]["participant"]>
+    composites: {}
+  }
+
+  type participantGetPayload<S extends boolean | null | undefined | participantDefaultArgs> = $Result.GetResult<Prisma.$participantPayload, S>
+
+  type participantCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<participantFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ParticipantCountAggregateInputType | true
+    }
+
+  export interface participantDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['participant'], meta: { name: 'participant' } }
+    /**
+     * Find zero or one Participant that matches the filter.
+     * @param {participantFindUniqueArgs} args - Arguments to find a Participant
+     * @example
+     * // Get one Participant
+     * const participant = await prisma.participant.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends participantFindUniqueArgs>(args: SelectSubset<T, participantFindUniqueArgs<ExtArgs>>): Prisma__participantClient<$Result.GetResult<Prisma.$participantPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Participant that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {participantFindUniqueOrThrowArgs} args - Arguments to find a Participant
+     * @example
+     * // Get one Participant
+     * const participant = await prisma.participant.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends participantFindUniqueOrThrowArgs>(args: SelectSubset<T, participantFindUniqueOrThrowArgs<ExtArgs>>): Prisma__participantClient<$Result.GetResult<Prisma.$participantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Participant that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {participantFindFirstArgs} args - Arguments to find a Participant
+     * @example
+     * // Get one Participant
+     * const participant = await prisma.participant.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends participantFindFirstArgs>(args?: SelectSubset<T, participantFindFirstArgs<ExtArgs>>): Prisma__participantClient<$Result.GetResult<Prisma.$participantPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Participant that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {participantFindFirstOrThrowArgs} args - Arguments to find a Participant
+     * @example
+     * // Get one Participant
+     * const participant = await prisma.participant.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends participantFindFirstOrThrowArgs>(args?: SelectSubset<T, participantFindFirstOrThrowArgs<ExtArgs>>): Prisma__participantClient<$Result.GetResult<Prisma.$participantPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Participants that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {participantFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Participants
+     * const participants = await prisma.participant.findMany()
+     * 
+     * // Get first 10 Participants
+     * const participants = await prisma.participant.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const participantWithIdOnly = await prisma.participant.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends participantFindManyArgs>(args?: SelectSubset<T, participantFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$participantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Participant.
+     * @param {participantCreateArgs} args - Arguments to create a Participant.
+     * @example
+     * // Create one Participant
+     * const Participant = await prisma.participant.create({
+     *   data: {
+     *     // ... data to create a Participant
+     *   }
+     * })
+     * 
+     */
+    create<T extends participantCreateArgs>(args: SelectSubset<T, participantCreateArgs<ExtArgs>>): Prisma__participantClient<$Result.GetResult<Prisma.$participantPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Participants.
+     * @param {participantCreateManyArgs} args - Arguments to create many Participants.
+     * @example
+     * // Create many Participants
+     * const participant = await prisma.participant.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends participantCreateManyArgs>(args?: SelectSubset<T, participantCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Participants and returns the data saved in the database.
+     * @param {participantCreateManyAndReturnArgs} args - Arguments to create many Participants.
+     * @example
+     * // Create many Participants
+     * const participant = await prisma.participant.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Participants and only return the `id`
+     * const participantWithIdOnly = await prisma.participant.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends participantCreateManyAndReturnArgs>(args?: SelectSubset<T, participantCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$participantPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Participant.
+     * @param {participantDeleteArgs} args - Arguments to delete one Participant.
+     * @example
+     * // Delete one Participant
+     * const Participant = await prisma.participant.delete({
+     *   where: {
+     *     // ... filter to delete one Participant
+     *   }
+     * })
+     * 
+     */
+    delete<T extends participantDeleteArgs>(args: SelectSubset<T, participantDeleteArgs<ExtArgs>>): Prisma__participantClient<$Result.GetResult<Prisma.$participantPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Participant.
+     * @param {participantUpdateArgs} args - Arguments to update one Participant.
+     * @example
+     * // Update one Participant
+     * const participant = await prisma.participant.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends participantUpdateArgs>(args: SelectSubset<T, participantUpdateArgs<ExtArgs>>): Prisma__participantClient<$Result.GetResult<Prisma.$participantPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Participants.
+     * @param {participantDeleteManyArgs} args - Arguments to filter Participants to delete.
+     * @example
+     * // Delete a few Participants
+     * const { count } = await prisma.participant.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends participantDeleteManyArgs>(args?: SelectSubset<T, participantDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Participants.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {participantUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Participants
+     * const participant = await prisma.participant.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends participantUpdateManyArgs>(args: SelectSubset<T, participantUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Participants and returns the data updated in the database.
+     * @param {participantUpdateManyAndReturnArgs} args - Arguments to update many Participants.
+     * @example
+     * // Update many Participants
+     * const participant = await prisma.participant.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Participants and only return the `id`
+     * const participantWithIdOnly = await prisma.participant.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends participantUpdateManyAndReturnArgs>(args: SelectSubset<T, participantUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$participantPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Participant.
+     * @param {participantUpsertArgs} args - Arguments to update or create a Participant.
+     * @example
+     * // Update or create a Participant
+     * const participant = await prisma.participant.upsert({
+     *   create: {
+     *     // ... data to create a Participant
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Participant we want to update
+     *   }
+     * })
+     */
+    upsert<T extends participantUpsertArgs>(args: SelectSubset<T, participantUpsertArgs<ExtArgs>>): Prisma__participantClient<$Result.GetResult<Prisma.$participantPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Participants.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {participantCountArgs} args - Arguments to filter Participants to count.
+     * @example
+     * // Count the number of Participants
+     * const count = await prisma.participant.count({
+     *   where: {
+     *     // ... the filter for the Participants we want to count
+     *   }
+     * })
+    **/
+    count<T extends participantCountArgs>(
+      args?: Subset<T, participantCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ParticipantCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Participant.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ParticipantAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ParticipantAggregateArgs>(args: Subset<T, ParticipantAggregateArgs>): Prisma.PrismaPromise<GetParticipantAggregateType<T>>
+
+    /**
+     * Group by Participant.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {participantGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends participantGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: participantGroupByArgs['orderBy'] }
+        : { orderBy?: participantGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, participantGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetParticipantGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the participant model
+   */
+  readonly fields: participantFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for participant.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__participantClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    team<T extends teamDefaultArgs<ExtArgs> = {}>(args?: Subset<T, teamDefaultArgs<ExtArgs>>): Prisma__teamClient<$Result.GetResult<Prisma.$teamPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the participant model
+   */
+  interface participantFieldRefs {
+    readonly id: FieldRef<"participant", 'String'>
+    readonly name: FieldRef<"participant", 'String'>
+    readonly email: FieldRef<"participant", 'String'>
+    readonly type: FieldRef<"participant", 'String'>
+    readonly team_id: FieldRef<"participant", 'Int'>
+    readonly created_at: FieldRef<"participant", 'DateTime'>
+    readonly updated_at: FieldRef<"participant", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * participant findUnique
+   */
+  export type participantFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the participant
+     */
+    select?: participantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the participant
+     */
+    omit?: participantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: participantInclude<ExtArgs> | null
+    /**
+     * Filter, which participant to fetch.
+     */
+    where: participantWhereUniqueInput
+  }
+
+  /**
+   * participant findUniqueOrThrow
+   */
+  export type participantFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the participant
+     */
+    select?: participantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the participant
+     */
+    omit?: participantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: participantInclude<ExtArgs> | null
+    /**
+     * Filter, which participant to fetch.
+     */
+    where: participantWhereUniqueInput
+  }
+
+  /**
+   * participant findFirst
+   */
+  export type participantFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the participant
+     */
+    select?: participantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the participant
+     */
+    omit?: participantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: participantInclude<ExtArgs> | null
+    /**
+     * Filter, which participant to fetch.
+     */
+    where?: participantWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of participants to fetch.
+     */
+    orderBy?: participantOrderByWithRelationInput | participantOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for participants.
+     */
+    cursor?: participantWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` participants from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` participants.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of participants.
+     */
+    distinct?: ParticipantScalarFieldEnum | ParticipantScalarFieldEnum[]
+  }
+
+  /**
+   * participant findFirstOrThrow
+   */
+  export type participantFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the participant
+     */
+    select?: participantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the participant
+     */
+    omit?: participantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: participantInclude<ExtArgs> | null
+    /**
+     * Filter, which participant to fetch.
+     */
+    where?: participantWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of participants to fetch.
+     */
+    orderBy?: participantOrderByWithRelationInput | participantOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for participants.
+     */
+    cursor?: participantWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` participants from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` participants.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of participants.
+     */
+    distinct?: ParticipantScalarFieldEnum | ParticipantScalarFieldEnum[]
+  }
+
+  /**
+   * participant findMany
+   */
+  export type participantFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the participant
+     */
+    select?: participantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the participant
+     */
+    omit?: participantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: participantInclude<ExtArgs> | null
+    /**
+     * Filter, which participants to fetch.
+     */
+    where?: participantWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of participants to fetch.
+     */
+    orderBy?: participantOrderByWithRelationInput | participantOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing participants.
+     */
+    cursor?: participantWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` participants from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` participants.
+     */
+    skip?: number
+    distinct?: ParticipantScalarFieldEnum | ParticipantScalarFieldEnum[]
+  }
+
+  /**
+   * participant create
+   */
+  export type participantCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the participant
+     */
+    select?: participantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the participant
+     */
+    omit?: participantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: participantInclude<ExtArgs> | null
+    /**
+     * The data needed to create a participant.
+     */
+    data: XOR<participantCreateInput, participantUncheckedCreateInput>
+  }
+
+  /**
+   * participant createMany
+   */
+  export type participantCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many participants.
+     */
+    data: participantCreateManyInput | participantCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * participant createManyAndReturn
+   */
+  export type participantCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the participant
+     */
+    select?: participantSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the participant
+     */
+    omit?: participantOmit<ExtArgs> | null
+    /**
+     * The data used to create many participants.
+     */
+    data: participantCreateManyInput | participantCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: participantIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * participant update
+   */
+  export type participantUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the participant
+     */
+    select?: participantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the participant
+     */
+    omit?: participantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: participantInclude<ExtArgs> | null
+    /**
+     * The data needed to update a participant.
+     */
+    data: XOR<participantUpdateInput, participantUncheckedUpdateInput>
+    /**
+     * Choose, which participant to update.
+     */
+    where: participantWhereUniqueInput
+  }
+
+  /**
+   * participant updateMany
+   */
+  export type participantUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update participants.
+     */
+    data: XOR<participantUpdateManyMutationInput, participantUncheckedUpdateManyInput>
+    /**
+     * Filter which participants to update
+     */
+    where?: participantWhereInput
+    /**
+     * Limit how many participants to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * participant updateManyAndReturn
+   */
+  export type participantUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the participant
+     */
+    select?: participantSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the participant
+     */
+    omit?: participantOmit<ExtArgs> | null
+    /**
+     * The data used to update participants.
+     */
+    data: XOR<participantUpdateManyMutationInput, participantUncheckedUpdateManyInput>
+    /**
+     * Filter which participants to update
+     */
+    where?: participantWhereInput
+    /**
+     * Limit how many participants to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: participantIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * participant upsert
+   */
+  export type participantUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the participant
+     */
+    select?: participantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the participant
+     */
+    omit?: participantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: participantInclude<ExtArgs> | null
+    /**
+     * The filter to search for the participant to update in case it exists.
+     */
+    where: participantWhereUniqueInput
+    /**
+     * In case the participant found by the `where` argument doesn't exist, create a new participant with this data.
+     */
+    create: XOR<participantCreateInput, participantUncheckedCreateInput>
+    /**
+     * In case the participant was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<participantUpdateInput, participantUncheckedUpdateInput>
+  }
+
+  /**
+   * participant delete
+   */
+  export type participantDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the participant
+     */
+    select?: participantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the participant
+     */
+    omit?: participantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: participantInclude<ExtArgs> | null
+    /**
+     * Filter which participant to delete.
+     */
+    where: participantWhereUniqueInput
+  }
+
+  /**
+   * participant deleteMany
+   */
+  export type participantDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which participants to delete
+     */
+    where?: participantWhereInput
+    /**
+     * Limit how many participants to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * participant without action
+   */
+  export type participantDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the participant
+     */
+    select?: participantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the participant
+     */
+    omit?: participantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: participantInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -4313,6 +5627,19 @@ export namespace Prisma {
   };
 
   export type ImageScalarFieldEnum = (typeof ImageScalarFieldEnum)[keyof typeof ImageScalarFieldEnum]
+
+
+  export const ParticipantScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    email: 'email',
+    type: 'type',
+    team_id: 'team_id',
+    created_at: 'created_at',
+    updated_at: 'updated_at'
+  };
+
+  export type ParticipantScalarFieldEnum = (typeof ParticipantScalarFieldEnum)[keyof typeof ParticipantScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -4431,11 +5758,13 @@ export namespace Prisma {
     NOT?: teamWhereInput | teamWhereInput[]
     id?: IntFilter<"team"> | number
     name?: StringFilter<"team"> | string
+    participants?: ParticipantListRelationFilter
   }
 
   export type teamOrderByWithRelationInput = {
     id?: SortOrder
     name?: SortOrder
+    participants?: participantOrderByRelationAggregateInput
   }
 
   export type teamWhereUniqueInput = Prisma.AtLeast<{
@@ -4444,6 +5773,7 @@ export namespace Prisma {
     AND?: teamWhereInput | teamWhereInput[]
     OR?: teamWhereInput[]
     NOT?: teamWhereInput | teamWhereInput[]
+    participants?: ParticipantListRelationFilter
   }, "id" | "name">
 
   export type teamOrderByWithAggregationInput = {
@@ -4632,22 +5962,93 @@ export namespace Prisma {
     filename?: StringWithAggregatesFilter<"image"> | string
   }
 
+  export type participantWhereInput = {
+    AND?: participantWhereInput | participantWhereInput[]
+    OR?: participantWhereInput[]
+    NOT?: participantWhereInput | participantWhereInput[]
+    id?: StringFilter<"participant"> | string
+    name?: StringFilter<"participant"> | string
+    email?: StringFilter<"participant"> | string
+    type?: StringFilter<"participant"> | string
+    team_id?: IntFilter<"participant"> | number
+    created_at?: DateTimeFilter<"participant"> | Date | string
+    updated_at?: DateTimeFilter<"participant"> | Date | string
+    team?: XOR<TeamScalarRelationFilter, teamWhereInput>
+  }
+
+  export type participantOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    email?: SortOrder
+    type?: SortOrder
+    team_id?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+    team?: teamOrderByWithRelationInput
+  }
+
+  export type participantWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    email?: string
+    AND?: participantWhereInput | participantWhereInput[]
+    OR?: participantWhereInput[]
+    NOT?: participantWhereInput | participantWhereInput[]
+    name?: StringFilter<"participant"> | string
+    type?: StringFilter<"participant"> | string
+    team_id?: IntFilter<"participant"> | number
+    created_at?: DateTimeFilter<"participant"> | Date | string
+    updated_at?: DateTimeFilter<"participant"> | Date | string
+    team?: XOR<TeamScalarRelationFilter, teamWhereInput>
+  }, "id" | "email">
+
+  export type participantOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    email?: SortOrder
+    type?: SortOrder
+    team_id?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+    _count?: participantCountOrderByAggregateInput
+    _avg?: participantAvgOrderByAggregateInput
+    _max?: participantMaxOrderByAggregateInput
+    _min?: participantMinOrderByAggregateInput
+    _sum?: participantSumOrderByAggregateInput
+  }
+
+  export type participantScalarWhereWithAggregatesInput = {
+    AND?: participantScalarWhereWithAggregatesInput | participantScalarWhereWithAggregatesInput[]
+    OR?: participantScalarWhereWithAggregatesInput[]
+    NOT?: participantScalarWhereWithAggregatesInput | participantScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"participant"> | string
+    name?: StringWithAggregatesFilter<"participant"> | string
+    email?: StringWithAggregatesFilter<"participant"> | string
+    type?: StringWithAggregatesFilter<"participant"> | string
+    team_id?: IntWithAggregatesFilter<"participant"> | number
+    created_at?: DateTimeWithAggregatesFilter<"participant"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"participant"> | Date | string
+  }
+
   export type teamCreateInput = {
     name: string
+    participants?: participantCreateNestedManyWithoutTeamInput
   }
 
   export type teamUncheckedCreateInput = {
     id?: number
     name: string
+    participants?: participantUncheckedCreateNestedManyWithoutTeamInput
   }
 
   export type teamUpdateInput = {
     name?: StringFieldUpdateOperationsInput | string
+    participants?: participantUpdateManyWithoutTeamNestedInput
   }
 
   export type teamUncheckedUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
+    participants?: participantUncheckedUpdateManyWithoutTeamNestedInput
   }
 
   export type teamCreateManyInput = {
@@ -4857,6 +6258,75 @@ export namespace Prisma {
     filename?: StringFieldUpdateOperationsInput | string
   }
 
+  export type participantCreateInput = {
+    id?: string
+    name: string
+    email: string
+    type: string
+    created_at?: Date | string
+    updated_at?: Date | string
+    team: teamCreateNestedOneWithoutParticipantsInput
+  }
+
+  export type participantUncheckedCreateInput = {
+    id?: string
+    name: string
+    email: string
+    type: string
+    team_id: number
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type participantUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    team?: teamUpdateOneRequiredWithoutParticipantsNestedInput
+  }
+
+  export type participantUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    team_id?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type participantCreateManyInput = {
+    id?: string
+    name: string
+    email: string
+    type: string
+    team_id: number
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type participantUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type participantUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    team_id?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -4881,6 +6351,16 @@ export namespace Prisma {
     endsWith?: string | StringFieldRefInput<$PrismaModel>
     mode?: QueryMode
     not?: NestedStringFilter<$PrismaModel> | string
+  }
+
+  export type ParticipantListRelationFilter = {
+    every?: participantWhereInput
+    some?: participantWhereInput
+    none?: participantWhereInput
+  }
+
+  export type participantOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
   export type teamCountOrderByAggregateInput = {
@@ -5143,8 +6623,79 @@ export namespace Prisma {
     id?: SortOrder
   }
 
+  export type TeamScalarRelationFilter = {
+    is?: teamWhereInput
+    isNot?: teamWhereInput
+  }
+
+  export type participantCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    email?: SortOrder
+    type?: SortOrder
+    team_id?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type participantAvgOrderByAggregateInput = {
+    team_id?: SortOrder
+  }
+
+  export type participantMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    email?: SortOrder
+    type?: SortOrder
+    team_id?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type participantMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    email?: SortOrder
+    type?: SortOrder
+    team_id?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type participantSumOrderByAggregateInput = {
+    team_id?: SortOrder
+  }
+
+  export type participantCreateNestedManyWithoutTeamInput = {
+    create?: XOR<participantCreateWithoutTeamInput, participantUncheckedCreateWithoutTeamInput> | participantCreateWithoutTeamInput[] | participantUncheckedCreateWithoutTeamInput[]
+    connectOrCreate?: participantCreateOrConnectWithoutTeamInput | participantCreateOrConnectWithoutTeamInput[]
+    createMany?: participantCreateManyTeamInputEnvelope
+    connect?: participantWhereUniqueInput | participantWhereUniqueInput[]
+  }
+
+  export type participantUncheckedCreateNestedManyWithoutTeamInput = {
+    create?: XOR<participantCreateWithoutTeamInput, participantUncheckedCreateWithoutTeamInput> | participantCreateWithoutTeamInput[] | participantUncheckedCreateWithoutTeamInput[]
+    connectOrCreate?: participantCreateOrConnectWithoutTeamInput | participantCreateOrConnectWithoutTeamInput[]
+    createMany?: participantCreateManyTeamInputEnvelope
+    connect?: participantWhereUniqueInput | participantWhereUniqueInput[]
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
+  }
+
+  export type participantUpdateManyWithoutTeamNestedInput = {
+    create?: XOR<participantCreateWithoutTeamInput, participantUncheckedCreateWithoutTeamInput> | participantCreateWithoutTeamInput[] | participantUncheckedCreateWithoutTeamInput[]
+    connectOrCreate?: participantCreateOrConnectWithoutTeamInput | participantCreateOrConnectWithoutTeamInput[]
+    upsert?: participantUpsertWithWhereUniqueWithoutTeamInput | participantUpsertWithWhereUniqueWithoutTeamInput[]
+    createMany?: participantCreateManyTeamInputEnvelope
+    set?: participantWhereUniqueInput | participantWhereUniqueInput[]
+    disconnect?: participantWhereUniqueInput | participantWhereUniqueInput[]
+    delete?: participantWhereUniqueInput | participantWhereUniqueInput[]
+    connect?: participantWhereUniqueInput | participantWhereUniqueInput[]
+    update?: participantUpdateWithWhereUniqueWithoutTeamInput | participantUpdateWithWhereUniqueWithoutTeamInput[]
+    updateMany?: participantUpdateManyWithWhereWithoutTeamInput | participantUpdateManyWithWhereWithoutTeamInput[]
+    deleteMany?: participantScalarWhereInput | participantScalarWhereInput[]
   }
 
   export type IntFieldUpdateOperationsInput = {
@@ -5153,6 +6704,20 @@ export namespace Prisma {
     decrement?: number
     multiply?: number
     divide?: number
+  }
+
+  export type participantUncheckedUpdateManyWithoutTeamNestedInput = {
+    create?: XOR<participantCreateWithoutTeamInput, participantUncheckedCreateWithoutTeamInput> | participantCreateWithoutTeamInput[] | participantUncheckedCreateWithoutTeamInput[]
+    connectOrCreate?: participantCreateOrConnectWithoutTeamInput | participantCreateOrConnectWithoutTeamInput[]
+    upsert?: participantUpsertWithWhereUniqueWithoutTeamInput | participantUpsertWithWhereUniqueWithoutTeamInput[]
+    createMany?: participantCreateManyTeamInputEnvelope
+    set?: participantWhereUniqueInput | participantWhereUniqueInput[]
+    disconnect?: participantWhereUniqueInput | participantWhereUniqueInput[]
+    delete?: participantWhereUniqueInput | participantWhereUniqueInput[]
+    connect?: participantWhereUniqueInput | participantWhereUniqueInput[]
+    update?: participantUpdateWithWhereUniqueWithoutTeamInput | participantUpdateWithWhereUniqueWithoutTeamInput[]
+    updateMany?: participantUpdateManyWithWhereWithoutTeamInput | participantUpdateManyWithWhereWithoutTeamInput[]
+    deleteMany?: participantScalarWhereInput | participantScalarWhereInput[]
   }
 
   export type DateTimeFieldUpdateOperationsInput = {
@@ -5165,6 +6730,20 @@ export namespace Prisma {
     decrement?: number
     multiply?: number
     divide?: number
+  }
+
+  export type teamCreateNestedOneWithoutParticipantsInput = {
+    create?: XOR<teamCreateWithoutParticipantsInput, teamUncheckedCreateWithoutParticipantsInput>
+    connectOrCreate?: teamCreateOrConnectWithoutParticipantsInput
+    connect?: teamWhereUniqueInput
+  }
+
+  export type teamUpdateOneRequiredWithoutParticipantsNestedInput = {
+    create?: XOR<teamCreateWithoutParticipantsInput, teamUncheckedCreateWithoutParticipantsInput>
+    connectOrCreate?: teamCreateOrConnectWithoutParticipantsInput
+    upsert?: teamUpsertWithoutParticipantsInput
+    connect?: teamWhereUniqueInput
+    update?: XOR<XOR<teamUpdateToOneWithWhereWithoutParticipantsInput, teamUpdateWithoutParticipantsInput>, teamUncheckedUpdateWithoutParticipantsInput>
   }
 
   export type NestedIntFilter<$PrismaModel = never> = {
@@ -5298,6 +6877,133 @@ export namespace Prisma {
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type participantCreateWithoutTeamInput = {
+    id?: string
+    name: string
+    email: string
+    type: string
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type participantUncheckedCreateWithoutTeamInput = {
+    id?: string
+    name: string
+    email: string
+    type: string
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type participantCreateOrConnectWithoutTeamInput = {
+    where: participantWhereUniqueInput
+    create: XOR<participantCreateWithoutTeamInput, participantUncheckedCreateWithoutTeamInput>
+  }
+
+  export type participantCreateManyTeamInputEnvelope = {
+    data: participantCreateManyTeamInput | participantCreateManyTeamInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type participantUpsertWithWhereUniqueWithoutTeamInput = {
+    where: participantWhereUniqueInput
+    update: XOR<participantUpdateWithoutTeamInput, participantUncheckedUpdateWithoutTeamInput>
+    create: XOR<participantCreateWithoutTeamInput, participantUncheckedCreateWithoutTeamInput>
+  }
+
+  export type participantUpdateWithWhereUniqueWithoutTeamInput = {
+    where: participantWhereUniqueInput
+    data: XOR<participantUpdateWithoutTeamInput, participantUncheckedUpdateWithoutTeamInput>
+  }
+
+  export type participantUpdateManyWithWhereWithoutTeamInput = {
+    where: participantScalarWhereInput
+    data: XOR<participantUpdateManyMutationInput, participantUncheckedUpdateManyWithoutTeamInput>
+  }
+
+  export type participantScalarWhereInput = {
+    AND?: participantScalarWhereInput | participantScalarWhereInput[]
+    OR?: participantScalarWhereInput[]
+    NOT?: participantScalarWhereInput | participantScalarWhereInput[]
+    id?: StringFilter<"participant"> | string
+    name?: StringFilter<"participant"> | string
+    email?: StringFilter<"participant"> | string
+    type?: StringFilter<"participant"> | string
+    team_id?: IntFilter<"participant"> | number
+    created_at?: DateTimeFilter<"participant"> | Date | string
+    updated_at?: DateTimeFilter<"participant"> | Date | string
+  }
+
+  export type teamCreateWithoutParticipantsInput = {
+    name: string
+  }
+
+  export type teamUncheckedCreateWithoutParticipantsInput = {
+    id?: number
+    name: string
+  }
+
+  export type teamCreateOrConnectWithoutParticipantsInput = {
+    where: teamWhereUniqueInput
+    create: XOR<teamCreateWithoutParticipantsInput, teamUncheckedCreateWithoutParticipantsInput>
+  }
+
+  export type teamUpsertWithoutParticipantsInput = {
+    update: XOR<teamUpdateWithoutParticipantsInput, teamUncheckedUpdateWithoutParticipantsInput>
+    create: XOR<teamCreateWithoutParticipantsInput, teamUncheckedCreateWithoutParticipantsInput>
+    where?: teamWhereInput
+  }
+
+  export type teamUpdateToOneWithWhereWithoutParticipantsInput = {
+    where?: teamWhereInput
+    data: XOR<teamUpdateWithoutParticipantsInput, teamUncheckedUpdateWithoutParticipantsInput>
+  }
+
+  export type teamUpdateWithoutParticipantsInput = {
+    name?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type teamUncheckedUpdateWithoutParticipantsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type participantCreateManyTeamInput = {
+    id?: string
+    name: string
+    email: string
+    type: string
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type participantUpdateWithoutTeamInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type participantUncheckedUpdateWithoutTeamInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type participantUncheckedUpdateManyWithoutTeamInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 
