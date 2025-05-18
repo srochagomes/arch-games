@@ -47,29 +47,37 @@ interface ActivityDataType {
   tabs_collected?: number | null;
 }
 
-interface FormDataType {
+interface ParticipantData {
   name: string;
+  type: 'participant' | 'captain' | 'governance';
+}
+
+interface FormDataType {
   team: string;
   date: string;
-  type: 'participant' | 'captain' | 'governance';
-  groupSize: number;
+  time: string;
+  participants: ParticipantData[];
 }
 
 interface ValidationErrorsType {
-  name?: string;
   team?: string;
   images?: string;
   date?: string;
-  groupSize?: string;
+  time?: string;
+  participants?: string;
 }
 
 export default function Page() {
+  const getCurrentTime = () => {
+    const now = new Date();
+    return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  };
+
   const [formData, setFormData] = useState<FormDataType>({
-    name: '',
     team: '',
     date: new Date().toISOString().slice(0, 10),
-    type: 'participant',
-    groupSize: 1
+    time: getCurrentTime(),
+    participants: [{ name: '', type: 'participant' as const }]
   });
   const [files, setFiles] = useState<FileList | null>(null);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
@@ -82,8 +90,40 @@ export default function Page() {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'groupSize' ? parseInt(value) || 0 : value
+      [name]: value
     }));
+  };
+
+  const handleParticipantChange = (index: number, field: keyof ParticipantData, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      participants: prev.participants.map((participant, i) => 
+        i === index 
+          ? { ...participant, [field]: value }
+          : participant
+      )
+    }));
+  };
+
+  const addParticipant = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setFormData((prev) => ({
+      ...prev,
+      participants: [
+        ...prev.participants,
+        { name: '', type: 'participant' as const }
+      ]
+    }));
+  };
+
+  const removeParticipant = (index: number) => {
+    if (formData.participants.length > 1) {
+      setFormData(prev => ({
+        ...prev,
+        participants: prev.participants.filter((_, i) => i !== index)
+      }));
+    }
   };
 
   const addFiles = (newFiles: File[]) => {
@@ -232,11 +272,6 @@ export default function Page() {
     const errors: ValidationErrorsType = {};
     let isValid = true;
 
-    if (!formData.name.trim()) {
-      errors.name = 'O nome do participante é obrigatório';
-      isValid = false;
-    }
-
     if (!formData.team.trim()) {
       errors.team = 'A equipe é obrigatória';
       isValid = false;
@@ -247,8 +282,13 @@ export default function Page() {
       isValid = false;
     }
 
-    if (!formData.groupSize || formData.groupSize < 1) {
-      errors.groupSize = 'O tamanho do grupo deve ser maior que zero';
+    if (!formData.time) {
+      errors.time = 'O horário da atividade é obrigatório';
+      isValid = false;
+    }
+
+    if (!formData.participants.some(p => p.name.trim())) {
+      errors.participants = 'Pelo menos um participante é obrigatório';
       isValid = false;
     }
 
@@ -270,34 +310,38 @@ export default function Page() {
     
     setIsSubmitting(true);
     const submitData = new FormData();
-    submitData.append('name', formData.name);
     submitData.append('team', formData.team);
-    submitData.append('type', formData.type);
-    submitData.append('groupSize', formData.groupSize.toString());
-    submitData.append('activityDate', formData.date);
+    submitData.append('activityDate', `${formData.date}T${formData.time}`);
+    
+    // Create participants array with proper structure and send as JSON string
+    const participantsData = formData.participants
+      .filter(participant => participant.name.trim() !== '') // Remove empty participants
+      .map(participant => ({
+        name: participant.name.trim(),
+        type: participant.type
+      }));
+    
+    submitData.append('participants', JSON.stringify(participantsData));
     
     if (files) {
-      console.log('Files to be sent:', Array.from(files).map(f => ({ name: f.name, type: f.type, size: f.size })));
       Array.from<File>(files).forEach(file => {
-        submitData.append('files', file);
+        submitData.append('imageFiles', file);
       });
     }
 
     try {
-      console.log('Sending form data to API...');
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: submitData,
         signal: AbortSignal.timeout(20000)
       });
 
-      const result = await response.json();
-      console.log('API response:', result);
-
       if (!response.ok) {
+        const result = await response.json();
         throw new Error(result.message || 'Error uploading files');
       }
 
+      const result = await response.json();
       toast.success('Atividade registrada com sucesso!');
       handleReset();
     } catch (error) {
@@ -311,8 +355,8 @@ export default function Page() {
             <span className="text-sm whitespace-normal">
               A requisição demorou mais que 20 segundos para completar. Por favor:
               <ul className="list-disc pl-4 mt-1">
+                <li>Tente enviar menos imagens por vez (máximo recomendado: 3 imagens)</li>
                 <li>Verifique sua conexão com a internet</li>
-                <li>Tente novamente em alguns instantes</li>
                 <li>Se o problema persistir, contate o suporte</li>
               </ul>
             </span>
@@ -375,11 +419,10 @@ export default function Page() {
 
   const handleReset = () => {
     setFormData({
-      name: '',
       team: '',
       date: new Date().toISOString().slice(0, 10),
-      type: 'participant',
-      groupSize: 1
+      time: getCurrentTime(),
+      participants: [{ name: '', type: 'participant' as const }]
     });
     setFiles(null);
     previewUrls.forEach(url => URL.revokeObjectURL(url));
@@ -408,27 +451,8 @@ export default function Page() {
               </h3>
               
               {/* Basic Information */}
-              <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-                <div className="sm:col-span-3">
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                    Participante
-                  </label>
-                  <div className="mt-1">
-                    <input
-                      type="text"
-                      name="name"
-                      id="name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                    />
-                    {validationErrors.name && (
-                      <p className="mt-1 text-sm text-red-600">{validationErrors.name}</p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="sm:col-span-3">
+              <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-8">
+                <div className="sm:col-span-4">
                   <label htmlFor="team" className="block text-sm font-medium text-gray-700">
                     Equipe
                   </label>
@@ -467,43 +491,84 @@ export default function Page() {
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label htmlFor="type" className="block text-sm font-medium text-gray-700">
-                    Tipo
-                  </label>
-                  <div className="mt-1">
-                    <select
-                      name="type"
-                      id="type"
-                      value={formData.type}
-                      onChange={handleInputChange}
-                      className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                    >
-                      <option value="participant">Participante</option>
-                      <option value="captain">Capitão</option>
-                      <option value="governance">Governança</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="sm:col-span-2">
-                  <label htmlFor="groupSize" className="block text-sm font-medium text-gray-700">
-                    Em grupo de
+                  <label htmlFor="time" className="block text-sm font-medium text-gray-700">
+                    Horário
                   </label>
                   <div className="mt-1">
                     <input
-                      type="number"
-                      name="groupSize"
-                      id="groupSize"
-                      min="1"
-                      value={formData.groupSize}
+                      type="time"
+                      name="time"
+                      id="time"
+                      value={formData.time}
                       onChange={handleInputChange}
                       className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
                     />
-                    {validationErrors.groupSize && (
-                      <p className="mt-1 text-sm text-red-600">{validationErrors.groupSize}</p>
+                    {validationErrors.time && (
+                      <p className="mt-1 text-sm text-red-600">{validationErrors.time}</p>
                     )}
                   </div>
                 </div>
+              </div>
+
+              {/* Participants Section */}
+              <div className="mt-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-sm font-medium text-gray-700">Participantes</h4>
+                  <button
+                    type="button"
+                    onClick={addParticipant}
+                    className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-indigo-600 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  >
+                    <span className="mr-2">+</span>
+                    Adicionar Participante
+                  </button>
+                </div>
+                
+                {formData.participants.map((participant, index) => (
+                  <div key={index} className="flex items-start space-x-4 mb-4 p-4 bg-gray-50 rounded-lg">
+                    <div className="flex-grow grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                          Nome do Participante
+                        </label>
+                        <input
+                          type="text"
+                          value={participant.name}
+                          onChange={(e) => handleParticipantChange(index, 'name', e.target.value)}
+                          className="mt-1 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                          Tipo
+                        </label>
+                        <select
+                          value={participant.type}
+                          onChange={(e) => handleParticipantChange(index, 'type', e.target.value)}
+                          className="mt-1 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                        >
+                          <option value="participant">Participante</option>
+                          <option value="captain">Capitão</option>
+                          <option value="governance">Governança</option>
+                        </select>
+                      </div>
+                    </div>
+                    {formData.participants.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeParticipant(index)}
+                        className="mt-6 text-red-600 hover:text-red-800"
+                      >
+                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                ))}
+                {validationErrors.participants && (
+                  <p className="mt-1 text-sm text-red-600">{validationErrors.participants}</p>
+                )}
               </div>
 
               {/* Image Upload */}

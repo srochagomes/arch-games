@@ -1,5 +1,9 @@
-import { env } from '../config/env';
-import { readFile } from 'fs/promises';
+import { env } from '@/app/config/env';
+import fetch from 'node-fetch';
+import FormData from 'form-data';
+
+// Constants for form field names
+export const MULTIPART_FILE_FIELD = 'files';
 
 // Define valid participant types
 type ParticipantType = 'participant' | 'captain' | 'governance';
@@ -7,23 +11,16 @@ type ParticipantType = 'participant' | 'captain' | 'governance';
 interface FileInfo {
   name: string;
   type: string;
-  path: string;
+  buffer: Buffer;
 }
 
 interface WebhookData {
-  name: string;
-  team: string;
-  type: string;
-  groupSize: number;
-  activityDate: string;
-  uploadDate: string;
   key_process: string;
+  team: string;
+  activityDate: string;
+  participants: any[];
   files: FileInfo[];
-  category: string;
-  activity: any;
-  base_score: number;
-  multiplier: number;
-  calculated_score: number;
+  fileNames?: string; // Names of multipart attributes (files0, files1, etc.)
 }
 
 // Validate participant type
@@ -32,76 +29,55 @@ function isValidParticipantType(type: string): type is ParticipantType {
 }
 
 export async function sendToN8N(data: WebhookData): Promise<void> {
+  console.log('[Webhook] Starting N8N webhook process');
   try {
-    // Validate type before proceeding
-    if (!isValidParticipantType(data.type)) {
-      throw new Error('Invalid type. Must be one of: participant, captain, governance');
-    }
-
-    // Validate group size
-    if (typeof data.groupSize !== 'number' || data.groupSize < 1) {
-      throw new Error('Group size must be a positive number');
-    }
-
     if (data.files.length === 0) {
       throw new Error('No files provided');
     }
 
-    // Create FormData instance using Web API
+    // Create FormData instance
     const formData = new FormData();
 
-    // Create the metadata object
-    const metadata = {
-      name: data.name,
-      team: data.team,
-      type: data.type,
-      groupSize: data.groupSize,
-      activityDate: data.activityDate,
-      uploadDate: data.uploadDate,
-      key_process: data.key_process,
-      filesInfo: data.files.map(f => ({
-        name: f.name,
-        type: f.type
-      })),
-      category: data.category,
-      activity: data.activity,
-      base_score: data.base_score,
-      multiplier: data.multiplier,
-      calculated_score: data.calculated_score
-    };
+    // Add all form fields
+    formData.append('key_process', data.key_process);
+    formData.append('team', data.team);
+    formData.append('activityDate', data.activityDate);
+    formData.append('participants', JSON.stringify(data.participants));
 
-    // Add each metadata field separately to ensure they're processed as JSON
-    for (const [key, value] of Object.entries(metadata)) {
-      formData.append(key, typeof value === 'string' ? value : JSON.stringify(value));
-    }
+    // Create multipart attribute names string (files0, files1, etc.)
+    const fileNames = data.files.map((_, index) => `${MULTIPART_FILE_FIELD}${index}`).join(', ');
+    formData.append('fileNames', fileNames);
 
-    // Add files as binary
-    for (const file of data.files) {
-      const fileBuffer = await readFile(file.path);
-      const blob = new Blob([fileBuffer], { type: file.type });
-      formData.append('imageFiles', blob, file.name);
-    }
+    // Add files as binary with original filenames
+    data.files.forEach((file, index) => {
+      formData.append(MULTIPART_FILE_FIELD, file.buffer, {
+        filename: file.name,
+        contentType: file.type
+      });
+    });
 
     // Create Basic Auth header
     const authString = `${env.n8n.username}:${env.n8n.password}`;
     const base64Auth = Buffer.from(authString).toString('base64');
 
+    console.log('[Webhook] Sending request to N8N webhook URL');
     const response = await fetch(env.n8n.webhookUrl, {
       method: 'POST',
       headers: {
-        'Authorization': `Basic ${base64Auth}`
+        'Authorization': `Basic ${base64Auth}`,
+        ...formData.getHeaders()
       },
+      // @ts-ignore - FormData from 'form-data' is compatible with node-fetch
       body: formData
     });
 
     if (!response.ok) {
       throw new Error(`N8N webhook failed: ${response.statusText}`);
     }
+
+    console.log('[Webhook] Successfully sent data to N8N');
   } catch (error) {
-    console.error('Error sending webhook to N8N:', error);
-    if (error instanceof Error && (error.message.includes('Invalid type') || error.message.includes('Group size'))) {
-      throw error; // Rethrow validation errors as is
-    }
+    console.error('[Webhook] Error in N8N webhook process:', error);
     throw new Error('N8N está fora do ar. Por favor, tente novamente mais tarde.');
   }
 } 

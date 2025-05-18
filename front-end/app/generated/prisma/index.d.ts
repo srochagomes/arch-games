@@ -3373,7 +3373,6 @@ export namespace Prisma {
 
   export type activityWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    key_process?: string
     AND?: activityWhereInput | activityWhereInput[]
     OR?: activityWhereInput[]
     NOT?: activityWhereInput | activityWhereInput[]
@@ -3385,10 +3384,11 @@ export namespace Prisma {
     base_score?: FloatFilter<"activity"> | number
     multiplier?: FloatFilter<"activity"> | number
     calculated_score?: FloatFilter<"activity"> | number
+    key_process?: StringFilter<"activity"> | string
     activity?: JsonFilter<"activity">
     createdAt?: DateTimeFilter<"activity"> | Date | string
     updatedAt?: DateTimeFilter<"activity"> | Date | string
-  }, "id" | "key_process">
+  }, "id">
 
   export type activityOrderByWithAggregationInput = {
     id?: SortOrder

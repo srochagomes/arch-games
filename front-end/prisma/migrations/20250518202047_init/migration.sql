@@ -22,18 +22,15 @@ CREATE TABLE "arch_games"."image" (
     "id" SERIAL NOT NULL,
     "key_process" TEXT NOT NULL,
     "hash" VARCHAR(64) NOT NULL,
-    "name" VARCHAR(100) NOT NULL,
+    "name" VARCHAR(255) NOT NULL,
     "team" VARCHAR(100) NOT NULL,
     "type" VARCHAR(50) NOT NULL,
     "activity_date" TIMESTAMP(3) NOT NULL,
     "upload_date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "filename" VARCHAR(255) NOT NULL,
+    "filename" TEXT NOT NULL,
 
     CONSTRAINT "image_pkey" PRIMARY KEY ("id")
 );
-
--- CreateIndex
-CREATE UNIQUE INDEX "activity_key_process_key" ON "arch_games"."activity"("key_process");
 
 -- CreateIndex
 CREATE INDEX "activity_participant_idx" ON "arch_games"."activity"("participant");

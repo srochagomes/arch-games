@@ -1,5 +1,5 @@
 import { 
-  Activity,
+  ModelActivity,
   PhysicalActivity,
   DuolingoActivity,
   ProfessionalTrainingActivity,
@@ -56,7 +56,7 @@ function validateBaseFields(activity: BaseActivity): ValidationResult {
   return { isValid: true };
 }
 
-export function validateActivity(activity: Activity): ValidationResult {
+export function validateActivity(activity: ModelActivity): ValidationResult {
   // First validate base fields
   const baseValidation = validateBaseFields(activity);
   if (!baseValidation.isValid) {

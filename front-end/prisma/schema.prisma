@@ -5,8 +5,8 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
-  output   = "../app/generated/prisma"
+  provider        = "prisma-client-js"
+  output          = "../app/generated/prisma"
   previewFeatures = ["multiSchema"]
 }
 
@@ -17,19 +17,19 @@ datasource db {
 }
 
 model activity {
-  id              String   @id @default(uuid())
-  participant     String
-  team            String
-  date            DateTime
-  type            String
-  category        String
-  base_score      Float    @default(0)
-  multiplier      Float    @default(1.0)
-  calculated_score Float   @default(0)
-  key_process     String   @unique
-  activity        Json
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id               String   @id @default(uuid())
+  participant      String
+  team             String
+  date             DateTime
+  type             String
+  category         String
+  base_score       Float    @default(0)
+  multiplier       Float    @default(1.0)
+  calculated_score Float    @default(0)
+  key_process      String
+  activity         Json
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   @@index([participant])
   @@index([team])
@@ -42,14 +42,14 @@ model image {
   id            Int      @id @default(autoincrement())
   key_process   String
   hash          String   @unique @db.VarChar(64)
-  name          String   @db.VarChar(100)
+  name          String   @db.VarChar(255)
   team          String   @db.VarChar(100)
   type          String   @db.VarChar(50)
   activity_date DateTime
   upload_date   DateTime @default(now())
-  filename      String   @db.VarChar(255)
+  filename      String   @db.Text
 
-  @@map("image")
   @@index([hash])
+  @@map("image")
   @@schema("arch_games")
 }

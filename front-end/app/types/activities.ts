@@ -6,6 +6,9 @@ export interface BaseActivity {
   type: 'participant' | 'captain' | 'governance';
   category: string;
   key_process: string;
+  base_score: number;
+  multiplier: number;
+  calculated_score: number;
   activity: Record<string, any>;
 }
 
@@ -123,7 +126,7 @@ export interface LacreEventActivity extends BaseActivity {
 }
 
 // Union type of all activities
-export type Activity =
+export type ModelActivity =
   | PhysicalActivity
   | DuolingoActivity
   | ProfessionalTrainingActivity

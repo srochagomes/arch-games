@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { Activity } from '@/app/types/activities';
-import { validateActivity, ValidationError } from '@/app/utils/activityValidation';
+import { ModelActivity } from '@/app/types/activities';
+import { validateActivity } from '@/app/utils/activityValidation';
 import { prisma } from '@/app/lib/prisma';
 
 // Helper function to handle CORS
@@ -18,33 +18,27 @@ export async function OPTIONS() {
 
 export async function POST(request: Request) {
   try {
-    const activity: Activity = await request.json();
+    const modelActivity: ModelActivity = await request.json();
 
-    try {
-      // Validate all fields including key_process
-      validateActivity(activity);
-    } catch (validationError) {
-      if (validationError instanceof ValidationError) {
-        return corsResponse(
-          NextResponse.json(
-            { error: validationError.message },
-            { status: 400 }
-          )
-        );
-      }
-      throw validationError;
-    }
+    // Ensure the date string has seconds and milliseconds for proper Date parsing
+    const dateStr = modelActivity.date;
+    const formattedDate = dateStr.includes(':') && dateStr.split(':').length === 2 
+      ? `${dateStr}:00.000Z`
+      : dateStr;
 
     // Store the activity in the database
     const storedActivity = await prisma.activity.create({
       data: {
-        participant: activity.participant,
-        team: activity.team,
-        date: new Date(activity.date), // Convert string date to Date object
-        type: activity.type,
-        category: activity.category,
-        key_process: activity.key_process,
-        activity: activity.activity as any, // Store the activity object as JSON
+        participant: modelActivity.participant,
+        team: modelActivity.team,
+        date: new Date(formattedDate), // Convert string date to Date object with proper formatting
+        type: modelActivity.type,
+        category: modelActivity.category,
+        key_process: modelActivity.key_process,
+        activity: modelActivity.activity as any, // Store the activity object as JSON
+        base_score: modelActivity.base_score,
+        multiplier: modelActivity.multiplier,
+        calculated_score: modelActivity.calculated_score,
       },
     });
     
