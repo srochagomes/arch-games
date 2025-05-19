@@ -26,7 +26,7 @@ model team {
 }
 
 model activity {
-  id                   String       @id @default(uuid())
+  id                   String               @id @default(uuid())
   participant          String
   team                 String
   team_id              Int?
@@ -34,15 +34,16 @@ model activity {
   date                 DateTime
   type                 String
   category             String
-  base_score           Float        @default(0)
-  multiplier           Float        @default(1.0)
-  calculated_score     Float        @default(0)
+  base_score           Float                @default(0)
+  multiplier           Float                @default(1.0)
+  calculated_score     Float                @default(0)
   key_process          String
   activity             Json
-  createdAt            DateTime     @default(now())
-  updatedAt            DateTime     @updatedAt
-  team_relation        team?        @relation(fields: [team_id], references: [id])
-  participant_relation participant? @relation(fields: [participant_id], references: [id])
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+  team_relation        team?                @relation(fields: [team_id], references: [id])
+  participant_relation participant?         @relation(fields: [participant_id], references: [id])
+  scoreChanges         ScoreChangeHistory[]
 
   @@index([participant])
   @@index([team])
@@ -81,5 +82,21 @@ model participant {
   activities activity[]
 
   @@index([team_id])
+  @@schema("arch_games")
+}
+
+model ScoreChangeHistory {
+  id             String   @id @default(cuid())
+  activity       activity @relation(fields: [activity_id], references: [id])
+  activity_id    String
+  old_base_score Float
+  old_multiplier Float
+  new_base_score Float
+  new_multiplier Float
+  change_reason  String
+  changed_at     DateTime
+  createdAt      DateTime @default(now())
+
+  @@index([activity_id])
   @@schema("arch_games")
 }

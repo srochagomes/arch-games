@@ -165,6 +165,18 @@ exports.Prisma.ParticipantScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
+exports.Prisma.ScoreChangeHistoryScalarFieldEnum = {
+  id: 'id',
+  activity_id: 'activity_id',
+  old_base_score: 'old_base_score',
+  old_multiplier: 'old_multiplier',
+  new_base_score: 'new_base_score',
+  new_multiplier: 'new_multiplier',
+  change_reason: 'change_reason',
+  changed_at: 'changed_at',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -195,7 +207,8 @@ exports.Prisma.ModelName = {
   team: 'team',
   activity: 'activity',
   image: 'image',
-  participant: 'participant'
+  participant: 'participant',
+  ScoreChangeHistory: 'ScoreChangeHistory'
 };
 
 /**

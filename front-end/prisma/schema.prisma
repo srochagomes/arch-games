@@ -43,6 +43,7 @@ model activity {
   updatedAt        DateTime    @updatedAt
   team_relation    team?       @relation(fields: [team_id], references: [id])
   participant_relation participant? @relation(fields: [participant_id], references: [id])
+  scoreChanges     ScoreChangeHistory[]
 
   @@index([participant])
   @@index([team])
@@ -81,5 +82,21 @@ model participant {
   activities  activity[]
 
   @@index([team_id])
+  @@schema("arch_games")
+}
+
+model ScoreChangeHistory {
+  id              String    @id @default(cuid())
+  activity        activity  @relation(fields: [activity_id], references: [id])
+  activity_id     String
+  old_base_score  Float
+  old_multiplier  Float
+  new_base_score  Float
+  new_multiplier  Float
+  change_reason   String
+  changed_at      DateTime
+  createdAt       DateTime  @default(now())
+
+  @@index([activity_id])
   @@schema("arch_games")
 }

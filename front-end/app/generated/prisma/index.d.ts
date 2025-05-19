@@ -33,6 +33,11 @@ export type image = $Result.DefaultSelection<Prisma.$imagePayload>
  * 
  */
 export type participant = $Result.DefaultSelection<Prisma.$participantPayload>
+/**
+ * Model ScoreChangeHistory
+ * 
+ */
+export type ScoreChangeHistory = $Result.DefaultSelection<Prisma.$ScoreChangeHistoryPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -198,6 +203,16 @@ export class PrismaClient<
     * ```
     */
   get participant(): Prisma.participantDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.scoreChangeHistory`: Exposes CRUD operations for the **ScoreChangeHistory** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ScoreChangeHistories
+    * const scoreChangeHistories = await prisma.scoreChangeHistory.findMany()
+    * ```
+    */
+  get scoreChangeHistory(): Prisma.ScoreChangeHistoryDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -641,7 +656,8 @@ export namespace Prisma {
     team: 'team',
     activity: 'activity',
     image: 'image',
-    participant: 'participant'
+    participant: 'participant',
+    ScoreChangeHistory: 'ScoreChangeHistory'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -660,7 +676,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "team" | "activity" | "image" | "participant"
+      modelProps: "team" | "activity" | "image" | "participant" | "scoreChangeHistory"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -960,6 +976,80 @@ export namespace Prisma {
           }
         }
       }
+      ScoreChangeHistory: {
+        payload: Prisma.$ScoreChangeHistoryPayload<ExtArgs>
+        fields: Prisma.ScoreChangeHistoryFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ScoreChangeHistoryFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScoreChangeHistoryPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ScoreChangeHistoryFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScoreChangeHistoryPayload>
+          }
+          findFirst: {
+            args: Prisma.ScoreChangeHistoryFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScoreChangeHistoryPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ScoreChangeHistoryFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScoreChangeHistoryPayload>
+          }
+          findMany: {
+            args: Prisma.ScoreChangeHistoryFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScoreChangeHistoryPayload>[]
+          }
+          create: {
+            args: Prisma.ScoreChangeHistoryCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScoreChangeHistoryPayload>
+          }
+          createMany: {
+            args: Prisma.ScoreChangeHistoryCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ScoreChangeHistoryCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScoreChangeHistoryPayload>[]
+          }
+          delete: {
+            args: Prisma.ScoreChangeHistoryDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScoreChangeHistoryPayload>
+          }
+          update: {
+            args: Prisma.ScoreChangeHistoryUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScoreChangeHistoryPayload>
+          }
+          deleteMany: {
+            args: Prisma.ScoreChangeHistoryDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ScoreChangeHistoryUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ScoreChangeHistoryUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScoreChangeHistoryPayload>[]
+          }
+          upsert: {
+            args: Prisma.ScoreChangeHistoryUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScoreChangeHistoryPayload>
+          }
+          aggregate: {
+            args: Prisma.ScoreChangeHistoryAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateScoreChangeHistory>
+          }
+          groupBy: {
+            args: Prisma.ScoreChangeHistoryGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ScoreChangeHistoryGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ScoreChangeHistoryCountArgs<ExtArgs>
+            result: $Utils.Optional<ScoreChangeHistoryCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1048,6 +1138,7 @@ export namespace Prisma {
     activity?: activityOmit
     image?: imageOmit
     participant?: participantOmit
+    scoreChangeHistory?: ScoreChangeHistoryOmit
   }
 
   /* Types for Logging */
@@ -1174,6 +1265,37 @@ export namespace Prisma {
    */
   export type TeamCountOutputTypeCountActivitiesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: activityWhereInput
+  }
+
+
+  /**
+   * Count Type ActivityCountOutputType
+   */
+
+  export type ActivityCountOutputType = {
+    scoreChanges: number
+  }
+
+  export type ActivityCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    scoreChanges?: boolean | ActivityCountOutputTypeCountScoreChangesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * ActivityCountOutputType without action
+   */
+  export type ActivityCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ActivityCountOutputType
+     */
+    select?: ActivityCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * ActivityCountOutputType without action
+   */
+  export type ActivityCountOutputTypeCountScoreChangesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ScoreChangeHistoryWhereInput
   }
 
 
@@ -2593,6 +2715,8 @@ export namespace Prisma {
     updatedAt?: boolean
     team_relation?: boolean | activity$team_relationArgs<ExtArgs>
     participant_relation?: boolean | activity$participant_relationArgs<ExtArgs>
+    scoreChanges?: boolean | activity$scoreChangesArgs<ExtArgs>
+    _count?: boolean | ActivityCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["activity"]>
 
   export type activitySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -2657,6 +2781,8 @@ export namespace Prisma {
   export type activityInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     team_relation?: boolean | activity$team_relationArgs<ExtArgs>
     participant_relation?: boolean | activity$participant_relationArgs<ExtArgs>
+    scoreChanges?: boolean | activity$scoreChangesArgs<ExtArgs>
+    _count?: boolean | ActivityCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type activityIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     team_relation?: boolean | activity$team_relationArgs<ExtArgs>
@@ -2672,6 +2798,7 @@ export namespace Prisma {
     objects: {
       team_relation: Prisma.$teamPayload<ExtArgs> | null
       participant_relation: Prisma.$participantPayload<ExtArgs> | null
+      scoreChanges: Prisma.$ScoreChangeHistoryPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -3085,6 +3212,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     team_relation<T extends activity$team_relationArgs<ExtArgs> = {}>(args?: Subset<T, activity$team_relationArgs<ExtArgs>>): Prisma__teamClient<$Result.GetResult<Prisma.$teamPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     participant_relation<T extends activity$participant_relationArgs<ExtArgs> = {}>(args?: Subset<T, activity$participant_relationArgs<ExtArgs>>): Prisma__participantClient<$Result.GetResult<Prisma.$participantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    scoreChanges<T extends activity$scoreChangesArgs<ExtArgs> = {}>(args?: Subset<T, activity$scoreChangesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ScoreChangeHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3560,6 +3688,30 @@ export namespace Prisma {
      */
     include?: participantInclude<ExtArgs> | null
     where?: participantWhereInput
+  }
+
+  /**
+   * activity.scoreChanges
+   */
+  export type activity$scoreChangesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScoreChangeHistory
+     */
+    select?: ScoreChangeHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScoreChangeHistory
+     */
+    omit?: ScoreChangeHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScoreChangeHistoryInclude<ExtArgs> | null
+    where?: ScoreChangeHistoryWhereInput
+    orderBy?: ScoreChangeHistoryOrderByWithRelationInput | ScoreChangeHistoryOrderByWithRelationInput[]
+    cursor?: ScoreChangeHistoryWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ScoreChangeHistoryScalarFieldEnum | ScoreChangeHistoryScalarFieldEnum[]
   }
 
   /**
@@ -5811,6 +5963,1162 @@ export namespace Prisma {
 
 
   /**
+   * Model ScoreChangeHistory
+   */
+
+  export type AggregateScoreChangeHistory = {
+    _count: ScoreChangeHistoryCountAggregateOutputType | null
+    _avg: ScoreChangeHistoryAvgAggregateOutputType | null
+    _sum: ScoreChangeHistorySumAggregateOutputType | null
+    _min: ScoreChangeHistoryMinAggregateOutputType | null
+    _max: ScoreChangeHistoryMaxAggregateOutputType | null
+  }
+
+  export type ScoreChangeHistoryAvgAggregateOutputType = {
+    old_base_score: number | null
+    old_multiplier: number | null
+    new_base_score: number | null
+    new_multiplier: number | null
+  }
+
+  export type ScoreChangeHistorySumAggregateOutputType = {
+    old_base_score: number | null
+    old_multiplier: number | null
+    new_base_score: number | null
+    new_multiplier: number | null
+  }
+
+  export type ScoreChangeHistoryMinAggregateOutputType = {
+    id: string | null
+    activity_id: string | null
+    old_base_score: number | null
+    old_multiplier: number | null
+    new_base_score: number | null
+    new_multiplier: number | null
+    change_reason: string | null
+    changed_at: Date | null
+    createdAt: Date | null
+  }
+
+  export type ScoreChangeHistoryMaxAggregateOutputType = {
+    id: string | null
+    activity_id: string | null
+    old_base_score: number | null
+    old_multiplier: number | null
+    new_base_score: number | null
+    new_multiplier: number | null
+    change_reason: string | null
+    changed_at: Date | null
+    createdAt: Date | null
+  }
+
+  export type ScoreChangeHistoryCountAggregateOutputType = {
+    id: number
+    activity_id: number
+    old_base_score: number
+    old_multiplier: number
+    new_base_score: number
+    new_multiplier: number
+    change_reason: number
+    changed_at: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type ScoreChangeHistoryAvgAggregateInputType = {
+    old_base_score?: true
+    old_multiplier?: true
+    new_base_score?: true
+    new_multiplier?: true
+  }
+
+  export type ScoreChangeHistorySumAggregateInputType = {
+    old_base_score?: true
+    old_multiplier?: true
+    new_base_score?: true
+    new_multiplier?: true
+  }
+
+  export type ScoreChangeHistoryMinAggregateInputType = {
+    id?: true
+    activity_id?: true
+    old_base_score?: true
+    old_multiplier?: true
+    new_base_score?: true
+    new_multiplier?: true
+    change_reason?: true
+    changed_at?: true
+    createdAt?: true
+  }
+
+  export type ScoreChangeHistoryMaxAggregateInputType = {
+    id?: true
+    activity_id?: true
+    old_base_score?: true
+    old_multiplier?: true
+    new_base_score?: true
+    new_multiplier?: true
+    change_reason?: true
+    changed_at?: true
+    createdAt?: true
+  }
+
+  export type ScoreChangeHistoryCountAggregateInputType = {
+    id?: true
+    activity_id?: true
+    old_base_score?: true
+    old_multiplier?: true
+    new_base_score?: true
+    new_multiplier?: true
+    change_reason?: true
+    changed_at?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type ScoreChangeHistoryAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ScoreChangeHistory to aggregate.
+     */
+    where?: ScoreChangeHistoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ScoreChangeHistories to fetch.
+     */
+    orderBy?: ScoreChangeHistoryOrderByWithRelationInput | ScoreChangeHistoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ScoreChangeHistoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ScoreChangeHistories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ScoreChangeHistories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ScoreChangeHistories
+    **/
+    _count?: true | ScoreChangeHistoryCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ScoreChangeHistoryAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ScoreChangeHistorySumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ScoreChangeHistoryMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ScoreChangeHistoryMaxAggregateInputType
+  }
+
+  export type GetScoreChangeHistoryAggregateType<T extends ScoreChangeHistoryAggregateArgs> = {
+        [P in keyof T & keyof AggregateScoreChangeHistory]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateScoreChangeHistory[P]>
+      : GetScalarType<T[P], AggregateScoreChangeHistory[P]>
+  }
+
+
+
+
+  export type ScoreChangeHistoryGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ScoreChangeHistoryWhereInput
+    orderBy?: ScoreChangeHistoryOrderByWithAggregationInput | ScoreChangeHistoryOrderByWithAggregationInput[]
+    by: ScoreChangeHistoryScalarFieldEnum[] | ScoreChangeHistoryScalarFieldEnum
+    having?: ScoreChangeHistoryScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ScoreChangeHistoryCountAggregateInputType | true
+    _avg?: ScoreChangeHistoryAvgAggregateInputType
+    _sum?: ScoreChangeHistorySumAggregateInputType
+    _min?: ScoreChangeHistoryMinAggregateInputType
+    _max?: ScoreChangeHistoryMaxAggregateInputType
+  }
+
+  export type ScoreChangeHistoryGroupByOutputType = {
+    id: string
+    activity_id: string
+    old_base_score: number
+    old_multiplier: number
+    new_base_score: number
+    new_multiplier: number
+    change_reason: string
+    changed_at: Date
+    createdAt: Date
+    _count: ScoreChangeHistoryCountAggregateOutputType | null
+    _avg: ScoreChangeHistoryAvgAggregateOutputType | null
+    _sum: ScoreChangeHistorySumAggregateOutputType | null
+    _min: ScoreChangeHistoryMinAggregateOutputType | null
+    _max: ScoreChangeHistoryMaxAggregateOutputType | null
+  }
+
+  type GetScoreChangeHistoryGroupByPayload<T extends ScoreChangeHistoryGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ScoreChangeHistoryGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ScoreChangeHistoryGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ScoreChangeHistoryGroupByOutputType[P]>
+            : GetScalarType<T[P], ScoreChangeHistoryGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ScoreChangeHistorySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    activity_id?: boolean
+    old_base_score?: boolean
+    old_multiplier?: boolean
+    new_base_score?: boolean
+    new_multiplier?: boolean
+    change_reason?: boolean
+    changed_at?: boolean
+    createdAt?: boolean
+    activity?: boolean | activityDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["scoreChangeHistory"]>
+
+  export type ScoreChangeHistorySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    activity_id?: boolean
+    old_base_score?: boolean
+    old_multiplier?: boolean
+    new_base_score?: boolean
+    new_multiplier?: boolean
+    change_reason?: boolean
+    changed_at?: boolean
+    createdAt?: boolean
+    activity?: boolean | activityDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["scoreChangeHistory"]>
+
+  export type ScoreChangeHistorySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    activity_id?: boolean
+    old_base_score?: boolean
+    old_multiplier?: boolean
+    new_base_score?: boolean
+    new_multiplier?: boolean
+    change_reason?: boolean
+    changed_at?: boolean
+    createdAt?: boolean
+    activity?: boolean | activityDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["scoreChangeHistory"]>
+
+  export type ScoreChangeHistorySelectScalar = {
+    id?: boolean
+    activity_id?: boolean
+    old_base_score?: boolean
+    old_multiplier?: boolean
+    new_base_score?: boolean
+    new_multiplier?: boolean
+    change_reason?: boolean
+    changed_at?: boolean
+    createdAt?: boolean
+  }
+
+  export type ScoreChangeHistoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "activity_id" | "old_base_score" | "old_multiplier" | "new_base_score" | "new_multiplier" | "change_reason" | "changed_at" | "createdAt", ExtArgs["result"]["scoreChangeHistory"]>
+  export type ScoreChangeHistoryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    activity?: boolean | activityDefaultArgs<ExtArgs>
+  }
+  export type ScoreChangeHistoryIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    activity?: boolean | activityDefaultArgs<ExtArgs>
+  }
+  export type ScoreChangeHistoryIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    activity?: boolean | activityDefaultArgs<ExtArgs>
+  }
+
+  export type $ScoreChangeHistoryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ScoreChangeHistory"
+    objects: {
+      activity: Prisma.$activityPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      activity_id: string
+      old_base_score: number
+      old_multiplier: number
+      new_base_score: number
+      new_multiplier: number
+      change_reason: string
+      changed_at: Date
+      createdAt: Date
+    }, ExtArgs["result"]["scoreChangeHistory"]>
+    composites: {}
+  }
+
+  type ScoreChangeHistoryGetPayload<S extends boolean | null | undefined | ScoreChangeHistoryDefaultArgs> = $Result.GetResult<Prisma.$ScoreChangeHistoryPayload, S>
+
+  type ScoreChangeHistoryCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ScoreChangeHistoryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ScoreChangeHistoryCountAggregateInputType | true
+    }
+
+  export interface ScoreChangeHistoryDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ScoreChangeHistory'], meta: { name: 'ScoreChangeHistory' } }
+    /**
+     * Find zero or one ScoreChangeHistory that matches the filter.
+     * @param {ScoreChangeHistoryFindUniqueArgs} args - Arguments to find a ScoreChangeHistory
+     * @example
+     * // Get one ScoreChangeHistory
+     * const scoreChangeHistory = await prisma.scoreChangeHistory.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ScoreChangeHistoryFindUniqueArgs>(args: SelectSubset<T, ScoreChangeHistoryFindUniqueArgs<ExtArgs>>): Prisma__ScoreChangeHistoryClient<$Result.GetResult<Prisma.$ScoreChangeHistoryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ScoreChangeHistory that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ScoreChangeHistoryFindUniqueOrThrowArgs} args - Arguments to find a ScoreChangeHistory
+     * @example
+     * // Get one ScoreChangeHistory
+     * const scoreChangeHistory = await prisma.scoreChangeHistory.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ScoreChangeHistoryFindUniqueOrThrowArgs>(args: SelectSubset<T, ScoreChangeHistoryFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ScoreChangeHistoryClient<$Result.GetResult<Prisma.$ScoreChangeHistoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ScoreChangeHistory that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ScoreChangeHistoryFindFirstArgs} args - Arguments to find a ScoreChangeHistory
+     * @example
+     * // Get one ScoreChangeHistory
+     * const scoreChangeHistory = await prisma.scoreChangeHistory.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ScoreChangeHistoryFindFirstArgs>(args?: SelectSubset<T, ScoreChangeHistoryFindFirstArgs<ExtArgs>>): Prisma__ScoreChangeHistoryClient<$Result.GetResult<Prisma.$ScoreChangeHistoryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ScoreChangeHistory that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ScoreChangeHistoryFindFirstOrThrowArgs} args - Arguments to find a ScoreChangeHistory
+     * @example
+     * // Get one ScoreChangeHistory
+     * const scoreChangeHistory = await prisma.scoreChangeHistory.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ScoreChangeHistoryFindFirstOrThrowArgs>(args?: SelectSubset<T, ScoreChangeHistoryFindFirstOrThrowArgs<ExtArgs>>): Prisma__ScoreChangeHistoryClient<$Result.GetResult<Prisma.$ScoreChangeHistoryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ScoreChangeHistories that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ScoreChangeHistoryFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ScoreChangeHistories
+     * const scoreChangeHistories = await prisma.scoreChangeHistory.findMany()
+     * 
+     * // Get first 10 ScoreChangeHistories
+     * const scoreChangeHistories = await prisma.scoreChangeHistory.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const scoreChangeHistoryWithIdOnly = await prisma.scoreChangeHistory.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ScoreChangeHistoryFindManyArgs>(args?: SelectSubset<T, ScoreChangeHistoryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ScoreChangeHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ScoreChangeHistory.
+     * @param {ScoreChangeHistoryCreateArgs} args - Arguments to create a ScoreChangeHistory.
+     * @example
+     * // Create one ScoreChangeHistory
+     * const ScoreChangeHistory = await prisma.scoreChangeHistory.create({
+     *   data: {
+     *     // ... data to create a ScoreChangeHistory
+     *   }
+     * })
+     * 
+     */
+    create<T extends ScoreChangeHistoryCreateArgs>(args: SelectSubset<T, ScoreChangeHistoryCreateArgs<ExtArgs>>): Prisma__ScoreChangeHistoryClient<$Result.GetResult<Prisma.$ScoreChangeHistoryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ScoreChangeHistories.
+     * @param {ScoreChangeHistoryCreateManyArgs} args - Arguments to create many ScoreChangeHistories.
+     * @example
+     * // Create many ScoreChangeHistories
+     * const scoreChangeHistory = await prisma.scoreChangeHistory.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ScoreChangeHistoryCreateManyArgs>(args?: SelectSubset<T, ScoreChangeHistoryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ScoreChangeHistories and returns the data saved in the database.
+     * @param {ScoreChangeHistoryCreateManyAndReturnArgs} args - Arguments to create many ScoreChangeHistories.
+     * @example
+     * // Create many ScoreChangeHistories
+     * const scoreChangeHistory = await prisma.scoreChangeHistory.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ScoreChangeHistories and only return the `id`
+     * const scoreChangeHistoryWithIdOnly = await prisma.scoreChangeHistory.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ScoreChangeHistoryCreateManyAndReturnArgs>(args?: SelectSubset<T, ScoreChangeHistoryCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ScoreChangeHistoryPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ScoreChangeHistory.
+     * @param {ScoreChangeHistoryDeleteArgs} args - Arguments to delete one ScoreChangeHistory.
+     * @example
+     * // Delete one ScoreChangeHistory
+     * const ScoreChangeHistory = await prisma.scoreChangeHistory.delete({
+     *   where: {
+     *     // ... filter to delete one ScoreChangeHistory
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ScoreChangeHistoryDeleteArgs>(args: SelectSubset<T, ScoreChangeHistoryDeleteArgs<ExtArgs>>): Prisma__ScoreChangeHistoryClient<$Result.GetResult<Prisma.$ScoreChangeHistoryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ScoreChangeHistory.
+     * @param {ScoreChangeHistoryUpdateArgs} args - Arguments to update one ScoreChangeHistory.
+     * @example
+     * // Update one ScoreChangeHistory
+     * const scoreChangeHistory = await prisma.scoreChangeHistory.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ScoreChangeHistoryUpdateArgs>(args: SelectSubset<T, ScoreChangeHistoryUpdateArgs<ExtArgs>>): Prisma__ScoreChangeHistoryClient<$Result.GetResult<Prisma.$ScoreChangeHistoryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ScoreChangeHistories.
+     * @param {ScoreChangeHistoryDeleteManyArgs} args - Arguments to filter ScoreChangeHistories to delete.
+     * @example
+     * // Delete a few ScoreChangeHistories
+     * const { count } = await prisma.scoreChangeHistory.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ScoreChangeHistoryDeleteManyArgs>(args?: SelectSubset<T, ScoreChangeHistoryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ScoreChangeHistories.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ScoreChangeHistoryUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ScoreChangeHistories
+     * const scoreChangeHistory = await prisma.scoreChangeHistory.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ScoreChangeHistoryUpdateManyArgs>(args: SelectSubset<T, ScoreChangeHistoryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ScoreChangeHistories and returns the data updated in the database.
+     * @param {ScoreChangeHistoryUpdateManyAndReturnArgs} args - Arguments to update many ScoreChangeHistories.
+     * @example
+     * // Update many ScoreChangeHistories
+     * const scoreChangeHistory = await prisma.scoreChangeHistory.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ScoreChangeHistories and only return the `id`
+     * const scoreChangeHistoryWithIdOnly = await prisma.scoreChangeHistory.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ScoreChangeHistoryUpdateManyAndReturnArgs>(args: SelectSubset<T, ScoreChangeHistoryUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ScoreChangeHistoryPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ScoreChangeHistory.
+     * @param {ScoreChangeHistoryUpsertArgs} args - Arguments to update or create a ScoreChangeHistory.
+     * @example
+     * // Update or create a ScoreChangeHistory
+     * const scoreChangeHistory = await prisma.scoreChangeHistory.upsert({
+     *   create: {
+     *     // ... data to create a ScoreChangeHistory
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ScoreChangeHistory we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ScoreChangeHistoryUpsertArgs>(args: SelectSubset<T, ScoreChangeHistoryUpsertArgs<ExtArgs>>): Prisma__ScoreChangeHistoryClient<$Result.GetResult<Prisma.$ScoreChangeHistoryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ScoreChangeHistories.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ScoreChangeHistoryCountArgs} args - Arguments to filter ScoreChangeHistories to count.
+     * @example
+     * // Count the number of ScoreChangeHistories
+     * const count = await prisma.scoreChangeHistory.count({
+     *   where: {
+     *     // ... the filter for the ScoreChangeHistories we want to count
+     *   }
+     * })
+    **/
+    count<T extends ScoreChangeHistoryCountArgs>(
+      args?: Subset<T, ScoreChangeHistoryCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ScoreChangeHistoryCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ScoreChangeHistory.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ScoreChangeHistoryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ScoreChangeHistoryAggregateArgs>(args: Subset<T, ScoreChangeHistoryAggregateArgs>): Prisma.PrismaPromise<GetScoreChangeHistoryAggregateType<T>>
+
+    /**
+     * Group by ScoreChangeHistory.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ScoreChangeHistoryGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ScoreChangeHistoryGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ScoreChangeHistoryGroupByArgs['orderBy'] }
+        : { orderBy?: ScoreChangeHistoryGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ScoreChangeHistoryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetScoreChangeHistoryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ScoreChangeHistory model
+   */
+  readonly fields: ScoreChangeHistoryFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ScoreChangeHistory.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ScoreChangeHistoryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    activity<T extends activityDefaultArgs<ExtArgs> = {}>(args?: Subset<T, activityDefaultArgs<ExtArgs>>): Prisma__activityClient<$Result.GetResult<Prisma.$activityPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ScoreChangeHistory model
+   */
+  interface ScoreChangeHistoryFieldRefs {
+    readonly id: FieldRef<"ScoreChangeHistory", 'String'>
+    readonly activity_id: FieldRef<"ScoreChangeHistory", 'String'>
+    readonly old_base_score: FieldRef<"ScoreChangeHistory", 'Float'>
+    readonly old_multiplier: FieldRef<"ScoreChangeHistory", 'Float'>
+    readonly new_base_score: FieldRef<"ScoreChangeHistory", 'Float'>
+    readonly new_multiplier: FieldRef<"ScoreChangeHistory", 'Float'>
+    readonly change_reason: FieldRef<"ScoreChangeHistory", 'String'>
+    readonly changed_at: FieldRef<"ScoreChangeHistory", 'DateTime'>
+    readonly createdAt: FieldRef<"ScoreChangeHistory", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ScoreChangeHistory findUnique
+   */
+  export type ScoreChangeHistoryFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScoreChangeHistory
+     */
+    select?: ScoreChangeHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScoreChangeHistory
+     */
+    omit?: ScoreChangeHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScoreChangeHistoryInclude<ExtArgs> | null
+    /**
+     * Filter, which ScoreChangeHistory to fetch.
+     */
+    where: ScoreChangeHistoryWhereUniqueInput
+  }
+
+  /**
+   * ScoreChangeHistory findUniqueOrThrow
+   */
+  export type ScoreChangeHistoryFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScoreChangeHistory
+     */
+    select?: ScoreChangeHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScoreChangeHistory
+     */
+    omit?: ScoreChangeHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScoreChangeHistoryInclude<ExtArgs> | null
+    /**
+     * Filter, which ScoreChangeHistory to fetch.
+     */
+    where: ScoreChangeHistoryWhereUniqueInput
+  }
+
+  /**
+   * ScoreChangeHistory findFirst
+   */
+  export type ScoreChangeHistoryFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScoreChangeHistory
+     */
+    select?: ScoreChangeHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScoreChangeHistory
+     */
+    omit?: ScoreChangeHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScoreChangeHistoryInclude<ExtArgs> | null
+    /**
+     * Filter, which ScoreChangeHistory to fetch.
+     */
+    where?: ScoreChangeHistoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ScoreChangeHistories to fetch.
+     */
+    orderBy?: ScoreChangeHistoryOrderByWithRelationInput | ScoreChangeHistoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ScoreChangeHistories.
+     */
+    cursor?: ScoreChangeHistoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ScoreChangeHistories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ScoreChangeHistories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ScoreChangeHistories.
+     */
+    distinct?: ScoreChangeHistoryScalarFieldEnum | ScoreChangeHistoryScalarFieldEnum[]
+  }
+
+  /**
+   * ScoreChangeHistory findFirstOrThrow
+   */
+  export type ScoreChangeHistoryFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScoreChangeHistory
+     */
+    select?: ScoreChangeHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScoreChangeHistory
+     */
+    omit?: ScoreChangeHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScoreChangeHistoryInclude<ExtArgs> | null
+    /**
+     * Filter, which ScoreChangeHistory to fetch.
+     */
+    where?: ScoreChangeHistoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ScoreChangeHistories to fetch.
+     */
+    orderBy?: ScoreChangeHistoryOrderByWithRelationInput | ScoreChangeHistoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ScoreChangeHistories.
+     */
+    cursor?: ScoreChangeHistoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ScoreChangeHistories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ScoreChangeHistories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ScoreChangeHistories.
+     */
+    distinct?: ScoreChangeHistoryScalarFieldEnum | ScoreChangeHistoryScalarFieldEnum[]
+  }
+
+  /**
+   * ScoreChangeHistory findMany
+   */
+  export type ScoreChangeHistoryFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScoreChangeHistory
+     */
+    select?: ScoreChangeHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScoreChangeHistory
+     */
+    omit?: ScoreChangeHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScoreChangeHistoryInclude<ExtArgs> | null
+    /**
+     * Filter, which ScoreChangeHistories to fetch.
+     */
+    where?: ScoreChangeHistoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ScoreChangeHistories to fetch.
+     */
+    orderBy?: ScoreChangeHistoryOrderByWithRelationInput | ScoreChangeHistoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ScoreChangeHistories.
+     */
+    cursor?: ScoreChangeHistoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ScoreChangeHistories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ScoreChangeHistories.
+     */
+    skip?: number
+    distinct?: ScoreChangeHistoryScalarFieldEnum | ScoreChangeHistoryScalarFieldEnum[]
+  }
+
+  /**
+   * ScoreChangeHistory create
+   */
+  export type ScoreChangeHistoryCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScoreChangeHistory
+     */
+    select?: ScoreChangeHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScoreChangeHistory
+     */
+    omit?: ScoreChangeHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScoreChangeHistoryInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ScoreChangeHistory.
+     */
+    data: XOR<ScoreChangeHistoryCreateInput, ScoreChangeHistoryUncheckedCreateInput>
+  }
+
+  /**
+   * ScoreChangeHistory createMany
+   */
+  export type ScoreChangeHistoryCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ScoreChangeHistories.
+     */
+    data: ScoreChangeHistoryCreateManyInput | ScoreChangeHistoryCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ScoreChangeHistory createManyAndReturn
+   */
+  export type ScoreChangeHistoryCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScoreChangeHistory
+     */
+    select?: ScoreChangeHistorySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScoreChangeHistory
+     */
+    omit?: ScoreChangeHistoryOmit<ExtArgs> | null
+    /**
+     * The data used to create many ScoreChangeHistories.
+     */
+    data: ScoreChangeHistoryCreateManyInput | ScoreChangeHistoryCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScoreChangeHistoryIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ScoreChangeHistory update
+   */
+  export type ScoreChangeHistoryUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScoreChangeHistory
+     */
+    select?: ScoreChangeHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScoreChangeHistory
+     */
+    omit?: ScoreChangeHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScoreChangeHistoryInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ScoreChangeHistory.
+     */
+    data: XOR<ScoreChangeHistoryUpdateInput, ScoreChangeHistoryUncheckedUpdateInput>
+    /**
+     * Choose, which ScoreChangeHistory to update.
+     */
+    where: ScoreChangeHistoryWhereUniqueInput
+  }
+
+  /**
+   * ScoreChangeHistory updateMany
+   */
+  export type ScoreChangeHistoryUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ScoreChangeHistories.
+     */
+    data: XOR<ScoreChangeHistoryUpdateManyMutationInput, ScoreChangeHistoryUncheckedUpdateManyInput>
+    /**
+     * Filter which ScoreChangeHistories to update
+     */
+    where?: ScoreChangeHistoryWhereInput
+    /**
+     * Limit how many ScoreChangeHistories to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ScoreChangeHistory updateManyAndReturn
+   */
+  export type ScoreChangeHistoryUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScoreChangeHistory
+     */
+    select?: ScoreChangeHistorySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScoreChangeHistory
+     */
+    omit?: ScoreChangeHistoryOmit<ExtArgs> | null
+    /**
+     * The data used to update ScoreChangeHistories.
+     */
+    data: XOR<ScoreChangeHistoryUpdateManyMutationInput, ScoreChangeHistoryUncheckedUpdateManyInput>
+    /**
+     * Filter which ScoreChangeHistories to update
+     */
+    where?: ScoreChangeHistoryWhereInput
+    /**
+     * Limit how many ScoreChangeHistories to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScoreChangeHistoryIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ScoreChangeHistory upsert
+   */
+  export type ScoreChangeHistoryUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScoreChangeHistory
+     */
+    select?: ScoreChangeHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScoreChangeHistory
+     */
+    omit?: ScoreChangeHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScoreChangeHistoryInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ScoreChangeHistory to update in case it exists.
+     */
+    where: ScoreChangeHistoryWhereUniqueInput
+    /**
+     * In case the ScoreChangeHistory found by the `where` argument doesn't exist, create a new ScoreChangeHistory with this data.
+     */
+    create: XOR<ScoreChangeHistoryCreateInput, ScoreChangeHistoryUncheckedCreateInput>
+    /**
+     * In case the ScoreChangeHistory was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ScoreChangeHistoryUpdateInput, ScoreChangeHistoryUncheckedUpdateInput>
+  }
+
+  /**
+   * ScoreChangeHistory delete
+   */
+  export type ScoreChangeHistoryDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScoreChangeHistory
+     */
+    select?: ScoreChangeHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScoreChangeHistory
+     */
+    omit?: ScoreChangeHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScoreChangeHistoryInclude<ExtArgs> | null
+    /**
+     * Filter which ScoreChangeHistory to delete.
+     */
+    where: ScoreChangeHistoryWhereUniqueInput
+  }
+
+  /**
+   * ScoreChangeHistory deleteMany
+   */
+  export type ScoreChangeHistoryDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ScoreChangeHistories to delete
+     */
+    where?: ScoreChangeHistoryWhereInput
+    /**
+     * Limit how many ScoreChangeHistories to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ScoreChangeHistory without action
+   */
+  export type ScoreChangeHistoryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScoreChangeHistory
+     */
+    select?: ScoreChangeHistorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScoreChangeHistory
+     */
+    omit?: ScoreChangeHistoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScoreChangeHistoryInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -5879,6 +7187,21 @@ export namespace Prisma {
   };
 
   export type ParticipantScalarFieldEnum = (typeof ParticipantScalarFieldEnum)[keyof typeof ParticipantScalarFieldEnum]
+
+
+  export const ScoreChangeHistoryScalarFieldEnum: {
+    id: 'id',
+    activity_id: 'activity_id',
+    old_base_score: 'old_base_score',
+    old_multiplier: 'old_multiplier',
+    new_base_score: 'new_base_score',
+    new_multiplier: 'new_multiplier',
+    change_reason: 'change_reason',
+    changed_at: 'changed_at',
+    createdAt: 'createdAt'
+  };
+
+  export type ScoreChangeHistoryScalarFieldEnum = (typeof ScoreChangeHistoryScalarFieldEnum)[keyof typeof ScoreChangeHistoryScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -6065,6 +7388,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"activity"> | Date | string
     team_relation?: XOR<TeamNullableScalarRelationFilter, teamWhereInput> | null
     participant_relation?: XOR<ParticipantNullableScalarRelationFilter, participantWhereInput> | null
+    scoreChanges?: ScoreChangeHistoryListRelationFilter
   }
 
   export type activityOrderByWithRelationInput = {
@@ -6085,6 +7409,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     team_relation?: teamOrderByWithRelationInput
     participant_relation?: participantOrderByWithRelationInput
+    scoreChanges?: ScoreChangeHistoryOrderByRelationAggregateInput
   }
 
   export type activityWhereUniqueInput = Prisma.AtLeast<{
@@ -6108,6 +7433,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"activity"> | Date | string
     team_relation?: XOR<TeamNullableScalarRelationFilter, teamWhereInput> | null
     participant_relation?: XOR<ParticipantNullableScalarRelationFilter, participantWhereInput> | null
+    scoreChanges?: ScoreChangeHistoryListRelationFilter
   }, "id">
 
   export type activityOrderByWithAggregationInput = {
@@ -6298,6 +7624,83 @@ export namespace Prisma {
     updated_at?: DateTimeWithAggregatesFilter<"participant"> | Date | string
   }
 
+  export type ScoreChangeHistoryWhereInput = {
+    AND?: ScoreChangeHistoryWhereInput | ScoreChangeHistoryWhereInput[]
+    OR?: ScoreChangeHistoryWhereInput[]
+    NOT?: ScoreChangeHistoryWhereInput | ScoreChangeHistoryWhereInput[]
+    id?: StringFilter<"ScoreChangeHistory"> | string
+    activity_id?: StringFilter<"ScoreChangeHistory"> | string
+    old_base_score?: FloatFilter<"ScoreChangeHistory"> | number
+    old_multiplier?: FloatFilter<"ScoreChangeHistory"> | number
+    new_base_score?: FloatFilter<"ScoreChangeHistory"> | number
+    new_multiplier?: FloatFilter<"ScoreChangeHistory"> | number
+    change_reason?: StringFilter<"ScoreChangeHistory"> | string
+    changed_at?: DateTimeFilter<"ScoreChangeHistory"> | Date | string
+    createdAt?: DateTimeFilter<"ScoreChangeHistory"> | Date | string
+    activity?: XOR<ActivityScalarRelationFilter, activityWhereInput>
+  }
+
+  export type ScoreChangeHistoryOrderByWithRelationInput = {
+    id?: SortOrder
+    activity_id?: SortOrder
+    old_base_score?: SortOrder
+    old_multiplier?: SortOrder
+    new_base_score?: SortOrder
+    new_multiplier?: SortOrder
+    change_reason?: SortOrder
+    changed_at?: SortOrder
+    createdAt?: SortOrder
+    activity?: activityOrderByWithRelationInput
+  }
+
+  export type ScoreChangeHistoryWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ScoreChangeHistoryWhereInput | ScoreChangeHistoryWhereInput[]
+    OR?: ScoreChangeHistoryWhereInput[]
+    NOT?: ScoreChangeHistoryWhereInput | ScoreChangeHistoryWhereInput[]
+    activity_id?: StringFilter<"ScoreChangeHistory"> | string
+    old_base_score?: FloatFilter<"ScoreChangeHistory"> | number
+    old_multiplier?: FloatFilter<"ScoreChangeHistory"> | number
+    new_base_score?: FloatFilter<"ScoreChangeHistory"> | number
+    new_multiplier?: FloatFilter<"ScoreChangeHistory"> | number
+    change_reason?: StringFilter<"ScoreChangeHistory"> | string
+    changed_at?: DateTimeFilter<"ScoreChangeHistory"> | Date | string
+    createdAt?: DateTimeFilter<"ScoreChangeHistory"> | Date | string
+    activity?: XOR<ActivityScalarRelationFilter, activityWhereInput>
+  }, "id">
+
+  export type ScoreChangeHistoryOrderByWithAggregationInput = {
+    id?: SortOrder
+    activity_id?: SortOrder
+    old_base_score?: SortOrder
+    old_multiplier?: SortOrder
+    new_base_score?: SortOrder
+    new_multiplier?: SortOrder
+    change_reason?: SortOrder
+    changed_at?: SortOrder
+    createdAt?: SortOrder
+    _count?: ScoreChangeHistoryCountOrderByAggregateInput
+    _avg?: ScoreChangeHistoryAvgOrderByAggregateInput
+    _max?: ScoreChangeHistoryMaxOrderByAggregateInput
+    _min?: ScoreChangeHistoryMinOrderByAggregateInput
+    _sum?: ScoreChangeHistorySumOrderByAggregateInput
+  }
+
+  export type ScoreChangeHistoryScalarWhereWithAggregatesInput = {
+    AND?: ScoreChangeHistoryScalarWhereWithAggregatesInput | ScoreChangeHistoryScalarWhereWithAggregatesInput[]
+    OR?: ScoreChangeHistoryScalarWhereWithAggregatesInput[]
+    NOT?: ScoreChangeHistoryScalarWhereWithAggregatesInput | ScoreChangeHistoryScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ScoreChangeHistory"> | string
+    activity_id?: StringWithAggregatesFilter<"ScoreChangeHistory"> | string
+    old_base_score?: FloatWithAggregatesFilter<"ScoreChangeHistory"> | number
+    old_multiplier?: FloatWithAggregatesFilter<"ScoreChangeHistory"> | number
+    new_base_score?: FloatWithAggregatesFilter<"ScoreChangeHistory"> | number
+    new_multiplier?: FloatWithAggregatesFilter<"ScoreChangeHistory"> | number
+    change_reason?: StringWithAggregatesFilter<"ScoreChangeHistory"> | string
+    changed_at?: DateTimeWithAggregatesFilter<"ScoreChangeHistory"> | Date | string
+    createdAt?: DateTimeWithAggregatesFilter<"ScoreChangeHistory"> | Date | string
+  }
+
   export type teamCreateInput = {
     name: string
     participants?: participantCreateNestedManyWithoutTeamInput
@@ -6354,6 +7757,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     team_relation?: teamCreateNestedOneWithoutActivitiesInput
     participant_relation?: participantCreateNestedOneWithoutActivitiesInput
+    scoreChanges?: ScoreChangeHistoryCreateNestedManyWithoutActivityInput
   }
 
   export type activityUncheckedCreateInput = {
@@ -6372,6 +7776,7 @@ export namespace Prisma {
     activity: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    scoreChanges?: ScoreChangeHistoryUncheckedCreateNestedManyWithoutActivityInput
   }
 
   export type activityUpdateInput = {
@@ -6390,6 +7795,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team_relation?: teamUpdateOneWithoutActivitiesNestedInput
     participant_relation?: participantUpdateOneWithoutActivitiesNestedInput
+    scoreChanges?: ScoreChangeHistoryUpdateManyWithoutActivityNestedInput
   }
 
   export type activityUncheckedUpdateInput = {
@@ -6408,6 +7814,7 @@ export namespace Prisma {
     activity?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    scoreChanges?: ScoreChangeHistoryUncheckedUpdateManyWithoutActivityNestedInput
   }
 
   export type activityCreateManyInput = {
@@ -6616,6 +8023,89 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ScoreChangeHistoryCreateInput = {
+    id?: string
+    old_base_score: number
+    old_multiplier: number
+    new_base_score: number
+    new_multiplier: number
+    change_reason: string
+    changed_at: Date | string
+    createdAt?: Date | string
+    activity: activityCreateNestedOneWithoutScoreChangesInput
+  }
+
+  export type ScoreChangeHistoryUncheckedCreateInput = {
+    id?: string
+    activity_id: string
+    old_base_score: number
+    old_multiplier: number
+    new_base_score: number
+    new_multiplier: number
+    change_reason: string
+    changed_at: Date | string
+    createdAt?: Date | string
+  }
+
+  export type ScoreChangeHistoryUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    old_base_score?: FloatFieldUpdateOperationsInput | number
+    old_multiplier?: FloatFieldUpdateOperationsInput | number
+    new_base_score?: FloatFieldUpdateOperationsInput | number
+    new_multiplier?: FloatFieldUpdateOperationsInput | number
+    change_reason?: StringFieldUpdateOperationsInput | string
+    changed_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    activity?: activityUpdateOneRequiredWithoutScoreChangesNestedInput
+  }
+
+  export type ScoreChangeHistoryUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    activity_id?: StringFieldUpdateOperationsInput | string
+    old_base_score?: FloatFieldUpdateOperationsInput | number
+    old_multiplier?: FloatFieldUpdateOperationsInput | number
+    new_base_score?: FloatFieldUpdateOperationsInput | number
+    new_multiplier?: FloatFieldUpdateOperationsInput | number
+    change_reason?: StringFieldUpdateOperationsInput | string
+    changed_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ScoreChangeHistoryCreateManyInput = {
+    id?: string
+    activity_id: string
+    old_base_score: number
+    old_multiplier: number
+    new_base_score: number
+    new_multiplier: number
+    change_reason: string
+    changed_at: Date | string
+    createdAt?: Date | string
+  }
+
+  export type ScoreChangeHistoryUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    old_base_score?: FloatFieldUpdateOperationsInput | number
+    old_multiplier?: FloatFieldUpdateOperationsInput | number
+    new_base_score?: FloatFieldUpdateOperationsInput | number
+    new_multiplier?: FloatFieldUpdateOperationsInput | number
+    change_reason?: StringFieldUpdateOperationsInput | string
+    changed_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ScoreChangeHistoryUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    activity_id?: StringFieldUpdateOperationsInput | string
+    old_base_score?: FloatFieldUpdateOperationsInput | number
+    old_multiplier?: FloatFieldUpdateOperationsInput | number
+    new_base_score?: FloatFieldUpdateOperationsInput | number
+    new_multiplier?: FloatFieldUpdateOperationsInput | number
+    change_reason?: StringFieldUpdateOperationsInput | string
+    changed_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -6800,9 +8290,19 @@ export namespace Prisma {
     isNot?: participantWhereInput | null
   }
 
+  export type ScoreChangeHistoryListRelationFilter = {
+    every?: ScoreChangeHistoryWhereInput
+    some?: ScoreChangeHistoryWhereInput
+    none?: ScoreChangeHistoryWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
+  }
+
+  export type ScoreChangeHistoryOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
   export type activityCountOrderByAggregateInput = {
@@ -7048,6 +8548,61 @@ export namespace Prisma {
     team_id?: SortOrder
   }
 
+  export type ActivityScalarRelationFilter = {
+    is?: activityWhereInput
+    isNot?: activityWhereInput
+  }
+
+  export type ScoreChangeHistoryCountOrderByAggregateInput = {
+    id?: SortOrder
+    activity_id?: SortOrder
+    old_base_score?: SortOrder
+    old_multiplier?: SortOrder
+    new_base_score?: SortOrder
+    new_multiplier?: SortOrder
+    change_reason?: SortOrder
+    changed_at?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ScoreChangeHistoryAvgOrderByAggregateInput = {
+    old_base_score?: SortOrder
+    old_multiplier?: SortOrder
+    new_base_score?: SortOrder
+    new_multiplier?: SortOrder
+  }
+
+  export type ScoreChangeHistoryMaxOrderByAggregateInput = {
+    id?: SortOrder
+    activity_id?: SortOrder
+    old_base_score?: SortOrder
+    old_multiplier?: SortOrder
+    new_base_score?: SortOrder
+    new_multiplier?: SortOrder
+    change_reason?: SortOrder
+    changed_at?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ScoreChangeHistoryMinOrderByAggregateInput = {
+    id?: SortOrder
+    activity_id?: SortOrder
+    old_base_score?: SortOrder
+    old_multiplier?: SortOrder
+    new_base_score?: SortOrder
+    new_multiplier?: SortOrder
+    change_reason?: SortOrder
+    changed_at?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ScoreChangeHistorySumOrderByAggregateInput = {
+    old_base_score?: SortOrder
+    old_multiplier?: SortOrder
+    new_base_score?: SortOrder
+    new_multiplier?: SortOrder
+  }
+
   export type participantCreateNestedManyWithoutTeamInput = {
     create?: XOR<participantCreateWithoutTeamInput, participantUncheckedCreateWithoutTeamInput> | participantCreateWithoutTeamInput[] | participantUncheckedCreateWithoutTeamInput[]
     connectOrCreate?: participantCreateOrConnectWithoutTeamInput | participantCreateOrConnectWithoutTeamInput[]
@@ -7156,6 +8711,20 @@ export namespace Prisma {
     connect?: participantWhereUniqueInput
   }
 
+  export type ScoreChangeHistoryCreateNestedManyWithoutActivityInput = {
+    create?: XOR<ScoreChangeHistoryCreateWithoutActivityInput, ScoreChangeHistoryUncheckedCreateWithoutActivityInput> | ScoreChangeHistoryCreateWithoutActivityInput[] | ScoreChangeHistoryUncheckedCreateWithoutActivityInput[]
+    connectOrCreate?: ScoreChangeHistoryCreateOrConnectWithoutActivityInput | ScoreChangeHistoryCreateOrConnectWithoutActivityInput[]
+    createMany?: ScoreChangeHistoryCreateManyActivityInputEnvelope
+    connect?: ScoreChangeHistoryWhereUniqueInput | ScoreChangeHistoryWhereUniqueInput[]
+  }
+
+  export type ScoreChangeHistoryUncheckedCreateNestedManyWithoutActivityInput = {
+    create?: XOR<ScoreChangeHistoryCreateWithoutActivityInput, ScoreChangeHistoryUncheckedCreateWithoutActivityInput> | ScoreChangeHistoryCreateWithoutActivityInput[] | ScoreChangeHistoryUncheckedCreateWithoutActivityInput[]
+    connectOrCreate?: ScoreChangeHistoryCreateOrConnectWithoutActivityInput | ScoreChangeHistoryCreateOrConnectWithoutActivityInput[]
+    createMany?: ScoreChangeHistoryCreateManyActivityInputEnvelope
+    connect?: ScoreChangeHistoryWhereUniqueInput | ScoreChangeHistoryWhereUniqueInput[]
+  }
+
   export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string
   }
@@ -7188,6 +8757,20 @@ export namespace Prisma {
     update?: XOR<XOR<participantUpdateToOneWithWhereWithoutActivitiesInput, participantUpdateWithoutActivitiesInput>, participantUncheckedUpdateWithoutActivitiesInput>
   }
 
+  export type ScoreChangeHistoryUpdateManyWithoutActivityNestedInput = {
+    create?: XOR<ScoreChangeHistoryCreateWithoutActivityInput, ScoreChangeHistoryUncheckedCreateWithoutActivityInput> | ScoreChangeHistoryCreateWithoutActivityInput[] | ScoreChangeHistoryUncheckedCreateWithoutActivityInput[]
+    connectOrCreate?: ScoreChangeHistoryCreateOrConnectWithoutActivityInput | ScoreChangeHistoryCreateOrConnectWithoutActivityInput[]
+    upsert?: ScoreChangeHistoryUpsertWithWhereUniqueWithoutActivityInput | ScoreChangeHistoryUpsertWithWhereUniqueWithoutActivityInput[]
+    createMany?: ScoreChangeHistoryCreateManyActivityInputEnvelope
+    set?: ScoreChangeHistoryWhereUniqueInput | ScoreChangeHistoryWhereUniqueInput[]
+    disconnect?: ScoreChangeHistoryWhereUniqueInput | ScoreChangeHistoryWhereUniqueInput[]
+    delete?: ScoreChangeHistoryWhereUniqueInput | ScoreChangeHistoryWhereUniqueInput[]
+    connect?: ScoreChangeHistoryWhereUniqueInput | ScoreChangeHistoryWhereUniqueInput[]
+    update?: ScoreChangeHistoryUpdateWithWhereUniqueWithoutActivityInput | ScoreChangeHistoryUpdateWithWhereUniqueWithoutActivityInput[]
+    updateMany?: ScoreChangeHistoryUpdateManyWithWhereWithoutActivityInput | ScoreChangeHistoryUpdateManyWithWhereWithoutActivityInput[]
+    deleteMany?: ScoreChangeHistoryScalarWhereInput | ScoreChangeHistoryScalarWhereInput[]
+  }
+
   export type NullableIntFieldUpdateOperationsInput = {
     set?: number | null
     increment?: number
@@ -7198,6 +8781,20 @@ export namespace Prisma {
 
   export type NullableStringFieldUpdateOperationsInput = {
     set?: string | null
+  }
+
+  export type ScoreChangeHistoryUncheckedUpdateManyWithoutActivityNestedInput = {
+    create?: XOR<ScoreChangeHistoryCreateWithoutActivityInput, ScoreChangeHistoryUncheckedCreateWithoutActivityInput> | ScoreChangeHistoryCreateWithoutActivityInput[] | ScoreChangeHistoryUncheckedCreateWithoutActivityInput[]
+    connectOrCreate?: ScoreChangeHistoryCreateOrConnectWithoutActivityInput | ScoreChangeHistoryCreateOrConnectWithoutActivityInput[]
+    upsert?: ScoreChangeHistoryUpsertWithWhereUniqueWithoutActivityInput | ScoreChangeHistoryUpsertWithWhereUniqueWithoutActivityInput[]
+    createMany?: ScoreChangeHistoryCreateManyActivityInputEnvelope
+    set?: ScoreChangeHistoryWhereUniqueInput | ScoreChangeHistoryWhereUniqueInput[]
+    disconnect?: ScoreChangeHistoryWhereUniqueInput | ScoreChangeHistoryWhereUniqueInput[]
+    delete?: ScoreChangeHistoryWhereUniqueInput | ScoreChangeHistoryWhereUniqueInput[]
+    connect?: ScoreChangeHistoryWhereUniqueInput | ScoreChangeHistoryWhereUniqueInput[]
+    update?: ScoreChangeHistoryUpdateWithWhereUniqueWithoutActivityInput | ScoreChangeHistoryUpdateWithWhereUniqueWithoutActivityInput[]
+    updateMany?: ScoreChangeHistoryUpdateManyWithWhereWithoutActivityInput | ScoreChangeHistoryUpdateManyWithWhereWithoutActivityInput[]
+    deleteMany?: ScoreChangeHistoryScalarWhereInput | ScoreChangeHistoryScalarWhereInput[]
   }
 
   export type teamCreateNestedOneWithoutParticipantsInput = {
@@ -7254,6 +8851,20 @@ export namespace Prisma {
     update?: activityUpdateWithWhereUniqueWithoutParticipant_relationInput | activityUpdateWithWhereUniqueWithoutParticipant_relationInput[]
     updateMany?: activityUpdateManyWithWhereWithoutParticipant_relationInput | activityUpdateManyWithWhereWithoutParticipant_relationInput[]
     deleteMany?: activityScalarWhereInput | activityScalarWhereInput[]
+  }
+
+  export type activityCreateNestedOneWithoutScoreChangesInput = {
+    create?: XOR<activityCreateWithoutScoreChangesInput, activityUncheckedCreateWithoutScoreChangesInput>
+    connectOrCreate?: activityCreateOrConnectWithoutScoreChangesInput
+    connect?: activityWhereUniqueInput
+  }
+
+  export type activityUpdateOneRequiredWithoutScoreChangesNestedInput = {
+    create?: XOR<activityCreateWithoutScoreChangesInput, activityUncheckedCreateWithoutScoreChangesInput>
+    connectOrCreate?: activityCreateOrConnectWithoutScoreChangesInput
+    upsert?: activityUpsertWithoutScoreChangesInput
+    connect?: activityWhereUniqueInput
+    update?: XOR<XOR<activityUpdateToOneWithWhereWithoutScoreChangesInput, activityUpdateWithoutScoreChangesInput>, activityUncheckedUpdateWithoutScoreChangesInput>
   }
 
   export type NestedIntFilter<$PrismaModel = never> = {
@@ -7503,6 +9114,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     participant_relation?: participantCreateNestedOneWithoutActivitiesInput
+    scoreChanges?: ScoreChangeHistoryCreateNestedManyWithoutActivityInput
   }
 
   export type activityUncheckedCreateWithoutTeam_relationInput = {
@@ -7520,6 +9132,7 @@ export namespace Prisma {
     activity: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    scoreChanges?: ScoreChangeHistoryUncheckedCreateNestedManyWithoutActivityInput
   }
 
   export type activityCreateOrConnectWithoutTeam_relationInput = {
@@ -7639,6 +9252,38 @@ export namespace Prisma {
     create: XOR<participantCreateWithoutActivitiesInput, participantUncheckedCreateWithoutActivitiesInput>
   }
 
+  export type ScoreChangeHistoryCreateWithoutActivityInput = {
+    id?: string
+    old_base_score: number
+    old_multiplier: number
+    new_base_score: number
+    new_multiplier: number
+    change_reason: string
+    changed_at: Date | string
+    createdAt?: Date | string
+  }
+
+  export type ScoreChangeHistoryUncheckedCreateWithoutActivityInput = {
+    id?: string
+    old_base_score: number
+    old_multiplier: number
+    new_base_score: number
+    new_multiplier: number
+    change_reason: string
+    changed_at: Date | string
+    createdAt?: Date | string
+  }
+
+  export type ScoreChangeHistoryCreateOrConnectWithoutActivityInput = {
+    where: ScoreChangeHistoryWhereUniqueInput
+    create: XOR<ScoreChangeHistoryCreateWithoutActivityInput, ScoreChangeHistoryUncheckedCreateWithoutActivityInput>
+  }
+
+  export type ScoreChangeHistoryCreateManyActivityInputEnvelope = {
+    data: ScoreChangeHistoryCreateManyActivityInput | ScoreChangeHistoryCreateManyActivityInput[]
+    skipDuplicates?: boolean
+  }
+
   export type teamUpsertWithoutActivitiesInput = {
     update: XOR<teamUpdateWithoutActivitiesInput, teamUncheckedUpdateWithoutActivitiesInput>
     create: XOR<teamCreateWithoutActivitiesInput, teamUncheckedCreateWithoutActivitiesInput>
@@ -7692,6 +9337,37 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ScoreChangeHistoryUpsertWithWhereUniqueWithoutActivityInput = {
+    where: ScoreChangeHistoryWhereUniqueInput
+    update: XOR<ScoreChangeHistoryUpdateWithoutActivityInput, ScoreChangeHistoryUncheckedUpdateWithoutActivityInput>
+    create: XOR<ScoreChangeHistoryCreateWithoutActivityInput, ScoreChangeHistoryUncheckedCreateWithoutActivityInput>
+  }
+
+  export type ScoreChangeHistoryUpdateWithWhereUniqueWithoutActivityInput = {
+    where: ScoreChangeHistoryWhereUniqueInput
+    data: XOR<ScoreChangeHistoryUpdateWithoutActivityInput, ScoreChangeHistoryUncheckedUpdateWithoutActivityInput>
+  }
+
+  export type ScoreChangeHistoryUpdateManyWithWhereWithoutActivityInput = {
+    where: ScoreChangeHistoryScalarWhereInput
+    data: XOR<ScoreChangeHistoryUpdateManyMutationInput, ScoreChangeHistoryUncheckedUpdateManyWithoutActivityInput>
+  }
+
+  export type ScoreChangeHistoryScalarWhereInput = {
+    AND?: ScoreChangeHistoryScalarWhereInput | ScoreChangeHistoryScalarWhereInput[]
+    OR?: ScoreChangeHistoryScalarWhereInput[]
+    NOT?: ScoreChangeHistoryScalarWhereInput | ScoreChangeHistoryScalarWhereInput[]
+    id?: StringFilter<"ScoreChangeHistory"> | string
+    activity_id?: StringFilter<"ScoreChangeHistory"> | string
+    old_base_score?: FloatFilter<"ScoreChangeHistory"> | number
+    old_multiplier?: FloatFilter<"ScoreChangeHistory"> | number
+    new_base_score?: FloatFilter<"ScoreChangeHistory"> | number
+    new_multiplier?: FloatFilter<"ScoreChangeHistory"> | number
+    change_reason?: StringFilter<"ScoreChangeHistory"> | string
+    changed_at?: DateTimeFilter<"ScoreChangeHistory"> | Date | string
+    createdAt?: DateTimeFilter<"ScoreChangeHistory"> | Date | string
+  }
+
   export type teamCreateWithoutParticipantsInput = {
     name: string
     activities?: activityCreateNestedManyWithoutTeam_relationInput
@@ -7723,6 +9399,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     team_relation?: teamCreateNestedOneWithoutActivitiesInput
+    scoreChanges?: ScoreChangeHistoryCreateNestedManyWithoutActivityInput
   }
 
   export type activityUncheckedCreateWithoutParticipant_relationInput = {
@@ -7740,6 +9417,7 @@ export namespace Prisma {
     activity: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    scoreChanges?: ScoreChangeHistoryUncheckedCreateNestedManyWithoutActivityInput
   }
 
   export type activityCreateOrConnectWithoutParticipant_relationInput = {
@@ -7788,6 +9466,94 @@ export namespace Prisma {
   export type activityUpdateManyWithWhereWithoutParticipant_relationInput = {
     where: activityScalarWhereInput
     data: XOR<activityUpdateManyMutationInput, activityUncheckedUpdateManyWithoutParticipant_relationInput>
+  }
+
+  export type activityCreateWithoutScoreChangesInput = {
+    id?: string
+    participant: string
+    team: string
+    date: Date | string
+    type: string
+    category: string
+    base_score?: number
+    multiplier?: number
+    calculated_score?: number
+    key_process: string
+    activity: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    team_relation?: teamCreateNestedOneWithoutActivitiesInput
+    participant_relation?: participantCreateNestedOneWithoutActivitiesInput
+  }
+
+  export type activityUncheckedCreateWithoutScoreChangesInput = {
+    id?: string
+    participant: string
+    team: string
+    team_id?: number | null
+    participant_id?: string | null
+    date: Date | string
+    type: string
+    category: string
+    base_score?: number
+    multiplier?: number
+    calculated_score?: number
+    key_process: string
+    activity: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type activityCreateOrConnectWithoutScoreChangesInput = {
+    where: activityWhereUniqueInput
+    create: XOR<activityCreateWithoutScoreChangesInput, activityUncheckedCreateWithoutScoreChangesInput>
+  }
+
+  export type activityUpsertWithoutScoreChangesInput = {
+    update: XOR<activityUpdateWithoutScoreChangesInput, activityUncheckedUpdateWithoutScoreChangesInput>
+    create: XOR<activityCreateWithoutScoreChangesInput, activityUncheckedCreateWithoutScoreChangesInput>
+    where?: activityWhereInput
+  }
+
+  export type activityUpdateToOneWithWhereWithoutScoreChangesInput = {
+    where?: activityWhereInput
+    data: XOR<activityUpdateWithoutScoreChangesInput, activityUncheckedUpdateWithoutScoreChangesInput>
+  }
+
+  export type activityUpdateWithoutScoreChangesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    participant?: StringFieldUpdateOperationsInput | string
+    team?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    type?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    base_score?: FloatFieldUpdateOperationsInput | number
+    multiplier?: FloatFieldUpdateOperationsInput | number
+    calculated_score?: FloatFieldUpdateOperationsInput | number
+    key_process?: StringFieldUpdateOperationsInput | string
+    activity?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    team_relation?: teamUpdateOneWithoutActivitiesNestedInput
+    participant_relation?: participantUpdateOneWithoutActivitiesNestedInput
+  }
+
+  export type activityUncheckedUpdateWithoutScoreChangesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    participant?: StringFieldUpdateOperationsInput | string
+    team?: StringFieldUpdateOperationsInput | string
+    team_id?: NullableIntFieldUpdateOperationsInput | number | null
+    participant_id?: NullableStringFieldUpdateOperationsInput | string | null
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    type?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    base_score?: FloatFieldUpdateOperationsInput | number
+    multiplier?: FloatFieldUpdateOperationsInput | number
+    calculated_score?: FloatFieldUpdateOperationsInput | number
+    key_process?: StringFieldUpdateOperationsInput | string
+    activity?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type participantCreateManyTeamInput = {
@@ -7860,6 +9626,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     participant_relation?: participantUpdateOneWithoutActivitiesNestedInput
+    scoreChanges?: ScoreChangeHistoryUpdateManyWithoutActivityNestedInput
   }
 
   export type activityUncheckedUpdateWithoutTeam_relationInput = {
@@ -7877,6 +9644,7 @@ export namespace Prisma {
     activity?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    scoreChanges?: ScoreChangeHistoryUncheckedUpdateManyWithoutActivityNestedInput
   }
 
   export type activityUncheckedUpdateManyWithoutTeam_relationInput = {
@@ -7894,6 +9662,50 @@ export namespace Prisma {
     activity?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ScoreChangeHistoryCreateManyActivityInput = {
+    id?: string
+    old_base_score: number
+    old_multiplier: number
+    new_base_score: number
+    new_multiplier: number
+    change_reason: string
+    changed_at: Date | string
+    createdAt?: Date | string
+  }
+
+  export type ScoreChangeHistoryUpdateWithoutActivityInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    old_base_score?: FloatFieldUpdateOperationsInput | number
+    old_multiplier?: FloatFieldUpdateOperationsInput | number
+    new_base_score?: FloatFieldUpdateOperationsInput | number
+    new_multiplier?: FloatFieldUpdateOperationsInput | number
+    change_reason?: StringFieldUpdateOperationsInput | string
+    changed_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ScoreChangeHistoryUncheckedUpdateWithoutActivityInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    old_base_score?: FloatFieldUpdateOperationsInput | number
+    old_multiplier?: FloatFieldUpdateOperationsInput | number
+    new_base_score?: FloatFieldUpdateOperationsInput | number
+    new_multiplier?: FloatFieldUpdateOperationsInput | number
+    change_reason?: StringFieldUpdateOperationsInput | string
+    changed_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ScoreChangeHistoryUncheckedUpdateManyWithoutActivityInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    old_base_score?: FloatFieldUpdateOperationsInput | number
+    old_multiplier?: FloatFieldUpdateOperationsInput | number
+    new_base_score?: FloatFieldUpdateOperationsInput | number
+    new_multiplier?: FloatFieldUpdateOperationsInput | number
+    change_reason?: StringFieldUpdateOperationsInput | string
+    changed_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type activityCreateManyParticipant_relationInput = {
@@ -7928,6 +9740,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team_relation?: teamUpdateOneWithoutActivitiesNestedInput
+    scoreChanges?: ScoreChangeHistoryUpdateManyWithoutActivityNestedInput
   }
 
   export type activityUncheckedUpdateWithoutParticipant_relationInput = {
@@ -7945,6 +9758,7 @@ export namespace Prisma {
     activity?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    scoreChanges?: ScoreChangeHistoryUncheckedUpdateManyWithoutActivityNestedInput
   }
 
   export type activityUncheckedUpdateManyWithoutParticipant_relationInput = {
