@@ -20,29 +20,36 @@ model team {
   id           Int           @id @default(autoincrement())
   name         String        @unique @db.VarChar(100)
   participants participant[]
+  activities   activity[]
 
   @@schema("arch_games")
 }
 
 model activity {
-  id               String   @id @default(uuid())
-  participant      String
-  team             String
-  date             DateTime
-  type             String
-  category         String
-  base_score       Float    @default(0)
-  multiplier       Float    @default(1.0)
-  calculated_score Float    @default(0)
-  key_process      String
-  activity         Json
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  id                   String       @id @default(uuid())
+  participant          String
+  team                 String
+  team_id              Int?
+  participant_id       String?
+  date                 DateTime
+  type                 String
+  category             String
+  base_score           Float        @default(0)
+  multiplier           Float        @default(1.0)
+  calculated_score     Float        @default(0)
+  key_process          String
+  activity             Json
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+  team_relation        team?        @relation(fields: [team_id], references: [id])
+  participant_relation participant? @relation(fields: [participant_id], references: [id])
 
   @@index([participant])
   @@index([team])
   @@index([category])
   @@index([key_process])
+  @@index([team_id])
+  @@index([participant_id])
   @@schema("arch_games")
 }
 
@@ -63,14 +70,15 @@ model image {
 }
 
 model participant {
-  id         String   @id @default(uuid())
-  name       String   @db.VarChar(100)
-  email      String   @unique @db.VarChar(100)
-  type       String   @db.VarChar(20) // participant, captain, governance
+  id         String     @id @default(uuid())
+  name       String     @db.VarChar(100)
+  email      String     @unique @db.VarChar(100)
+  type       String     @db.VarChar(20) // participant, captain, governance
   team_id    Int
-  team       team     @relation(fields: [team_id], references: [id])
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  team       team       @relation(fields: [team_id], references: [id])
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt
+  activities activity[]
 
   @@index([team_id])
   @@schema("arch_games")

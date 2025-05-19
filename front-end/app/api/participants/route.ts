@@ -1,11 +1,20 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const teamId = searchParams.get('team_id');
+
+    const where = teamId ? { team_id: parseInt(teamId) } : {};
+
     const participants = await prisma.participant.findMany({
+      where,
       include: {
         team: true
+      },
+      orderBy: {
+        name: 'asc'
       }
     });
     return NextResponse.json(participants);

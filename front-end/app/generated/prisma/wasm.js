@@ -129,6 +129,8 @@ exports.Prisma.ActivityScalarFieldEnum = {
   id: 'id',
   participant: 'participant',
   team: 'team',
+  team_id: 'team_id',
+  participant_id: 'participant_id',
   date: 'date',
   type: 'type',
   category: 'category',
@@ -181,6 +183,11 @@ exports.Prisma.JsonNullValueFilter = {
   DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
+};
+
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
 };
 
 

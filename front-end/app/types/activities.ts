@@ -2,6 +2,8 @@
 export interface BaseActivity {
   participant: string;
   team: string;
+  team_id?: string | number;
+  participant_id?: string;
   date: string;
   type: 'participant' | 'captain' | 'governance';
   category: string;

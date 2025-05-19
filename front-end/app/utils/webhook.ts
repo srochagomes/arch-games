@@ -17,10 +17,20 @@ interface FileInfo {
 interface WebhookData {
   key_process: string;
   team: string;
+  team_id: number;
+  participant_id: string;
+  participants: Array<{
+    id: string;
+    name: string;
+    type: string;
+  }>;
   activityDate: string;
-  participants: any[];
-  files: FileInfo[];
-  fileNames?: string; // Names of multipart attributes (files0, files1, etc.)
+  files: Array<{
+    name: string;
+    type: string;
+    buffer: Buffer;
+  }>;
+  fileNames: string;
 }
 
 // Validate participant type
@@ -41,8 +51,10 @@ export async function sendToN8N(data: WebhookData): Promise<void> {
     // Add all form fields
     formData.append('key_process', data.key_process);
     formData.append('team', data.team);
-    formData.append('activityDate', data.activityDate);
+    formData.append('team_id', data.team_id.toString());
+    formData.append('participant_id', data.participant_id);
     formData.append('participants', JSON.stringify(data.participants));
+    formData.append('activityDate', data.activityDate);
 
     // Create multipart attribute names string (files0, files1, etc.)
     const fileNames = data.files.map((_, index) => `${MULTIPART_FILE_FIELD}${index}`).join(', ');
@@ -50,7 +62,8 @@ export async function sendToN8N(data: WebhookData): Promise<void> {
 
     // Add files as binary with original filenames
     data.files.forEach((file, index) => {
-      formData.append(MULTIPART_FILE_FIELD, file.buffer, {
+      const fieldName = `${MULTIPART_FILE_FIELD}${index}`;
+      formData.append(fieldName, file.buffer, {
         filename: file.name,
         contentType: file.type
       });

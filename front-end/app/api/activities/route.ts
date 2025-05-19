@@ -20,17 +20,6 @@ export async function POST(request: Request) {
   try {
     const modelActivity: ModelActivity = await request.json();
 
-    // Validate the activity
-    const validationResult = validateActivity(modelActivity);
-    if (!validationResult.isValid) {
-      return corsResponse(
-        NextResponse.json(
-          { error: validationResult.error },
-          { status: 400 }
-        )
-      );
-    }
-
     // Ensure the date string has seconds and milliseconds for proper Date parsing
     const dateStr = modelActivity.date;
     const formattedDate = dateStr.includes(':') && dateStr.split(':').length === 2 
@@ -42,6 +31,8 @@ export async function POST(request: Request) {
       data: {
         participant: modelActivity.participant,
         team: modelActivity.team,
+        team_id: modelActivity.team_id ? parseInt(modelActivity.team_id.toString()) : null,
+        participant_id: modelActivity.participant_id,
         date: new Date(formattedDate), // Convert string date to Date object with proper formatting
         type: modelActivity.type,
         category: modelActivity.category,

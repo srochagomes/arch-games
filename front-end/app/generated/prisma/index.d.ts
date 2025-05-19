@@ -1143,10 +1143,12 @@ export namespace Prisma {
 
   export type TeamCountOutputType = {
     participants: number
+    activities: number
   }
 
   export type TeamCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     participants?: boolean | TeamCountOutputTypeCountParticipantsArgs
+    activities?: boolean | TeamCountOutputTypeCountActivitiesArgs
   }
 
   // Custom InputTypes
@@ -1165,6 +1167,44 @@ export namespace Prisma {
    */
   export type TeamCountOutputTypeCountParticipantsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: participantWhereInput
+  }
+
+  /**
+   * TeamCountOutputType without action
+   */
+  export type TeamCountOutputTypeCountActivitiesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: activityWhereInput
+  }
+
+
+  /**
+   * Count Type ParticipantCountOutputType
+   */
+
+  export type ParticipantCountOutputType = {
+    activities: number
+  }
+
+  export type ParticipantCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    activities?: boolean | ParticipantCountOutputTypeCountActivitiesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * ParticipantCountOutputType without action
+   */
+  export type ParticipantCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ParticipantCountOutputType
+     */
+    select?: ParticipantCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * ParticipantCountOutputType without action
+   */
+  export type ParticipantCountOutputTypeCountActivitiesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: activityWhereInput
   }
 
 
@@ -1347,6 +1387,7 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     participants?: boolean | team$participantsArgs<ExtArgs>
+    activities?: boolean | team$activitiesArgs<ExtArgs>
     _count?: boolean | TeamCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["team"]>
 
@@ -1368,6 +1409,7 @@ export namespace Prisma {
   export type teamOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name", ExtArgs["result"]["team"]>
   export type teamInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     participants?: boolean | team$participantsArgs<ExtArgs>
+    activities?: boolean | team$activitiesArgs<ExtArgs>
     _count?: boolean | TeamCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type teamIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -1377,6 +1419,7 @@ export namespace Prisma {
     name: "team"
     objects: {
       participants: Prisma.$participantPayload<ExtArgs>[]
+      activities: Prisma.$activityPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -1776,6 +1819,7 @@ export namespace Prisma {
   export interface Prisma__teamClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     participants<T extends team$participantsArgs<ExtArgs> = {}>(args?: Subset<T, team$participantsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$participantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    activities<T extends team$activitiesArgs<ExtArgs> = {}>(args?: Subset<T, team$activitiesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$activityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2219,6 +2263,30 @@ export namespace Prisma {
   }
 
   /**
+   * team.activities
+   */
+  export type team$activitiesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the activity
+     */
+    select?: activitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the activity
+     */
+    omit?: activityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: activityInclude<ExtArgs> | null
+    where?: activityWhereInput
+    orderBy?: activityOrderByWithRelationInput | activityOrderByWithRelationInput[]
+    cursor?: activityWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ActivityScalarFieldEnum | ActivityScalarFieldEnum[]
+  }
+
+  /**
    * team without action
    */
   export type teamDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2250,12 +2318,14 @@ export namespace Prisma {
   }
 
   export type ActivityAvgAggregateOutputType = {
+    team_id: number | null
     base_score: number | null
     multiplier: number | null
     calculated_score: number | null
   }
 
   export type ActivitySumAggregateOutputType = {
+    team_id: number | null
     base_score: number | null
     multiplier: number | null
     calculated_score: number | null
@@ -2265,6 +2335,8 @@ export namespace Prisma {
     id: string | null
     participant: string | null
     team: string | null
+    team_id: number | null
+    participant_id: string | null
     date: Date | null
     type: string | null
     category: string | null
@@ -2280,6 +2352,8 @@ export namespace Prisma {
     id: string | null
     participant: string | null
     team: string | null
+    team_id: number | null
+    participant_id: string | null
     date: Date | null
     type: string | null
     category: string | null
@@ -2295,6 +2369,8 @@ export namespace Prisma {
     id: number
     participant: number
     team: number
+    team_id: number
+    participant_id: number
     date: number
     type: number
     category: number
@@ -2310,12 +2386,14 @@ export namespace Prisma {
 
 
   export type ActivityAvgAggregateInputType = {
+    team_id?: true
     base_score?: true
     multiplier?: true
     calculated_score?: true
   }
 
   export type ActivitySumAggregateInputType = {
+    team_id?: true
     base_score?: true
     multiplier?: true
     calculated_score?: true
@@ -2325,6 +2403,8 @@ export namespace Prisma {
     id?: true
     participant?: true
     team?: true
+    team_id?: true
+    participant_id?: true
     date?: true
     type?: true
     category?: true
@@ -2340,6 +2420,8 @@ export namespace Prisma {
     id?: true
     participant?: true
     team?: true
+    team_id?: true
+    participant_id?: true
     date?: true
     type?: true
     category?: true
@@ -2355,6 +2437,8 @@ export namespace Prisma {
     id?: true
     participant?: true
     team?: true
+    team_id?: true
+    participant_id?: true
     date?: true
     type?: true
     category?: true
@@ -2458,6 +2542,8 @@ export namespace Prisma {
     id: string
     participant: string
     team: string
+    team_id: number | null
+    participant_id: string | null
     date: Date
     type: string
     category: string
@@ -2493,6 +2579,8 @@ export namespace Prisma {
     id?: boolean
     participant?: boolean
     team?: boolean
+    team_id?: boolean
+    participant_id?: boolean
     date?: boolean
     type?: boolean
     category?: boolean
@@ -2503,12 +2591,16 @@ export namespace Prisma {
     activity?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    team_relation?: boolean | activity$team_relationArgs<ExtArgs>
+    participant_relation?: boolean | activity$participant_relationArgs<ExtArgs>
   }, ExtArgs["result"]["activity"]>
 
   export type activitySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     participant?: boolean
     team?: boolean
+    team_id?: boolean
+    participant_id?: boolean
     date?: boolean
     type?: boolean
     category?: boolean
@@ -2519,12 +2611,16 @@ export namespace Prisma {
     activity?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    team_relation?: boolean | activity$team_relationArgs<ExtArgs>
+    participant_relation?: boolean | activity$participant_relationArgs<ExtArgs>
   }, ExtArgs["result"]["activity"]>
 
   export type activitySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     participant?: boolean
     team?: boolean
+    team_id?: boolean
+    participant_id?: boolean
     date?: boolean
     type?: boolean
     category?: boolean
@@ -2535,12 +2631,16 @@ export namespace Prisma {
     activity?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    team_relation?: boolean | activity$team_relationArgs<ExtArgs>
+    participant_relation?: boolean | activity$participant_relationArgs<ExtArgs>
   }, ExtArgs["result"]["activity"]>
 
   export type activitySelectScalar = {
     id?: boolean
     participant?: boolean
     team?: boolean
+    team_id?: boolean
+    participant_id?: boolean
     date?: boolean
     type?: boolean
     category?: boolean
@@ -2553,15 +2653,32 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type activityOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "participant" | "team" | "date" | "type" | "category" | "base_score" | "multiplier" | "calculated_score" | "key_process" | "activity" | "createdAt" | "updatedAt", ExtArgs["result"]["activity"]>
+  export type activityOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "participant" | "team" | "team_id" | "participant_id" | "date" | "type" | "category" | "base_score" | "multiplier" | "calculated_score" | "key_process" | "activity" | "createdAt" | "updatedAt", ExtArgs["result"]["activity"]>
+  export type activityInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    team_relation?: boolean | activity$team_relationArgs<ExtArgs>
+    participant_relation?: boolean | activity$participant_relationArgs<ExtArgs>
+  }
+  export type activityIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    team_relation?: boolean | activity$team_relationArgs<ExtArgs>
+    participant_relation?: boolean | activity$participant_relationArgs<ExtArgs>
+  }
+  export type activityIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    team_relation?: boolean | activity$team_relationArgs<ExtArgs>
+    participant_relation?: boolean | activity$participant_relationArgs<ExtArgs>
+  }
 
   export type $activityPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "activity"
-    objects: {}
+    objects: {
+      team_relation: Prisma.$teamPayload<ExtArgs> | null
+      participant_relation: Prisma.$participantPayload<ExtArgs> | null
+    }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       participant: string
       team: string
+      team_id: number | null
+      participant_id: string | null
       date: Date
       type: string
       category: string
@@ -2966,6 +3083,8 @@ export namespace Prisma {
    */
   export interface Prisma__activityClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    team_relation<T extends activity$team_relationArgs<ExtArgs> = {}>(args?: Subset<T, activity$team_relationArgs<ExtArgs>>): Prisma__teamClient<$Result.GetResult<Prisma.$teamPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    participant_relation<T extends activity$participant_relationArgs<ExtArgs> = {}>(args?: Subset<T, activity$participant_relationArgs<ExtArgs>>): Prisma__participantClient<$Result.GetResult<Prisma.$participantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2998,6 +3117,8 @@ export namespace Prisma {
     readonly id: FieldRef<"activity", 'String'>
     readonly participant: FieldRef<"activity", 'String'>
     readonly team: FieldRef<"activity", 'String'>
+    readonly team_id: FieldRef<"activity", 'Int'>
+    readonly participant_id: FieldRef<"activity", 'String'>
     readonly date: FieldRef<"activity", 'DateTime'>
     readonly type: FieldRef<"activity", 'String'>
     readonly category: FieldRef<"activity", 'String'>
@@ -3025,6 +3146,10 @@ export namespace Prisma {
      */
     omit?: activityOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: activityInclude<ExtArgs> | null
+    /**
      * Filter, which activity to fetch.
      */
     where: activityWhereUniqueInput
@@ -3043,6 +3168,10 @@ export namespace Prisma {
      */
     omit?: activityOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: activityInclude<ExtArgs> | null
+    /**
      * Filter, which activity to fetch.
      */
     where: activityWhereUniqueInput
@@ -3060,6 +3189,10 @@ export namespace Prisma {
      * Omit specific fields from the activity
      */
     omit?: activityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: activityInclude<ExtArgs> | null
     /**
      * Filter, which activity to fetch.
      */
@@ -3109,6 +3242,10 @@ export namespace Prisma {
      */
     omit?: activityOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: activityInclude<ExtArgs> | null
+    /**
      * Filter, which activity to fetch.
      */
     where?: activityWhereInput
@@ -3157,6 +3294,10 @@ export namespace Prisma {
      */
     omit?: activityOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: activityInclude<ExtArgs> | null
+    /**
      * Filter, which activities to fetch.
      */
     where?: activityWhereInput
@@ -3200,6 +3341,10 @@ export namespace Prisma {
      */
     omit?: activityOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: activityInclude<ExtArgs> | null
+    /**
      * The data needed to create a activity.
      */
     data: XOR<activityCreateInput, activityUncheckedCreateInput>
@@ -3233,6 +3378,10 @@ export namespace Prisma {
      */
     data: activityCreateManyInput | activityCreateManyInput[]
     skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: activityIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -3247,6 +3396,10 @@ export namespace Prisma {
      * Omit specific fields from the activity
      */
     omit?: activityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: activityInclude<ExtArgs> | null
     /**
      * The data needed to update a activity.
      */
@@ -3299,6 +3452,10 @@ export namespace Prisma {
      * Limit how many activities to update.
      */
     limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: activityIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -3313,6 +3470,10 @@ export namespace Prisma {
      * Omit specific fields from the activity
      */
     omit?: activityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: activityInclude<ExtArgs> | null
     /**
      * The filter to search for the activity to update in case it exists.
      */
@@ -3340,6 +3501,10 @@ export namespace Prisma {
      */
     omit?: activityOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: activityInclude<ExtArgs> | null
+    /**
      * Filter which activity to delete.
      */
     where: activityWhereUniqueInput
@@ -3360,6 +3525,44 @@ export namespace Prisma {
   }
 
   /**
+   * activity.team_relation
+   */
+  export type activity$team_relationArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the team
+     */
+    select?: teamSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the team
+     */
+    omit?: teamOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: teamInclude<ExtArgs> | null
+    where?: teamWhereInput
+  }
+
+  /**
+   * activity.participant_relation
+   */
+  export type activity$participant_relationArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the participant
+     */
+    select?: participantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the participant
+     */
+    omit?: participantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: participantInclude<ExtArgs> | null
+    where?: participantWhereInput
+  }
+
+  /**
    * activity without action
    */
   export type activityDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3371,6 +3574,10 @@ export namespace Prisma {
      * Omit specific fields from the activity
      */
     omit?: activityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: activityInclude<ExtArgs> | null
   }
 
 
@@ -4670,6 +4877,8 @@ export namespace Prisma {
     created_at?: boolean
     updated_at?: boolean
     team?: boolean | teamDefaultArgs<ExtArgs>
+    activities?: boolean | participant$activitiesArgs<ExtArgs>
+    _count?: boolean | ParticipantCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["participant"]>
 
   export type participantSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -4707,6 +4916,8 @@ export namespace Prisma {
   export type participantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "type" | "team_id" | "created_at" | "updated_at", ExtArgs["result"]["participant"]>
   export type participantInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     team?: boolean | teamDefaultArgs<ExtArgs>
+    activities?: boolean | participant$activitiesArgs<ExtArgs>
+    _count?: boolean | ParticipantCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type participantIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     team?: boolean | teamDefaultArgs<ExtArgs>
@@ -4719,6 +4930,7 @@ export namespace Prisma {
     name: "participant"
     objects: {
       team: Prisma.$teamPayload<ExtArgs>
+      activities: Prisma.$activityPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -5123,6 +5335,7 @@ export namespace Prisma {
   export interface Prisma__participantClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     team<T extends teamDefaultArgs<ExtArgs> = {}>(args?: Subset<T, teamDefaultArgs<ExtArgs>>): Prisma__teamClient<$Result.GetResult<Prisma.$teamPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    activities<T extends participant$activitiesArgs<ExtArgs> = {}>(args?: Subset<T, participant$activitiesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$activityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5555,6 +5768,30 @@ export namespace Prisma {
   }
 
   /**
+   * participant.activities
+   */
+  export type participant$activitiesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the activity
+     */
+    select?: activitySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the activity
+     */
+    omit?: activityOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: activityInclude<ExtArgs> | null
+    where?: activityWhereInput
+    orderBy?: activityOrderByWithRelationInput | activityOrderByWithRelationInput[]
+    cursor?: activityWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ActivityScalarFieldEnum | ActivityScalarFieldEnum[]
+  }
+
+  /**
    * participant without action
    */
   export type participantDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5599,6 +5836,8 @@ export namespace Prisma {
     id: 'id',
     participant: 'participant',
     team: 'team',
+    team_id: 'team_id',
+    participant_id: 'participant_id',
     date: 'date',
     type: 'type',
     category: 'category',
@@ -5672,6 +5911,14 @@ export namespace Prisma {
   };
 
   export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+  export const NullsOrder: {
+    first: 'first',
+    last: 'last'
+  };
+
+  export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
   /**
@@ -5759,12 +6006,14 @@ export namespace Prisma {
     id?: IntFilter<"team"> | number
     name?: StringFilter<"team"> | string
     participants?: ParticipantListRelationFilter
+    activities?: ActivityListRelationFilter
   }
 
   export type teamOrderByWithRelationInput = {
     id?: SortOrder
     name?: SortOrder
     participants?: participantOrderByRelationAggregateInput
+    activities?: activityOrderByRelationAggregateInput
   }
 
   export type teamWhereUniqueInput = Prisma.AtLeast<{
@@ -5774,6 +6023,7 @@ export namespace Prisma {
     OR?: teamWhereInput[]
     NOT?: teamWhereInput | teamWhereInput[]
     participants?: ParticipantListRelationFilter
+    activities?: ActivityListRelationFilter
   }, "id" | "name">
 
   export type teamOrderByWithAggregationInput = {
@@ -5801,6 +6051,8 @@ export namespace Prisma {
     id?: StringFilter<"activity"> | string
     participant?: StringFilter<"activity"> | string
     team?: StringFilter<"activity"> | string
+    team_id?: IntNullableFilter<"activity"> | number | null
+    participant_id?: StringNullableFilter<"activity"> | string | null
     date?: DateTimeFilter<"activity"> | Date | string
     type?: StringFilter<"activity"> | string
     category?: StringFilter<"activity"> | string
@@ -5811,12 +6063,16 @@ export namespace Prisma {
     activity?: JsonFilter<"activity">
     createdAt?: DateTimeFilter<"activity"> | Date | string
     updatedAt?: DateTimeFilter<"activity"> | Date | string
+    team_relation?: XOR<TeamNullableScalarRelationFilter, teamWhereInput> | null
+    participant_relation?: XOR<ParticipantNullableScalarRelationFilter, participantWhereInput> | null
   }
 
   export type activityOrderByWithRelationInput = {
     id?: SortOrder
     participant?: SortOrder
     team?: SortOrder
+    team_id?: SortOrderInput | SortOrder
+    participant_id?: SortOrderInput | SortOrder
     date?: SortOrder
     type?: SortOrder
     category?: SortOrder
@@ -5827,6 +6083,8 @@ export namespace Prisma {
     activity?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    team_relation?: teamOrderByWithRelationInput
+    participant_relation?: participantOrderByWithRelationInput
   }
 
   export type activityWhereUniqueInput = Prisma.AtLeast<{
@@ -5836,6 +6094,8 @@ export namespace Prisma {
     NOT?: activityWhereInput | activityWhereInput[]
     participant?: StringFilter<"activity"> | string
     team?: StringFilter<"activity"> | string
+    team_id?: IntNullableFilter<"activity"> | number | null
+    participant_id?: StringNullableFilter<"activity"> | string | null
     date?: DateTimeFilter<"activity"> | Date | string
     type?: StringFilter<"activity"> | string
     category?: StringFilter<"activity"> | string
@@ -5846,12 +6106,16 @@ export namespace Prisma {
     activity?: JsonFilter<"activity">
     createdAt?: DateTimeFilter<"activity"> | Date | string
     updatedAt?: DateTimeFilter<"activity"> | Date | string
+    team_relation?: XOR<TeamNullableScalarRelationFilter, teamWhereInput> | null
+    participant_relation?: XOR<ParticipantNullableScalarRelationFilter, participantWhereInput> | null
   }, "id">
 
   export type activityOrderByWithAggregationInput = {
     id?: SortOrder
     participant?: SortOrder
     team?: SortOrder
+    team_id?: SortOrderInput | SortOrder
+    participant_id?: SortOrderInput | SortOrder
     date?: SortOrder
     type?: SortOrder
     category?: SortOrder
@@ -5876,6 +6140,8 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"activity"> | string
     participant?: StringWithAggregatesFilter<"activity"> | string
     team?: StringWithAggregatesFilter<"activity"> | string
+    team_id?: IntNullableWithAggregatesFilter<"activity"> | number | null
+    participant_id?: StringNullableWithAggregatesFilter<"activity"> | string | null
     date?: DateTimeWithAggregatesFilter<"activity"> | Date | string
     type?: StringWithAggregatesFilter<"activity"> | string
     category?: StringWithAggregatesFilter<"activity"> | string
@@ -5974,6 +6240,7 @@ export namespace Prisma {
     created_at?: DateTimeFilter<"participant"> | Date | string
     updated_at?: DateTimeFilter<"participant"> | Date | string
     team?: XOR<TeamScalarRelationFilter, teamWhereInput>
+    activities?: ActivityListRelationFilter
   }
 
   export type participantOrderByWithRelationInput = {
@@ -5985,6 +6252,7 @@ export namespace Prisma {
     created_at?: SortOrder
     updated_at?: SortOrder
     team?: teamOrderByWithRelationInput
+    activities?: activityOrderByRelationAggregateInput
   }
 
   export type participantWhereUniqueInput = Prisma.AtLeast<{
@@ -5999,6 +6267,7 @@ export namespace Prisma {
     created_at?: DateTimeFilter<"participant"> | Date | string
     updated_at?: DateTimeFilter<"participant"> | Date | string
     team?: XOR<TeamScalarRelationFilter, teamWhereInput>
+    activities?: ActivityListRelationFilter
   }, "id" | "email">
 
   export type participantOrderByWithAggregationInput = {
@@ -6032,23 +6301,27 @@ export namespace Prisma {
   export type teamCreateInput = {
     name: string
     participants?: participantCreateNestedManyWithoutTeamInput
+    activities?: activityCreateNestedManyWithoutTeam_relationInput
   }
 
   export type teamUncheckedCreateInput = {
     id?: number
     name: string
     participants?: participantUncheckedCreateNestedManyWithoutTeamInput
+    activities?: activityUncheckedCreateNestedManyWithoutTeam_relationInput
   }
 
   export type teamUpdateInput = {
     name?: StringFieldUpdateOperationsInput | string
     participants?: participantUpdateManyWithoutTeamNestedInput
+    activities?: activityUpdateManyWithoutTeam_relationNestedInput
   }
 
   export type teamUncheckedUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
     participants?: participantUncheckedUpdateManyWithoutTeamNestedInput
+    activities?: activityUncheckedUpdateManyWithoutTeam_relationNestedInput
   }
 
   export type teamCreateManyInput = {
@@ -6079,12 +6352,16 @@ export namespace Prisma {
     activity: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    team_relation?: teamCreateNestedOneWithoutActivitiesInput
+    participant_relation?: participantCreateNestedOneWithoutActivitiesInput
   }
 
   export type activityUncheckedCreateInput = {
     id?: string
     participant: string
     team: string
+    team_id?: number | null
+    participant_id?: string | null
     date: Date | string
     type: string
     category: string
@@ -6111,12 +6388,16 @@ export namespace Prisma {
     activity?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    team_relation?: teamUpdateOneWithoutActivitiesNestedInput
+    participant_relation?: participantUpdateOneWithoutActivitiesNestedInput
   }
 
   export type activityUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     participant?: StringFieldUpdateOperationsInput | string
     team?: StringFieldUpdateOperationsInput | string
+    team_id?: NullableIntFieldUpdateOperationsInput | number | null
+    participant_id?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     type?: StringFieldUpdateOperationsInput | string
     category?: StringFieldUpdateOperationsInput | string
@@ -6133,6 +6414,8 @@ export namespace Prisma {
     id?: string
     participant: string
     team: string
+    team_id?: number | null
+    participant_id?: string | null
     date: Date | string
     type: string
     category: string
@@ -6165,6 +6448,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     participant?: StringFieldUpdateOperationsInput | string
     team?: StringFieldUpdateOperationsInput | string
+    team_id?: NullableIntFieldUpdateOperationsInput | number | null
+    participant_id?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     type?: StringFieldUpdateOperationsInput | string
     category?: StringFieldUpdateOperationsInput | string
@@ -6266,6 +6551,7 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     team: teamCreateNestedOneWithoutParticipantsInput
+    activities?: activityCreateNestedManyWithoutParticipant_relationInput
   }
 
   export type participantUncheckedCreateInput = {
@@ -6276,6 +6562,7 @@ export namespace Prisma {
     team_id: number
     created_at?: Date | string
     updated_at?: Date | string
+    activities?: activityUncheckedCreateNestedManyWithoutParticipant_relationInput
   }
 
   export type participantUpdateInput = {
@@ -6286,6 +6573,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: teamUpdateOneRequiredWithoutParticipantsNestedInput
+    activities?: activityUpdateManyWithoutParticipant_relationNestedInput
   }
 
   export type participantUncheckedUpdateInput = {
@@ -6296,6 +6584,7 @@ export namespace Prisma {
     team_id?: IntFieldUpdateOperationsInput | number
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    activities?: activityUncheckedUpdateManyWithoutParticipant_relationNestedInput
   }
 
   export type participantCreateManyInput = {
@@ -6359,7 +6648,17 @@ export namespace Prisma {
     none?: participantWhereInput
   }
 
+  export type ActivityListRelationFilter = {
+    every?: activityWhereInput
+    some?: activityWhereInput
+    none?: activityWhereInput
+  }
+
   export type participantOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type activityOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -6420,6 +6719,32 @@ export namespace Prisma {
     _max?: NestedStringFilter<$PrismaModel>
   }
 
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type StringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
   export type DateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -6465,10 +6790,27 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
+  export type TeamNullableScalarRelationFilter = {
+    is?: teamWhereInput | null
+    isNot?: teamWhereInput | null
+  }
+
+  export type ParticipantNullableScalarRelationFilter = {
+    is?: participantWhereInput | null
+    isNot?: participantWhereInput | null
+  }
+
+  export type SortOrderInput = {
+    sort: SortOrder
+    nulls?: NullsOrder
+  }
+
   export type activityCountOrderByAggregateInput = {
     id?: SortOrder
     participant?: SortOrder
     team?: SortOrder
+    team_id?: SortOrder
+    participant_id?: SortOrder
     date?: SortOrder
     type?: SortOrder
     category?: SortOrder
@@ -6482,6 +6824,7 @@ export namespace Prisma {
   }
 
   export type activityAvgOrderByAggregateInput = {
+    team_id?: SortOrder
     base_score?: SortOrder
     multiplier?: SortOrder
     calculated_score?: SortOrder
@@ -6491,6 +6834,8 @@ export namespace Prisma {
     id?: SortOrder
     participant?: SortOrder
     team?: SortOrder
+    team_id?: SortOrder
+    participant_id?: SortOrder
     date?: SortOrder
     type?: SortOrder
     category?: SortOrder
@@ -6506,6 +6851,8 @@ export namespace Prisma {
     id?: SortOrder
     participant?: SortOrder
     team?: SortOrder
+    team_id?: SortOrder
+    participant_id?: SortOrder
     date?: SortOrder
     type?: SortOrder
     category?: SortOrder
@@ -6518,9 +6865,44 @@ export namespace Prisma {
   }
 
   export type activitySumOrderByAggregateInput = {
+    team_id?: SortOrder
     base_score?: SortOrder
     multiplier?: SortOrder
     calculated_score?: SortOrder
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
   export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -6673,11 +7055,25 @@ export namespace Prisma {
     connect?: participantWhereUniqueInput | participantWhereUniqueInput[]
   }
 
+  export type activityCreateNestedManyWithoutTeam_relationInput = {
+    create?: XOR<activityCreateWithoutTeam_relationInput, activityUncheckedCreateWithoutTeam_relationInput> | activityCreateWithoutTeam_relationInput[] | activityUncheckedCreateWithoutTeam_relationInput[]
+    connectOrCreate?: activityCreateOrConnectWithoutTeam_relationInput | activityCreateOrConnectWithoutTeam_relationInput[]
+    createMany?: activityCreateManyTeam_relationInputEnvelope
+    connect?: activityWhereUniqueInput | activityWhereUniqueInput[]
+  }
+
   export type participantUncheckedCreateNestedManyWithoutTeamInput = {
     create?: XOR<participantCreateWithoutTeamInput, participantUncheckedCreateWithoutTeamInput> | participantCreateWithoutTeamInput[] | participantUncheckedCreateWithoutTeamInput[]
     connectOrCreate?: participantCreateOrConnectWithoutTeamInput | participantCreateOrConnectWithoutTeamInput[]
     createMany?: participantCreateManyTeamInputEnvelope
     connect?: participantWhereUniqueInput | participantWhereUniqueInput[]
+  }
+
+  export type activityUncheckedCreateNestedManyWithoutTeam_relationInput = {
+    create?: XOR<activityCreateWithoutTeam_relationInput, activityUncheckedCreateWithoutTeam_relationInput> | activityCreateWithoutTeam_relationInput[] | activityUncheckedCreateWithoutTeam_relationInput[]
+    connectOrCreate?: activityCreateOrConnectWithoutTeam_relationInput | activityCreateOrConnectWithoutTeam_relationInput[]
+    createMany?: activityCreateManyTeam_relationInputEnvelope
+    connect?: activityWhereUniqueInput | activityWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -6696,6 +7092,20 @@ export namespace Prisma {
     update?: participantUpdateWithWhereUniqueWithoutTeamInput | participantUpdateWithWhereUniqueWithoutTeamInput[]
     updateMany?: participantUpdateManyWithWhereWithoutTeamInput | participantUpdateManyWithWhereWithoutTeamInput[]
     deleteMany?: participantScalarWhereInput | participantScalarWhereInput[]
+  }
+
+  export type activityUpdateManyWithoutTeam_relationNestedInput = {
+    create?: XOR<activityCreateWithoutTeam_relationInput, activityUncheckedCreateWithoutTeam_relationInput> | activityCreateWithoutTeam_relationInput[] | activityUncheckedCreateWithoutTeam_relationInput[]
+    connectOrCreate?: activityCreateOrConnectWithoutTeam_relationInput | activityCreateOrConnectWithoutTeam_relationInput[]
+    upsert?: activityUpsertWithWhereUniqueWithoutTeam_relationInput | activityUpsertWithWhereUniqueWithoutTeam_relationInput[]
+    createMany?: activityCreateManyTeam_relationInputEnvelope
+    set?: activityWhereUniqueInput | activityWhereUniqueInput[]
+    disconnect?: activityWhereUniqueInput | activityWhereUniqueInput[]
+    delete?: activityWhereUniqueInput | activityWhereUniqueInput[]
+    connect?: activityWhereUniqueInput | activityWhereUniqueInput[]
+    update?: activityUpdateWithWhereUniqueWithoutTeam_relationInput | activityUpdateWithWhereUniqueWithoutTeam_relationInput[]
+    updateMany?: activityUpdateManyWithWhereWithoutTeam_relationInput | activityUpdateManyWithWhereWithoutTeam_relationInput[]
+    deleteMany?: activityScalarWhereInput | activityScalarWhereInput[]
   }
 
   export type IntFieldUpdateOperationsInput = {
@@ -6720,6 +7130,32 @@ export namespace Prisma {
     deleteMany?: participantScalarWhereInput | participantScalarWhereInput[]
   }
 
+  export type activityUncheckedUpdateManyWithoutTeam_relationNestedInput = {
+    create?: XOR<activityCreateWithoutTeam_relationInput, activityUncheckedCreateWithoutTeam_relationInput> | activityCreateWithoutTeam_relationInput[] | activityUncheckedCreateWithoutTeam_relationInput[]
+    connectOrCreate?: activityCreateOrConnectWithoutTeam_relationInput | activityCreateOrConnectWithoutTeam_relationInput[]
+    upsert?: activityUpsertWithWhereUniqueWithoutTeam_relationInput | activityUpsertWithWhereUniqueWithoutTeam_relationInput[]
+    createMany?: activityCreateManyTeam_relationInputEnvelope
+    set?: activityWhereUniqueInput | activityWhereUniqueInput[]
+    disconnect?: activityWhereUniqueInput | activityWhereUniqueInput[]
+    delete?: activityWhereUniqueInput | activityWhereUniqueInput[]
+    connect?: activityWhereUniqueInput | activityWhereUniqueInput[]
+    update?: activityUpdateWithWhereUniqueWithoutTeam_relationInput | activityUpdateWithWhereUniqueWithoutTeam_relationInput[]
+    updateMany?: activityUpdateManyWithWhereWithoutTeam_relationInput | activityUpdateManyWithWhereWithoutTeam_relationInput[]
+    deleteMany?: activityScalarWhereInput | activityScalarWhereInput[]
+  }
+
+  export type teamCreateNestedOneWithoutActivitiesInput = {
+    create?: XOR<teamCreateWithoutActivitiesInput, teamUncheckedCreateWithoutActivitiesInput>
+    connectOrCreate?: teamCreateOrConnectWithoutActivitiesInput
+    connect?: teamWhereUniqueInput
+  }
+
+  export type participantCreateNestedOneWithoutActivitiesInput = {
+    create?: XOR<participantCreateWithoutActivitiesInput, participantUncheckedCreateWithoutActivitiesInput>
+    connectOrCreate?: participantCreateOrConnectWithoutActivitiesInput
+    connect?: participantWhereUniqueInput
+  }
+
   export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string
   }
@@ -6732,10 +7168,56 @@ export namespace Prisma {
     divide?: number
   }
 
+  export type teamUpdateOneWithoutActivitiesNestedInput = {
+    create?: XOR<teamCreateWithoutActivitiesInput, teamUncheckedCreateWithoutActivitiesInput>
+    connectOrCreate?: teamCreateOrConnectWithoutActivitiesInput
+    upsert?: teamUpsertWithoutActivitiesInput
+    disconnect?: teamWhereInput | boolean
+    delete?: teamWhereInput | boolean
+    connect?: teamWhereUniqueInput
+    update?: XOR<XOR<teamUpdateToOneWithWhereWithoutActivitiesInput, teamUpdateWithoutActivitiesInput>, teamUncheckedUpdateWithoutActivitiesInput>
+  }
+
+  export type participantUpdateOneWithoutActivitiesNestedInput = {
+    create?: XOR<participantCreateWithoutActivitiesInput, participantUncheckedCreateWithoutActivitiesInput>
+    connectOrCreate?: participantCreateOrConnectWithoutActivitiesInput
+    upsert?: participantUpsertWithoutActivitiesInput
+    disconnect?: participantWhereInput | boolean
+    delete?: participantWhereInput | boolean
+    connect?: participantWhereUniqueInput
+    update?: XOR<XOR<participantUpdateToOneWithWhereWithoutActivitiesInput, participantUpdateWithoutActivitiesInput>, participantUncheckedUpdateWithoutActivitiesInput>
+  }
+
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type NullableStringFieldUpdateOperationsInput = {
+    set?: string | null
+  }
+
   export type teamCreateNestedOneWithoutParticipantsInput = {
     create?: XOR<teamCreateWithoutParticipantsInput, teamUncheckedCreateWithoutParticipantsInput>
     connectOrCreate?: teamCreateOrConnectWithoutParticipantsInput
     connect?: teamWhereUniqueInput
+  }
+
+  export type activityCreateNestedManyWithoutParticipant_relationInput = {
+    create?: XOR<activityCreateWithoutParticipant_relationInput, activityUncheckedCreateWithoutParticipant_relationInput> | activityCreateWithoutParticipant_relationInput[] | activityUncheckedCreateWithoutParticipant_relationInput[]
+    connectOrCreate?: activityCreateOrConnectWithoutParticipant_relationInput | activityCreateOrConnectWithoutParticipant_relationInput[]
+    createMany?: activityCreateManyParticipant_relationInputEnvelope
+    connect?: activityWhereUniqueInput | activityWhereUniqueInput[]
+  }
+
+  export type activityUncheckedCreateNestedManyWithoutParticipant_relationInput = {
+    create?: XOR<activityCreateWithoutParticipant_relationInput, activityUncheckedCreateWithoutParticipant_relationInput> | activityCreateWithoutParticipant_relationInput[] | activityUncheckedCreateWithoutParticipant_relationInput[]
+    connectOrCreate?: activityCreateOrConnectWithoutParticipant_relationInput | activityCreateOrConnectWithoutParticipant_relationInput[]
+    createMany?: activityCreateManyParticipant_relationInputEnvelope
+    connect?: activityWhereUniqueInput | activityWhereUniqueInput[]
   }
 
   export type teamUpdateOneRequiredWithoutParticipantsNestedInput = {
@@ -6744,6 +7226,34 @@ export namespace Prisma {
     upsert?: teamUpsertWithoutParticipantsInput
     connect?: teamWhereUniqueInput
     update?: XOR<XOR<teamUpdateToOneWithWhereWithoutParticipantsInput, teamUpdateWithoutParticipantsInput>, teamUncheckedUpdateWithoutParticipantsInput>
+  }
+
+  export type activityUpdateManyWithoutParticipant_relationNestedInput = {
+    create?: XOR<activityCreateWithoutParticipant_relationInput, activityUncheckedCreateWithoutParticipant_relationInput> | activityCreateWithoutParticipant_relationInput[] | activityUncheckedCreateWithoutParticipant_relationInput[]
+    connectOrCreate?: activityCreateOrConnectWithoutParticipant_relationInput | activityCreateOrConnectWithoutParticipant_relationInput[]
+    upsert?: activityUpsertWithWhereUniqueWithoutParticipant_relationInput | activityUpsertWithWhereUniqueWithoutParticipant_relationInput[]
+    createMany?: activityCreateManyParticipant_relationInputEnvelope
+    set?: activityWhereUniqueInput | activityWhereUniqueInput[]
+    disconnect?: activityWhereUniqueInput | activityWhereUniqueInput[]
+    delete?: activityWhereUniqueInput | activityWhereUniqueInput[]
+    connect?: activityWhereUniqueInput | activityWhereUniqueInput[]
+    update?: activityUpdateWithWhereUniqueWithoutParticipant_relationInput | activityUpdateWithWhereUniqueWithoutParticipant_relationInput[]
+    updateMany?: activityUpdateManyWithWhereWithoutParticipant_relationInput | activityUpdateManyWithWhereWithoutParticipant_relationInput[]
+    deleteMany?: activityScalarWhereInput | activityScalarWhereInput[]
+  }
+
+  export type activityUncheckedUpdateManyWithoutParticipant_relationNestedInput = {
+    create?: XOR<activityCreateWithoutParticipant_relationInput, activityUncheckedCreateWithoutParticipant_relationInput> | activityCreateWithoutParticipant_relationInput[] | activityUncheckedCreateWithoutParticipant_relationInput[]
+    connectOrCreate?: activityCreateOrConnectWithoutParticipant_relationInput | activityCreateOrConnectWithoutParticipant_relationInput[]
+    upsert?: activityUpsertWithWhereUniqueWithoutParticipant_relationInput | activityUpsertWithWhereUniqueWithoutParticipant_relationInput[]
+    createMany?: activityCreateManyParticipant_relationInputEnvelope
+    set?: activityWhereUniqueInput | activityWhereUniqueInput[]
+    disconnect?: activityWhereUniqueInput | activityWhereUniqueInput[]
+    delete?: activityWhereUniqueInput | activityWhereUniqueInput[]
+    connect?: activityWhereUniqueInput | activityWhereUniqueInput[]
+    update?: activityUpdateWithWhereUniqueWithoutParticipant_relationInput | activityUpdateWithWhereUniqueWithoutParticipant_relationInput[]
+    updateMany?: activityUpdateManyWithWhereWithoutParticipant_relationInput | activityUpdateManyWithWhereWithoutParticipant_relationInput[]
+    deleteMany?: activityScalarWhereInput | activityScalarWhereInput[]
   }
 
   export type NestedIntFilter<$PrismaModel = never> = {
@@ -6815,6 +7325,31 @@ export namespace Prisma {
     _max?: NestedStringFilter<$PrismaModel>
   }
 
+  export type NestedIntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedStringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
   export type NestedDateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -6824,6 +7359,50 @@ export namespace Prisma {
     gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
+  }
+
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -6886,6 +7465,7 @@ export namespace Prisma {
     type: string
     created_at?: Date | string
     updated_at?: Date | string
+    activities?: activityCreateNestedManyWithoutParticipant_relationInput
   }
 
   export type participantUncheckedCreateWithoutTeamInput = {
@@ -6895,6 +7475,7 @@ export namespace Prisma {
     type: string
     created_at?: Date | string
     updated_at?: Date | string
+    activities?: activityUncheckedCreateNestedManyWithoutParticipant_relationInput
   }
 
   export type participantCreateOrConnectWithoutTeamInput = {
@@ -6904,6 +7485,50 @@ export namespace Prisma {
 
   export type participantCreateManyTeamInputEnvelope = {
     data: participantCreateManyTeamInput | participantCreateManyTeamInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type activityCreateWithoutTeam_relationInput = {
+    id?: string
+    participant: string
+    team: string
+    date: Date | string
+    type: string
+    category: string
+    base_score?: number
+    multiplier?: number
+    calculated_score?: number
+    key_process: string
+    activity: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    participant_relation?: participantCreateNestedOneWithoutActivitiesInput
+  }
+
+  export type activityUncheckedCreateWithoutTeam_relationInput = {
+    id?: string
+    participant: string
+    team: string
+    participant_id?: string | null
+    date: Date | string
+    type: string
+    category: string
+    base_score?: number
+    multiplier?: number
+    calculated_score?: number
+    key_process: string
+    activity: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type activityCreateOrConnectWithoutTeam_relationInput = {
+    where: activityWhereUniqueInput
+    create: XOR<activityCreateWithoutTeam_relationInput, activityUncheckedCreateWithoutTeam_relationInput>
+  }
+
+  export type activityCreateManyTeam_relationInputEnvelope = {
+    data: activityCreateManyTeam_relationInput | activityCreateManyTeam_relationInput[]
     skipDuplicates?: boolean
   }
 
@@ -6936,18 +7561,195 @@ export namespace Prisma {
     updated_at?: DateTimeFilter<"participant"> | Date | string
   }
 
+  export type activityUpsertWithWhereUniqueWithoutTeam_relationInput = {
+    where: activityWhereUniqueInput
+    update: XOR<activityUpdateWithoutTeam_relationInput, activityUncheckedUpdateWithoutTeam_relationInput>
+    create: XOR<activityCreateWithoutTeam_relationInput, activityUncheckedCreateWithoutTeam_relationInput>
+  }
+
+  export type activityUpdateWithWhereUniqueWithoutTeam_relationInput = {
+    where: activityWhereUniqueInput
+    data: XOR<activityUpdateWithoutTeam_relationInput, activityUncheckedUpdateWithoutTeam_relationInput>
+  }
+
+  export type activityUpdateManyWithWhereWithoutTeam_relationInput = {
+    where: activityScalarWhereInput
+    data: XOR<activityUpdateManyMutationInput, activityUncheckedUpdateManyWithoutTeam_relationInput>
+  }
+
+  export type activityScalarWhereInput = {
+    AND?: activityScalarWhereInput | activityScalarWhereInput[]
+    OR?: activityScalarWhereInput[]
+    NOT?: activityScalarWhereInput | activityScalarWhereInput[]
+    id?: StringFilter<"activity"> | string
+    participant?: StringFilter<"activity"> | string
+    team?: StringFilter<"activity"> | string
+    team_id?: IntNullableFilter<"activity"> | number | null
+    participant_id?: StringNullableFilter<"activity"> | string | null
+    date?: DateTimeFilter<"activity"> | Date | string
+    type?: StringFilter<"activity"> | string
+    category?: StringFilter<"activity"> | string
+    base_score?: FloatFilter<"activity"> | number
+    multiplier?: FloatFilter<"activity"> | number
+    calculated_score?: FloatFilter<"activity"> | number
+    key_process?: StringFilter<"activity"> | string
+    activity?: JsonFilter<"activity">
+    createdAt?: DateTimeFilter<"activity"> | Date | string
+    updatedAt?: DateTimeFilter<"activity"> | Date | string
+  }
+
+  export type teamCreateWithoutActivitiesInput = {
+    name: string
+    participants?: participantCreateNestedManyWithoutTeamInput
+  }
+
+  export type teamUncheckedCreateWithoutActivitiesInput = {
+    id?: number
+    name: string
+    participants?: participantUncheckedCreateNestedManyWithoutTeamInput
+  }
+
+  export type teamCreateOrConnectWithoutActivitiesInput = {
+    where: teamWhereUniqueInput
+    create: XOR<teamCreateWithoutActivitiesInput, teamUncheckedCreateWithoutActivitiesInput>
+  }
+
+  export type participantCreateWithoutActivitiesInput = {
+    id?: string
+    name: string
+    email: string
+    type: string
+    created_at?: Date | string
+    updated_at?: Date | string
+    team: teamCreateNestedOneWithoutParticipantsInput
+  }
+
+  export type participantUncheckedCreateWithoutActivitiesInput = {
+    id?: string
+    name: string
+    email: string
+    type: string
+    team_id: number
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type participantCreateOrConnectWithoutActivitiesInput = {
+    where: participantWhereUniqueInput
+    create: XOR<participantCreateWithoutActivitiesInput, participantUncheckedCreateWithoutActivitiesInput>
+  }
+
+  export type teamUpsertWithoutActivitiesInput = {
+    update: XOR<teamUpdateWithoutActivitiesInput, teamUncheckedUpdateWithoutActivitiesInput>
+    create: XOR<teamCreateWithoutActivitiesInput, teamUncheckedCreateWithoutActivitiesInput>
+    where?: teamWhereInput
+  }
+
+  export type teamUpdateToOneWithWhereWithoutActivitiesInput = {
+    where?: teamWhereInput
+    data: XOR<teamUpdateWithoutActivitiesInput, teamUncheckedUpdateWithoutActivitiesInput>
+  }
+
+  export type teamUpdateWithoutActivitiesInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    participants?: participantUpdateManyWithoutTeamNestedInput
+  }
+
+  export type teamUncheckedUpdateWithoutActivitiesInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    participants?: participantUncheckedUpdateManyWithoutTeamNestedInput
+  }
+
+  export type participantUpsertWithoutActivitiesInput = {
+    update: XOR<participantUpdateWithoutActivitiesInput, participantUncheckedUpdateWithoutActivitiesInput>
+    create: XOR<participantCreateWithoutActivitiesInput, participantUncheckedCreateWithoutActivitiesInput>
+    where?: participantWhereInput
+  }
+
+  export type participantUpdateToOneWithWhereWithoutActivitiesInput = {
+    where?: participantWhereInput
+    data: XOR<participantUpdateWithoutActivitiesInput, participantUncheckedUpdateWithoutActivitiesInput>
+  }
+
+  export type participantUpdateWithoutActivitiesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    team?: teamUpdateOneRequiredWithoutParticipantsNestedInput
+  }
+
+  export type participantUncheckedUpdateWithoutActivitiesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    team_id?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type teamCreateWithoutParticipantsInput = {
     name: string
+    activities?: activityCreateNestedManyWithoutTeam_relationInput
   }
 
   export type teamUncheckedCreateWithoutParticipantsInput = {
     id?: number
     name: string
+    activities?: activityUncheckedCreateNestedManyWithoutTeam_relationInput
   }
 
   export type teamCreateOrConnectWithoutParticipantsInput = {
     where: teamWhereUniqueInput
     create: XOR<teamCreateWithoutParticipantsInput, teamUncheckedCreateWithoutParticipantsInput>
+  }
+
+  export type activityCreateWithoutParticipant_relationInput = {
+    id?: string
+    participant: string
+    team: string
+    date: Date | string
+    type: string
+    category: string
+    base_score?: number
+    multiplier?: number
+    calculated_score?: number
+    key_process: string
+    activity: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    team_relation?: teamCreateNestedOneWithoutActivitiesInput
+  }
+
+  export type activityUncheckedCreateWithoutParticipant_relationInput = {
+    id?: string
+    participant: string
+    team: string
+    team_id?: number | null
+    date: Date | string
+    type: string
+    category: string
+    base_score?: number
+    multiplier?: number
+    calculated_score?: number
+    key_process: string
+    activity: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type activityCreateOrConnectWithoutParticipant_relationInput = {
+    where: activityWhereUniqueInput
+    create: XOR<activityCreateWithoutParticipant_relationInput, activityUncheckedCreateWithoutParticipant_relationInput>
+  }
+
+  export type activityCreateManyParticipant_relationInputEnvelope = {
+    data: activityCreateManyParticipant_relationInput | activityCreateManyParticipant_relationInput[]
+    skipDuplicates?: boolean
   }
 
   export type teamUpsertWithoutParticipantsInput = {
@@ -6963,11 +7765,29 @@ export namespace Prisma {
 
   export type teamUpdateWithoutParticipantsInput = {
     name?: StringFieldUpdateOperationsInput | string
+    activities?: activityUpdateManyWithoutTeam_relationNestedInput
   }
 
   export type teamUncheckedUpdateWithoutParticipantsInput = {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
+    activities?: activityUncheckedUpdateManyWithoutTeam_relationNestedInput
+  }
+
+  export type activityUpsertWithWhereUniqueWithoutParticipant_relationInput = {
+    where: activityWhereUniqueInput
+    update: XOR<activityUpdateWithoutParticipant_relationInput, activityUncheckedUpdateWithoutParticipant_relationInput>
+    create: XOR<activityCreateWithoutParticipant_relationInput, activityUncheckedCreateWithoutParticipant_relationInput>
+  }
+
+  export type activityUpdateWithWhereUniqueWithoutParticipant_relationInput = {
+    where: activityWhereUniqueInput
+    data: XOR<activityUpdateWithoutParticipant_relationInput, activityUncheckedUpdateWithoutParticipant_relationInput>
+  }
+
+  export type activityUpdateManyWithWhereWithoutParticipant_relationInput = {
+    where: activityScalarWhereInput
+    data: XOR<activityUpdateManyMutationInput, activityUncheckedUpdateManyWithoutParticipant_relationInput>
   }
 
   export type participantCreateManyTeamInput = {
@@ -6979,6 +7799,23 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
+  export type activityCreateManyTeam_relationInput = {
+    id?: string
+    participant: string
+    team: string
+    participant_id?: string | null
+    date: Date | string
+    type: string
+    category: string
+    base_score?: number
+    multiplier?: number
+    calculated_score?: number
+    key_process: string
+    activity: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type participantUpdateWithoutTeamInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
@@ -6986,6 +7823,7 @@ export namespace Prisma {
     type?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    activities?: activityUpdateManyWithoutParticipant_relationNestedInput
   }
 
   export type participantUncheckedUpdateWithoutTeamInput = {
@@ -6995,6 +7833,7 @@ export namespace Prisma {
     type?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    activities?: activityUncheckedUpdateManyWithoutParticipant_relationNestedInput
   }
 
   export type participantUncheckedUpdateManyWithoutTeamInput = {
@@ -7004,6 +7843,125 @@ export namespace Prisma {
     type?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type activityUpdateWithoutTeam_relationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    participant?: StringFieldUpdateOperationsInput | string
+    team?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    type?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    base_score?: FloatFieldUpdateOperationsInput | number
+    multiplier?: FloatFieldUpdateOperationsInput | number
+    calculated_score?: FloatFieldUpdateOperationsInput | number
+    key_process?: StringFieldUpdateOperationsInput | string
+    activity?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    participant_relation?: participantUpdateOneWithoutActivitiesNestedInput
+  }
+
+  export type activityUncheckedUpdateWithoutTeam_relationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    participant?: StringFieldUpdateOperationsInput | string
+    team?: StringFieldUpdateOperationsInput | string
+    participant_id?: NullableStringFieldUpdateOperationsInput | string | null
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    type?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    base_score?: FloatFieldUpdateOperationsInput | number
+    multiplier?: FloatFieldUpdateOperationsInput | number
+    calculated_score?: FloatFieldUpdateOperationsInput | number
+    key_process?: StringFieldUpdateOperationsInput | string
+    activity?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type activityUncheckedUpdateManyWithoutTeam_relationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    participant?: StringFieldUpdateOperationsInput | string
+    team?: StringFieldUpdateOperationsInput | string
+    participant_id?: NullableStringFieldUpdateOperationsInput | string | null
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    type?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    base_score?: FloatFieldUpdateOperationsInput | number
+    multiplier?: FloatFieldUpdateOperationsInput | number
+    calculated_score?: FloatFieldUpdateOperationsInput | number
+    key_process?: StringFieldUpdateOperationsInput | string
+    activity?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type activityCreateManyParticipant_relationInput = {
+    id?: string
+    participant: string
+    team: string
+    team_id?: number | null
+    date: Date | string
+    type: string
+    category: string
+    base_score?: number
+    multiplier?: number
+    calculated_score?: number
+    key_process: string
+    activity: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type activityUpdateWithoutParticipant_relationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    participant?: StringFieldUpdateOperationsInput | string
+    team?: StringFieldUpdateOperationsInput | string
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    type?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    base_score?: FloatFieldUpdateOperationsInput | number
+    multiplier?: FloatFieldUpdateOperationsInput | number
+    calculated_score?: FloatFieldUpdateOperationsInput | number
+    key_process?: StringFieldUpdateOperationsInput | string
+    activity?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    team_relation?: teamUpdateOneWithoutActivitiesNestedInput
+  }
+
+  export type activityUncheckedUpdateWithoutParticipant_relationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    participant?: StringFieldUpdateOperationsInput | string
+    team?: StringFieldUpdateOperationsInput | string
+    team_id?: NullableIntFieldUpdateOperationsInput | number | null
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    type?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    base_score?: FloatFieldUpdateOperationsInput | number
+    multiplier?: FloatFieldUpdateOperationsInput | number
+    calculated_score?: FloatFieldUpdateOperationsInput | number
+    key_process?: StringFieldUpdateOperationsInput | string
+    activity?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type activityUncheckedUpdateManyWithoutParticipant_relationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    participant?: StringFieldUpdateOperationsInput | string
+    team?: StringFieldUpdateOperationsInput | string
+    team_id?: NullableIntFieldUpdateOperationsInput | number | null
+    date?: DateTimeFieldUpdateOperationsInput | Date | string
+    type?: StringFieldUpdateOperationsInput | string
+    category?: StringFieldUpdateOperationsInput | string
+    base_score?: FloatFieldUpdateOperationsInput | number
+    multiplier?: FloatFieldUpdateOperationsInput | number
+    calculated_score?: FloatFieldUpdateOperationsInput | number
+    key_process?: StringFieldUpdateOperationsInput | string
+    activity?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

@@ -130,13 +130,22 @@ export default function ParticipantsPage() {
         method: 'DELETE',
       });
       
-      if (!response.ok) throw new Error('Failed to delete participant');
+      if (!response.ok) {
+        const errorData = await response.json();
+        
+        if (response.status === 409 || errorData?.code === 'P2003') {
+          toast.error('Não é possível excluir este participante pois existem registros associados a ele.');
+          return;
+        }
+        
+        throw new Error('Failed to delete participant');
+      }
       
       toast.success('Participant deleted successfully');
       fetchParticipants();
     } catch (error) {
-      toast.error('Error deleting participant');
       console.error('Error:', error);
+      toast.error('Erro ao excluir participante. Tente novamente mais tarde.');
     } finally {
       setShowDeleteDialog(false);
       setParticipantToDelete(null);

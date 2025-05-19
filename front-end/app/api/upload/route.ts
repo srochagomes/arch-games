@@ -28,28 +28,25 @@ export async function POST(request: NextRequest) {
 
     // Get form fields
     team = formData.get('team') as string;
-    activityDate = formData.get('activityDate') as string;
+    const team_id = formData.get('team_id') as string;
     const participantsJson = formData.get('participants') as string;
+    const participants = JSON.parse(participantsJson);
+    activityDate = formData.get('activityDate') as string;
 
     // Validate required fields
-    if (!team || !activityDate || !participantsJson) {
+    if (!team || !activityDate || !team_id || !participants || !Array.isArray(participants) || participants.length === 0) {
       return NextResponse.json({
         success: false,
         message: 'Campos obrigatórios faltando',
       }, { status: 400 });
     }
 
-    // Parse participants
-    let participants;
-    try {
-      participants = JSON.parse(participantsJson);
-      if (!Array.isArray(participants) || participants.length === 0) {
-        throw new Error('Invalid participants format');
-      }
-    } catch (error) {
+    // Get the first participant's ID (we'll use this as the main participant for the activity)
+    const mainParticipant = participants[0];
+    if (!mainParticipant || !mainParticipant.id) {
       return NextResponse.json({
         success: false,
-        message: 'Formato inválido para participantes',
+        message: 'Dados do participante inválidos',
       }, { status: 400 });
     }
 
@@ -112,8 +109,10 @@ export async function POST(request: NextRequest) {
     await sendToN8N({
       key_process,
       team,
+      team_id: parseInt(team_id),
+      participant_id: mainParticipant.id,
+      participants: participants,
       activityDate,
-      participants,
       files: savedFiles.map(file => ({
         name: file.name,
         type: file.type,
@@ -129,7 +128,7 @@ export async function POST(request: NextRequest) {
         file.hash,
         file.name,
         team,
-        participants[0].type,
+        'participant', // This is now determined by the participant record
         new Date(activityDate),
         path.resolve(file.path),
         key_process
