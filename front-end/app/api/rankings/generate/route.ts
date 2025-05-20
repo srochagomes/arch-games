@@ -183,20 +183,9 @@ export async function POST() {
       data: participantRankings
     });
 
-    // Update score history
-    await prisma.teamScoreHistory.createMany({
-      data: teamScores.map(team => ({
-        teamId: team.teamId,
-        score: team.scoreTotal
-      }))
-    });
-
-    await prisma.participantScoreHistory.createMany({
-      data: sortedParticipants.map(participant => ({
-        participantId: participant.participantId,
-        score: participant.scoreTotal
-      }))
-    });
+    // Delete existing distribution data
+    await prisma.teamScoreDistribution.deleteMany({});
+    await prisma.categoryDistribution.deleteMany({});
 
     // Calculate and save team score distribution
     const totalScore = teamScores.reduce((sum, team) => sum + team.scoreTotal, 0);
@@ -232,7 +221,7 @@ export async function POST() {
 
     return NextResponse.json({ 
       success: true, 
-      message: 'Rankings generated successfully',
+      message: 'Rankings and distributions generated successfully',
       teamRankings,
       participantRankings
     });

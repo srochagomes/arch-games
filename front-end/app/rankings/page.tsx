@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import TeamRankingTable from './components/TeamRankingTable';
 import { ParticipantRankingTable } from './components/ParticipantRankingTable';
-import Dashboard from './components/Dashboard';
 import NotificationDialog from '@/components/NotificationDialog';
 
 export default function RankingsPage() {
@@ -72,7 +71,6 @@ export default function RankingsPage() {
         <TabsList>
           <TabsTrigger value="teams">Teams</TabsTrigger>
           <TabsTrigger value="participants">Participants</TabsTrigger>
-          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
         </TabsList>
 
         <TabsContent value="teams">
@@ -95,10 +93,6 @@ export default function RankingsPage() {
               <ParticipantRankingTable />
             </CardContent>
           </Card>
-        </TabsContent>
-
-        <TabsContent value="dashboard">
-          <Dashboard />
         </TabsContent>
       </Tabs>
 
