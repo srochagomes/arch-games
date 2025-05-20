@@ -61,8 +61,15 @@ export async function POST(request: NextRequest) {
 
     // Generate process ID and create directory
     const key_process = randomUUID();
-    const dateStr = new Date(activityDate).toISOString().split('T')[0];
-    const dirName = `${dateStr}_${team.trim().replace(/\s+/g, '_')}`;
+    const date = new Date(activityDate);
+    const teamStr = team.trim().replace(/\s+/g, '_');
+    const participantStr = mainParticipant.name.trim().replace(/\s+/g, '_');
+    const dateStr = date.toISOString()
+      .replace('T', '-')
+      .replace(/:/g, '-')
+      .replace(/\./g, '-')
+      .slice(0, 23); // Format: YYYY-MM-DD-HH-mm-ss
+    const dirName = `${teamStr}/${participantStr}/${dateStr}`;
     targetDir = path.join(uploadDir, dirName);
     await mkdir(targetDir, { recursive: true });
 
@@ -105,6 +112,8 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('[Upload] Sending to N8N');
+    const maxParticipants = Math.min(participants.length, 10);
+    const maxTokens = maxParticipants * 300;
     // Send to N8N with binary files
     await sendToN8N({
       key_process,
@@ -113,6 +122,8 @@ export async function POST(request: NextRequest) {
       participant_id: mainParticipant.id,
       participants: participants,
       activityDate,
+      quantityParticipants: participants.length,
+      maxTokens,
       files: savedFiles.map(file => ({
         name: file.name,
         type: file.type,
@@ -142,7 +153,9 @@ export async function POST(request: NextRequest) {
       data: {
         directory: dirName,
         files: savedFiles.map(f => f.name),
-        key_process
+        key_process,
+        quantityParticipants: participants.length,
+        maxTokens
       }
     });
 

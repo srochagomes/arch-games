@@ -25,6 +25,8 @@ interface WebhookData {
     type: string;
   }>;
   activityDate: string;
+  quantityParticipants: number;
+  maxTokens: number;
   files: Array<{
     name: string;
     type: string;
@@ -55,6 +57,8 @@ export async function sendToN8N(data: WebhookData): Promise<void> {
     formData.append('participant_id', data.participant_id);
     formData.append('participants', JSON.stringify(data.participants));
     formData.append('activityDate', data.activityDate);
+    formData.append('quantityParticipants', data.quantityParticipants.toString());
+    formData.append('maxTokens', data.maxTokens.toString());
 
     // Create multipart attribute names string (files0, files1, etc.)
     const fileNames = data.files.map((_, index) => `${MULTIPART_FILE_FIELD}${index}`).join(', ');

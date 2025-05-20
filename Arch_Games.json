@@ -14,7 +14,7 @@
       "typeVersion": 2,
       "position": [
         -3720,
-        -380
+        -160
       ],
       "id": "d360093a-d74e-455c-bcae-42d476603931",
       "name": "Webhook",
@@ -33,20 +33,22 @@
         "operation": "analyze",
         "modelId": {
           "__rl": true,
-          "value": "chatgpt-4o-latest",
+          "value": "gpt-4o-2024-11-20",
           "mode": "list",
-          "cachedResultName": "CHATGPT-4O-LATEST"
+          "cachedResultName": "GPT-4O-2024-11-20"
         },
-        "text": "=You are a digital analyst for a corporate game system. Based on one or more uploaded **photos**, extract and classify all relevant information about a list of participants and their shared activity. Then, generate a **JSON array**, where each item represents one participant with their specific data and role.\n\nContextual data provided from the system:\n\n- `team`: {{ $json.body.team }}\n- `activityDate`: {{ $json.body.activityDate }}\n- `uploadDate`: {{ $json.body.uploadDate }}\n- `key_process`: {{ $json.body.key_process }} (this is a unique system-generated identifier — never change it)\n- `participants`: {{ $json.body.participants }}\n\n---\n\n### 📋 Instructions\n\n1. Carefully examine the uploaded image(s). Look for any visual cues such as:\n   - Screenshots of apps, fitness trackers, certificates, meeting slides, scoreboards, books, or volunteer efforts\n   - Printed or handwritten notes\n   - Labels like \"name\", \"date\", \"XP\", \"distance\", or \"duration\"\n\n2. For each participant listed in the input, create a separate JSON object with their corresponding:\n   - `name`\n   - `type` (participant, captain, or governance)\n   - Shared `team`, `key_process`, and `date` (from `activityDate`)\n\n3. Classify the activity into one of the following categories:\n   - `physical_activity`\n   - `duolingo`\n   - `professional_training`\n   - `corporate_meeting`\n   - `happy_hour`\n   - `books`\n   - `games`\n   - `amigo_de_valor`\n   - `blood_donation`\n   - `lacre_event`\n\n4. Extract or infer all relevant fields per participant.  \n   If a field is **missing but can be derived**, do so:\n\n#### 🔁 Derivation Rules:\n- If `end` is **not present**, but `start` and `duration_minutes` exist → calculate `end = start + duration_minutes`\n- If `start` is missing, but `end` and `duration_minutes` are present → calculate `start = end - duration_minutes`\n- If only `duration_hours` is provided → convert to `duration_minutes`\n- If `date` is not explicit → use `activityDate` or `start` timestamp\n- ⚠️ Do **not change or guess** the `key_process` — copy it as-is from input\n\n5. Do **not include** any field in the output if its value is `null`, empty, or unknown\n\n6. Return a **valid JSON array** where each object follows this pattern, using only values detected in the context or confidently inferred\n\n---\n\n### ✅ Output format (structure only — values must be extracted from the context)\n\n```json\n[\n  {\n    \"participant\": \"<extracted or listed name>\",\n    \"team\": \"<team from input>\",\n    \"date\": \"<inferred or activityDate>\",\n    \"type\": \"<participant | captain | governance>\",\n    \"category\": \"<classified category>\",\n    \"key_process\": \"<original input value>\",\n    \"activity\": {\n      \"description\": \"<extracted activity description>\",\n      \"distance_km\": 5.2,\n      \"duration_minutes\": 45,\n      \"start\": \"2025-05-12T06:00:00\",\n      \"end\": \"2025-05-12T06:45:00\",\n      \"tracker\": \"<extracted tracker name>\",\n      \"screenshot_provided\": true\n    }\n  },\n  {\n    \"participant\": \"<next participant>\",\n    \"team\": \"<team from input>\",\n    \"date\": \"<inferred or activityDate>\",\n    \"type\": \"<participant | captain | governance>\",\n    \"category\": \"<classified category>\",\n    \"key_process\": \"<original input value>\",\n    \"activity\": {\n      ...\n    }\n  }\n]\n",
+        "text": "=You are a digital analyst for a corporate game system. Based on uploaded image(s), extract and classify the shared activity and return the following JSON structure, fully minified and valid:\n\n{\n  \"participants\":[{...},{...}],\n  \"activity\":{...}\n}\n\nInputs (do not change):\n- team: {{ $json.body.team }}\n- team_id: {{ $json.body.team_id }}\n- date_activity: {{ $json.body.activityDate }}\n- key_process: {{ $json.body.key_process }}\n- participants: {{ $json.body.participants }}\n\nInstructions:\n1. For each participant:\n- Use name → participant\n- Use id → participant_id\n- Use type as-is\n- Copy: team, team_id, date_activity → date, key_process\n\n2. Process shared activity only once and reuse it for all.\n\n3. Handle time logic:\n- If start + duration_minutes → calculate end\n- If only duration_hours → convert to duration_minutes\n- If no date → use activityDate\n\n4. Extract and classify the shared activity into ONE of the following categories, based on the image context:\n- \"physical_activity\" → Workout apps, GPS, pace, time, distance, steps, calories, maps (e.g., Strava, Garmin).\n- \"duolingo\" → Duolingo UI, XP points, streaks, language, levels.\n- \"professional_training\" → Certificates, courses (Udemy, Coursera, Alura), modules, lessons, platform names.\n- \"corporate_meeting\" → Zoom/Teams/Meet screens, meeting titles, agendas, attendees.\n- \"happy_hour\" → Informal gathering, food, drinks, group selfies, social moments.\n- \"books\" → Book covers, reading logs, summaries, author names, digital reader screenshots.\n- \"games\" → Quizzes, scoreboards, podiums, trivia, results.\n- \"amigo_de_valor\" → Recognition messages, badges, appreciation, helpful actions, compliments.\n- \"blood_donation\" → Certificates, hospital symbols, blood bags, donation scenes.\n- \"lacre_event\" → Tabs, bottles, collections for charity, quantity of materials.\n\n- In the \"activity\" block, extract or infer any visual detail and assign it to the proper attribute:\n  e.g., \"description\", \"location\", \"platform\", \"duration_minutes\", \"start\", \"participants\", \"photo_provided\", etc.\n  If start and duration_minutes exist, calculate end\n  If only duration_hours exists, convert to duration_minutes\n  If no date found, use activityDate as date\n\n5.Only return fields with actual values. If a field is null, empty, or undefined → remove it from output.\n\nRules:\n- Remove null, undefined, or empty fields\n- Output must be a **single valid JSON object** with `participants` and `activity`\n- Keys and values must be in double quotes\n- DO NOT return markdown (```), comments, placeholders, explanation\n- NO line breaks or unnecessary space (minified JSON)\n- All values must be in Brazilian Portuguese\n- Final output must be valid for `JSON.parse()`\n\nExample (structure only, do not reuse values):\n\n{\"participants\":[{\"participant\":\"Nome\",\"participant_id\":\"UUID\",\"team_id\":\"13\",\"team\":\"Equipe\",\"date\":\"2025-05-20\",\"key_process\":\"UUID\",\"type\":\"participant\"}],\"activity\":{\"description\":\"Extraído\",\"platform\":\"Duolingo\",\"points\":300,\"duration_minutes\":45,\"start\":\"2025-05-20T09:00:00\",\"end\":\"2025-05-20T09:45:00\"}}\n",
         "inputType": "base64",
-        "binaryPropertyName": "imageFiles",
-        "options": {}
+        "binaryPropertyName": "={{ $json.body.fileNames }}",
+        "options": {
+          "maxTokens": "={{ parseInt($json.body.maxTokens) || 300 }}"
+        }
       },
       "type": "@n8n/n8n-nodes-langchain.openAi",
       "typeVersion": 1.8,
       "position": [
-        -3280,
-        -380
+        -3500,
+        -160
       ],
       "id": "3300db9f-2735-4c18-bf82-5576b92ec4da",
       "name": "OpenAI",
@@ -64,13 +66,13 @@
     },
     {
       "parameters": {
-        "jsCode": "const raw = $json[\"content\"];\n\n// Remove blocos de markdown como ```json e ```\nconst cleaned = raw\n  .replace(/```json/g, '')\n  .replace(/```/g, '')\n  .trim();\n\ntry {\n  const parsedArray = JSON.parse(cleaned);\n\n  if (!Array.isArray(parsedArray)) {\n    throw new Error(\"Expected an array of participants.\");\n  }\n\n  // Retorna um único item com todos os dados agrupados em \"items\"\n  return [{\n    json: {\n      items: parsedArray\n    }\n  }];\n} catch (e) {\n  throw new Error(\"Failed to parse JSON: \" + e.message);\n}\n"
+        "jsCode": "const raw = $json[\"content\"]\n  .replace(/```json/g, \"\")\n  .replace(/```/g, \"\")\n  .trim();\n\ntry {\n  const parsed = JSON.parse(raw);\n\n  const participants = parsed.participants;\n  const activity = parsed.activity;\n\n  if (!Array.isArray(participants)) {\n    throw new Error(\"Expected 'participants' to be an array\");\n  }\n\n  const items = participants.map(p => ({\n    ...p,\n    category : activity.category,\n    activity\n  }));\n\n  // Retorna um único objeto com atributo `items`\n  return {\n    json: {\n      items\n    }\n  };\n} catch (e) {\n  throw new Error(\"Failed to parse or process JSON:\\n\" + e.message + \"\\nRaw:\\n\" + raw);\n}\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -2980,
-        -380
+        -3280,
+        -160
       ],
       "id": "e78c81e3-1d2b-4bae-afaa-b375233d3201",
       "name": "Code"
@@ -362,8 +364,8 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        -2380,
-        -540
+        -2840,
+        -328
       ],
       "id": "2715b65f-4e61-4e06-a876-15e94d5ab222",
       "name": "Switch",
@@ -379,7 +381,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1940,
+        -2620,
         -1160
       ],
       "id": "0dac50c6-e02d-4b5e-a2a1-90fd980acf6a",
@@ -393,8 +395,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1940,
-        -1000
+        -2620,
+        -960
       ],
       "id": "ddd9748e-864b-4f8f-be10-9d855b145892",
       "name": "physical_activity_rule"
@@ -407,8 +409,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1940,
-        -820
+        -2620,
+        -760
       ],
       "id": "dd965bcf-caf7-46a8-8577-d6a263ed80b9",
       "name": "duolingo_rule"
@@ -416,13 +418,13 @@
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const input = $json;\n\nif (input.category !== \"happy_hour\" || !input.activity) {\n  return [{ json: { score: 0, message: \"Not applicable\" } }];\n}\n\nconst activity = input.activity;\nlet score = 0;\n\n// Base participation\nscore += 10;\n\n// Bonus for photo\nif (activity.photo_provided === true) {\n  score += 5;\n}\n\n// Bonus for group of 3+\nif (Array.isArray(activity.attendees) && activity.attendees.length >= 3) {\n  score += 5;\n}\n\n// Apply multiplier by type\nconst type = (input.type || \"\").toLowerCase();\nlet multiplier = 1.0;\n\nif (type === \"capitão\") {\n  multiplier = 1.2;\n} else if (type === \"governança\") {\n  multiplier = 0.8;\n}\n\nconst finalScore = Math.round(score * multiplier);\n\nreturn {\n  json: {\n    ...input,\n    base_score: score,\n    multiplier: multiplier,\n    calculated_score: finalScore\n  }\n};\n"
+        "jsCode": "const input = $json;\n\nif (input.category !== \"happy_hour\" || !input.activity) {\n  return [{ json: { score: 0, message: \"Not applicable\" } }];\n}\n\nconst activity = input.activity;\nlet score = 0;\n\n// Base participation\nscore += 10;\n\n// Bonus for photo\nif (activity.photo_provided === true) {\n  score += 5;\n}\n\n// Bonus for group of 3+\nif (input.quantityParticipants >= 3) {\n  score += 5;\n}\n\n// Apply multiplier by type\nconst type = (input.type || \"\").toLowerCase();\nlet multiplier = 1.0;\n\nif (type === \"capitão\") {\n  multiplier = 1.2;\n} else if (type === \"governança\") {\n  multiplier = 0.8;\n}\n\nconst finalScore = Math.round(score * multiplier);\n\nreturn {\n  json: {\n    ...input,\n    base_score: score,\n    multiplier: multiplier,\n    calculated_score: finalScore\n  }\n};\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1940,
-        -480
+        -2620,
+        -360
       ],
       "id": "8ec4f79f-b1fe-4a88-87de-307fd830b7e9",
       "name": "happy_hour_rule",
@@ -431,13 +433,13 @@
     },
     {
       "parameters": {
-        "jsCode": "const input = $json;\n\nif (input.category !== \"corporate_meeting\" || !input.activity) {\n  return [{ json: { score: 0, message: \"Not applicable\" } }];\n}\n\nconst activity = input.activity;\nlet score = 0;\n\n// Base points\nscore += 10;\n\n// Bonus for meeting duration\nif (activity.duration_minutes && activity.duration_minutes >= 60) {\n  score += 5;\n}\n\n// Bonus for screenshot or print\nif (activity.screenshot_provided === true) {\n  score += 5;\n}\n\n// Bonus for group meeting\nif (Array.isArray(activity.participants) && activity.participants.length >= 3) {\n  score += 5;\n}\n\n// Apply multiplier by type\nconst type = (input.type || \"\").toLowerCase();\nlet multiplier = 1.0;\n\nif (type === \"capitão\") {\n  multiplier = 1.2;\n} else if (type === \"governança\") {\n  multiplier = 0.8;\n}\n\nconst finalScore = Math.round(score * multiplier);\n\nreturn {\n  json: {\n    ...input,\n    base_score: score,\n    multiplier: multiplier,\n    calculated_score: finalScore\n  }\n};\n"
+        "jsCode": "const input = $json;\n\nif (input.category !== \"corporate_meeting\" || !input.activity) {\n  return [{ json: { score: 0, message: \"Not applicable\" } }];\n}\n\nconst activity = input.activity;\nlet score = 0;\n\n// Base points\nscore += 10;\n\n// Bonus for meeting duration\nif (activity.duration_minutes && activity.duration_minutes >= 60) {\n  score += 5;\n}\n\n// Bonus for screenshot or print\nif (activity.screenshot_provided === true) {\n  score += 5;\n}\n\n// Bonus for group of 3+\nif (input.quantityParticipants >= 3) {\n  score += 5;\n}\n\n// Apply multiplier by type\nconst type = (input.type || \"\").toLowerCase();\nlet multiplier = 1.0;\n\nif (type === \"capitão\") {\n  multiplier = 1.2;\n} else if (type === \"governança\") {\n  multiplier = 0.8;\n}\n\nconst finalScore = Math.round(score * multiplier);\n\nreturn {\n  json: {\n    ...input,\n    base_score: score,\n    multiplier: multiplier,\n    calculated_score: finalScore\n  }\n};\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1940,
-        -640
+        -2620,
+        -560
       ],
       "id": "110718e9-18ff-40da-b92b-ca71af3428f2",
       "name": "corporate_meeting_rule"
@@ -450,8 +452,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1940,
-        -320
+        -2620,
+        -160
       ],
       "id": "76c88b38-cf15-4a2c-99dd-8f24cf826528",
       "name": "books_rule"
@@ -459,13 +461,13 @@
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const input = $json;\n\nif (input.category !== \"games\" || !input.activity) {\n  return [{ json: { score: 0, message: \"Not applicable\" } }];\n}\n\nconst activity = input.activity;\nlet score = 0;\n\n// Base participation\nscore += 10;\n\n// Bonus for quiz/trivia type\nif (activity.type && [\"trivia\", \"quiz\"].includes(activity.type.toLowerCase())) {\n  score += 5;\n}\n\n// Bonus for 10 or more participants\nif (activity.participants && activity.participants >= 10) {\n  score += 5;\n}\n\n// Bonus for podium finish (rank 1–3)\nif (activity.rank && activity.rank >= 1 && activity.rank <= 3) {\n  score += 10;\n}\n\n// Bonus for screenshot\nif (activity.screenshot_provided === true) {\n  score += 5;\n}\n\n// Apply multiplier by type\nconst type = (input.type || \"\").toLowerCase();\nlet multiplier = 1.0;\n\nif (type === \"capitão\") {\n  multiplier = 1.2;\n} else if (type === \"governança\") {\n  multiplier = 0.8;\n}\n\nconst finalScore = Math.round(score * multiplier);\n\nreturn {\n  json: {\n    ...input,\n    base_score: score,\n    multiplier: multiplier,\n    calculated_score: finalScore\n  }\n};\n"
+        "jsCode": "const input = $json;\n\nif (input.category !== \"games\" || !input.activity) {\n  return [{ json: { score: 0, message: \"Not applicable\" } }];\n}\n\nconst activity = input.activity;\nlet score = 0;\n\n// Base participation\nscore += 10;\n\n// Bonus for quiz/trivia type\nif (activity.type && [\"trivia\", \"quiz\"].includes(activity.type.toLowerCase())) {\n  score += 5;\n}\n\n// Bonus for 10 or more participants\nif (input.quantityParticipants >= 10) {\n  score += 5;\n}\n\n// Bonus for podium finish (rank 1–3)\nif (activity.rank && activity.rank >= 1 && activity.rank <= 3) {\n  score += 10;\n}\n\n// Bonus for screenshot\nif (activity.screenshot_provided === true) {\n  score += 5;\n}\n\n// Apply multiplier by type\nconst type = (input.type || \"\").toLowerCase();\nlet multiplier = 1.0;\n\nif (type === \"capitão\") {\n  multiplier = 1.2;\n} else if (type === \"governança\") {\n  multiplier = 0.8;\n}\n\nconst finalScore = Math.round(score * multiplier);\n\nreturn {\n  json: {\n    ...input,\n    base_score: score,\n    multiplier: multiplier,\n    calculated_score: finalScore\n  }\n};\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1940,
-        -160
+        -2620,
+        40
       ],
       "id": "857ad4f0-53d9-43e1-9262-3be6f268f685",
       "name": "games_rule"
@@ -478,8 +480,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1940,
-        180
+        -2620,
+        240
       ],
       "id": "665e2f0b-c989-4854-b0d7-63c35e3f33e7",
       "name": "amigo_de_valor_rule"
@@ -491,8 +493,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1940,
-        360
+        -2620,
+        440
       ],
       "id": "a220d756-5c59-45cd-b19c-7f2fb59aa58a",
       "name": "blood_donation_rule"
@@ -505,8 +507,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1940,
-        0
+        -2620,
+        640
       ],
       "id": "08ce0b28-a851-48bc-a3c8-be9a62fc38ab",
       "name": "lacre_event_rule"
@@ -519,8 +521,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1940,
-        560
+        -2620,
+        840
       ],
       "id": "863aac41-93e7-4182-9d6a-021c40b86a4e",
       "name": "not_found_rule"
@@ -556,8 +558,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -1080,
-        -380
+        -2400,
+        -160
       ],
       "id": "bd9de931-04fc-402a-9636-639c0f4ac540",
       "name": "Arch Games HTTP Request",
@@ -574,8 +576,8 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        -2760,
-        -380
+        -3060,
+        -160
       ],
       "id": "31051d5d-1360-4b85-a6b3-da6bc35ba213",
       "name": "Split Out",
@@ -836,11 +838,12 @@
       ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
   },
-  "versionId": "c4ddae6b-ae55-4a35-ba57-6f7be0f17eef",
+  "versionId": "66d5a8d2-3be5-4d01-a85a-0eaaa706a544",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "1f0810f0cd4a78059c7072f98a7dd941e8c6ca3dcafda09bb95e07cf60953c90"
