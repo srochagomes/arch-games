@@ -67,7 +67,7 @@ export default function ParticipantsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !email || !type || !teamId) {
+    if (!name || !type || !teamId) {
       toast.error('Please fill in all required fields');
       return;
     }
@@ -85,7 +85,7 @@ export default function ParticipantsPage() {
         },
         body: JSON.stringify({
           name,
-          email,
+          email: email || null,
           type,
           team_id: parseInt(teamId),
         }),
@@ -194,8 +194,7 @@ export default function ParticipantsPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full rounded-md border-gray-300"
-                placeholder="Email do participante"
-                required
+                placeholder="Email do participante (opcional)"
               />
             </div>
 
@@ -318,13 +317,13 @@ export default function ParticipantsPage() {
 
       {/* Delete Confirmation Dialog */}
       <ConfirmDialog
-        isOpen={showDeleteDialog}
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
         title="Confirmar Exclusão"
-        message="Tem certeza que deseja excluir este participante? Esta ação não pode ser desfeita."
-        confirmLabel="Excluir"
-        cancelLabel="Cancelar"
+        description="Tem certeza que deseja excluir este participante? Esta ação não pode ser desfeita."
+        confirmText="Excluir"
+        cancelText="Cancelar"
         onConfirm={confirmDelete}
-        onCancel={() => setShowDeleteDialog(false)}
       />
     </div>
   );

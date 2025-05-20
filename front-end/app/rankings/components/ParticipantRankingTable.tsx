@@ -1,0 +1,109 @@
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ArrowUpIcon, ArrowDownIcon } from '@heroicons/react/24/solid';
+
+interface ParticipantRanking {
+  id: number;
+  participantId: string;
+  participantName: string;
+  scoreTotal: number;
+  rankingPosition: number;
+  rankingVariation: number | null;
+  scoreDiff: number | null;
+}
+
+export const ParticipantRankingTable: React.FC = () => {
+  const [rankings, setRankings] = useState<ParticipantRanking[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRankings = async () => {
+      try {
+        const response = await fetch('/api/rankings/teams');
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Full API response:', data); // Debug full response
+          console.log('Participant rankings data:', data.participantRankings); // Debug participant rankings
+          if (data.participantRankings && Array.isArray(data.participantRankings)) {
+            setRankings(data.participantRankings);
+          } else {
+            console.error('Invalid participant rankings data:', data.participantRankings);
+            setRankings([]);
+          }
+        } else {
+          console.error('Failed to fetch rankings:', response.status);
+        }
+      } catch (error) {
+        console.error('Error fetching rankings:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchRankings();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Participant Rankings</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Position</TableHead>
+              <TableHead>Participant</TableHead>
+              <TableHead>Score</TableHead>
+              <TableHead>Variation</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rankings && rankings.length > 0 ? (
+              rankings.map((ranking) => (
+                <TableRow key={ranking.id}>
+                  <TableCell className="font-medium">{ranking.rankingPosition}</TableCell>
+                  <TableCell>{ranking.participantName}</TableCell>
+                  <TableCell>{ranking.scoreTotal}</TableCell>
+                  <TableCell>
+                    {ranking.rankingVariation === null || ranking.rankingVariation === 0 ? (
+                      <span className="text-gray-400">-</span>
+                    ) : ranking.rankingVariation > 0 ? (
+                      <ArrowUpIcon className="h-4 w-4 text-green-500" />
+                    ) : (
+                      <ArrowDownIcon className="h-4 w-4 text-red-500" />
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center">
+                  No rankings available
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  );
+}; 

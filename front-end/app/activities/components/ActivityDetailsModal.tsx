@@ -109,11 +109,11 @@ export default function ActivityDetailsModal({ activity, onClose }: ActivityDeta
                 <div className="space-y-1">
                   <p className="text-base font-bold text-gray-700">Multiplicador</p>
                   <p className="text-base text-gray-600">{activity.multiplier}x</p>
-                </div>
+              </div>
                 <div className="space-y-1">
                   <p className="text-base font-bold text-gray-700">Score Final</p>
                   <p className="text-base text-blue-600">{activity.calculated_score}</p>
-                </div>
+              </div>
               </div>
             </div>
 
@@ -131,9 +131,9 @@ export default function ActivityDetailsModal({ activity, onClose }: ActivityDeta
                         className="object-contain"
                         unoptimized
                       />
-                    </div>
+          </div>
                   ))}
-                </div>
+              </div>
               </div>
             )}
 
@@ -146,7 +146,7 @@ export default function ActivityDetailsModal({ activity, onClose }: ActivityDeta
               </div>
             </div>
           </div>
-        </div>
+          </div>
 
         <div className="flex justify-end pt-4 border-t mt-6">
           <button

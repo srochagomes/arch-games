@@ -177,6 +177,57 @@ exports.Prisma.ScoreChangeHistoryScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.RankingTeamScalarFieldEnum = {
+  id: 'id',
+  teamId: 'teamId',
+  teamName: 'teamName',
+  scoreTotal: 'scoreTotal',
+  rankingPosition: 'rankingPosition',
+  rankingVariation: 'rankingVariation',
+  scoreDiff: 'scoreDiff',
+  generatedAt: 'generatedAt'
+};
+
+exports.Prisma.RankingParticipantScalarFieldEnum = {
+  id: 'id',
+  participantId: 'participantId',
+  participantName: 'participantName',
+  teamId: 'teamId',
+  scoreTotal: 'scoreTotal',
+  rankingPosition: 'rankingPosition',
+  rankingVariation: 'rankingVariation',
+  scoreDiff: 'scoreDiff',
+  generatedAt: 'generatedAt'
+};
+
+exports.Prisma.TeamScoreHistoryScalarFieldEnum = {
+  id: 'id',
+  teamId: 'teamId',
+  score: 'score',
+  date: 'date'
+};
+
+exports.Prisma.ParticipantScoreHistoryScalarFieldEnum = {
+  id: 'id',
+  participantId: 'participantId',
+  score: 'score',
+  date: 'date'
+};
+
+exports.Prisma.TeamScoreDistributionScalarFieldEnum = {
+  id: 'id',
+  teamId: 'teamId',
+  scoreTotal: 'scoreTotal',
+  percentage: 'percentage'
+};
+
+exports.Prisma.CategoryDistributionScalarFieldEnum = {
+  id: 'id',
+  teamId: 'teamId',
+  category: 'category',
+  totalScore: 'totalScore'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -208,7 +259,13 @@ exports.Prisma.ModelName = {
   activity: 'activity',
   image: 'image',
   participant: 'participant',
-  ScoreChangeHistory: 'ScoreChangeHistory'
+  ScoreChangeHistory: 'ScoreChangeHistory',
+  RankingTeam: 'RankingTeam',
+  RankingParticipant: 'RankingParticipant',
+  TeamScoreHistory: 'TeamScoreHistory',
+  ParticipantScoreHistory: 'ParticipantScoreHistory',
+  TeamScoreDistribution: 'TeamScoreDistribution',
+  CategoryDistribution: 'CategoryDistribution'
 };
 
 /**

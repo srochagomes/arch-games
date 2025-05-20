@@ -32,7 +32,7 @@ export async function POST(request: Request) {
         participant: modelActivity.participant,
         team: modelActivity.team,
         team_id: modelActivity.team_id ? parseInt(modelActivity.team_id.toString()) : null,
-        participant_id: modelActivity.participant_id,
+        participant_id: modelActivity.participant_id ? modelActivity.participant_id.toString() : null,
         date: new Date(formattedDate), // Convert string date to Date object with proper formatting
         type: modelActivity.type,
         category: modelActivity.category,

@@ -6,7 +6,6 @@
 
 generator client {
   provider        = "prisma-client-js"
-  output          = "../app/generated/prisma"
   previewFeatures = ["multiSchema"]
 }
 
@@ -21,6 +20,11 @@ model team {
   name         String        @unique @db.VarChar(100)
   participants participant[]
   activities   activity[]
+  rankings     RankingTeam[]
+  participantRankings RankingParticipant[]
+  scoreHistory TeamScoreHistory[]
+  scoreDistribution TeamScoreDistribution[]
+  categoryDistribution CategoryDistribution[]
 
   @@schema("arch_games")
 }
@@ -73,7 +77,7 @@ model image {
 model participant {
   id          String     @id @default(uuid())
   name        String     @db.VarChar(100)
-  email       String     @unique @db.VarChar(100)
+  email       String?    @unique @db.VarChar(100)
   type        String     @db.VarChar(20) // participant, captain, governance
   team_id     Int
   team        team       @relation(fields: [team_id], references: [id])
@@ -98,5 +102,85 @@ model ScoreChangeHistory {
   createdAt       DateTime  @default(now())
 
   @@index([activity_id])
+  @@schema("arch_games")
+}
+
+model RankingTeam {
+  id                Int      @id @default(autoincrement())
+  teamId           Int
+  teamName         String
+  scoreTotal       Float
+  rankingPosition  Int
+  rankingVariation Int?
+  scoreDiff        Float?
+  generatedAt      DateTime @default(now())
+  team             team     @relation(fields: [teamId], references: [id])
+
+  @@index([teamId])
+  @@index([generatedAt])
+  @@schema("arch_games")
+}
+
+model RankingParticipant {
+  id                Int         @id @default(autoincrement())
+  participantId     String
+  participantName   String
+  teamId           Int
+  scoreTotal       Float
+  rankingPosition  Int
+  rankingVariation Int?
+  scoreDiff        Float?
+  generatedAt      DateTime    @default(now())
+  team             team        @relation(fields: [teamId], references: [id])
+
+  @@index([participantId])
+  @@index([teamId])
+  @@index([generatedAt])
+  @@schema("arch_games")
+}
+
+model TeamScoreHistory {
+  id        Int      @id @default(autoincrement())
+  teamId    Int
+  score     Float
+  date      DateTime @default(now())
+  team      team      @relation(fields: [teamId], references: [id])
+
+  @@index([teamId])
+  @@index([date])
+  @@schema("arch_games")
+}
+
+model ParticipantScoreHistory {
+  id            Int      @id @default(autoincrement())
+  participantId String
+  score         Float
+  date          DateTime @default(now())
+
+  @@index([participantId])
+  @@index([date])
+  @@schema("arch_games")
+}
+
+model TeamScoreDistribution {
+  id          Int      @id @default(autoincrement())
+  teamId      Int
+  scoreTotal  Float
+  percentage  Float
+  team        team      @relation(fields: [teamId], references: [id])
+
+  @@index([teamId])
+  @@schema("arch_games")
+}
+
+model CategoryDistribution {
+  id          Int      @id @default(autoincrement())
+  teamId      Int
+  category    String
+  totalScore  Float
+  team        team      @relation(fields: [teamId], references: [id])
+
+  @@index([teamId])
+  @@index([category])
   @@schema("arch_games")
 }

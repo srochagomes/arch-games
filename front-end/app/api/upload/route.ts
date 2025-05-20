@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
   
   try {
     // Ensure upload directory exists
-    const uploadDir = env.app.uploadDir;
+    const uploadDir = env.UPLOAD_DIR;
     await mkdir(uploadDir, { recursive: true });
 
     // Parse the form data
@@ -114,36 +114,43 @@ export async function POST(request: NextRequest) {
     console.log('[Upload] Sending to N8N');
     const maxParticipants = Math.min(participants.length, 10);
     const maxTokens = maxParticipants * 300;
-    // Send to N8N with binary files
-    await sendToN8N({
-      key_process,
-      team,
+    // Convert file.buffer to string if needed
+    const fileContent = savedFiles[0].buffer.toString();
+
+    // Define webhookPayload with required properties
+    const webhookPayload = {
+      event: 'file_upload',
+      data: {
       team_id: parseInt(team_id),
       participant_id: mainParticipant.id,
       participants: participants,
       activityDate,
-      quantityParticipants: participants.length,
-      maxTokens,
+        quantityParticipants: participants.length,
+        maxTokens,
       files: savedFiles.map(file => ({
         name: file.name,
         type: file.type,
         buffer: file.buffer
       })),
       fileNames: savedFiles.map((_, index) => `${MULTIPART_FILE_FIELD}${index}`).join(', ')
-    });
+      },
+      timestamp: Date.now()
+    };
+
+    // Adjust function arguments to match the expected signature
+    await sendToN8N(webhookPayload);
 
     // After successful webhook call, save records to database
     console.log('[Upload] Saving records to database');
     for (const file of savedFiles) {
-      await saveImageRecord(
-        file.hash,
-        file.name,
-        team,
-        'participant', // This is now determined by the participant record
-        new Date(activityDate),
-        path.resolve(file.path),
-        key_process
-      );
+      await saveImageRecord({
+        fileName: file.name,
+        originalName: file.name,
+        mimeType: file.type,
+        size: file.buffer.length,
+        hash: file.hash,
+        activityId: key_process
+      });
     }
 
     console.log('[Upload] Process completed successfully');

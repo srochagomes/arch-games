@@ -74,11 +74,14 @@ export async function sendToN8N(data: WebhookData): Promise<void> {
     });
 
     // Create Basic Auth header
-    const authString = `${env.n8n.username}:${env.n8n.password}`;
+    const authString = `webhook:${env.WEBHOOK_SECRET}`;
     const base64Auth = Buffer.from(authString).toString('base64');
 
     console.log('[Webhook] Sending request to N8N webhook URL');
-    const response = await fetch(env.n8n.webhookUrl, {
+    if (!env.WEBHOOK_URL) {
+      throw new Error('WEBHOOK_URL is not defined');
+    }
+    const response = await fetch(env.WEBHOOK_URL, {
       method: 'POST',
       headers: {
         'Authorization': `Basic ${base64Auth}`,

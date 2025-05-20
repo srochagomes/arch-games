@@ -104,11 +104,6 @@ export default function TeamsPage() {
     }
   };
 
-  const handleDeleteCancel = () => {
-    setDeleteConfirmOpen(false);
-    setTeamToDelete(null);
-  };
-
   const handleCancel = () => {
     setEditingTeam(null);
     setName('');
@@ -209,13 +204,13 @@ export default function TeamsPage() {
       </div>
 
       <ConfirmDialog
-        isOpen={deleteConfirmOpen}
+        open={deleteConfirmOpen}
+        onOpenChange={setDeleteConfirmOpen}
         title="Confirmar Exclusão"
-        message={`Tem certeza que deseja excluir o time "${teamToDelete?.name}"?`}
+        description={`Tem certeza que deseja excluir o time "${teamToDelete?.name}"?`}
+        confirmText="Excluir"
+        cancelText="Cancelar"
         onConfirm={handleDeleteConfirm}
-        onCancel={handleDeleteCancel}
-        confirmLabel="Excluir"
-        cancelLabel="Cancelar"
       />
     </div>
   );

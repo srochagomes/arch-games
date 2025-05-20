@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     const participant = await prisma.participant.create({
       data: {
         name: data.name,
-        email: data.email,
+        email: data.email || null,
         type: data.type,
         team_id: data.team_id
       },
