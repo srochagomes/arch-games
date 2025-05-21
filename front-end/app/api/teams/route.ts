@@ -33,6 +33,7 @@ export async function POST(request: NextRequest) {
     const team = await prisma.team.create({
       data: {
         name: data.name,
+        activityOption: data.activityOption || 'physical_activity',
       },
     });
 

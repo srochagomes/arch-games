@@ -7,9 +7,6 @@ export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
     
-    // Here you can handle the webhook data
-    console.log('Received webhook data:', data);
-    
     return NextResponse.json({ 
       success: true,
       message: 'Webhook received successfully'

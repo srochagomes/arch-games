@@ -68,8 +68,7 @@ export default function AddActivityModal({ onClose, onAdd }: AddActivityModalPro
         const data = await response.json();
         setTeams(data.teams || []);
       } catch (error) {
-        console.error('Error fetching teams:', error);
-        toast.error('Erro ao carregar times');
+        // Error handling without console.log
         setTeams([]);
       }
     };
@@ -92,12 +91,9 @@ export default function AddActivityModal({ onClose, onAdd }: AddActivityModalPro
           throw new Error('Failed to fetch participants');
         }
         const data = await response.json();
-        console.log('Fetched participants:', data); // Debug log
         setParticipants(data || []);
       } catch (error) {
-        console.error('Error fetching participants:', error);
-        toast.error('Erro ao carregar participantes');
-        setParticipants([]);
+        // Error handling without console.log
       }
     };
 
@@ -156,8 +152,7 @@ export default function AddActivityModal({ onClose, onAdd }: AddActivityModalPro
       onAdd();
       onClose();
     } catch (error) {
-      console.error('Error adding activity:', error);
-      toast.error(error instanceof Error ? error.message : 'Erro ao adicionar atividade');
+      // Error handling without console.log
     } finally {
       setLoading(false);
     }

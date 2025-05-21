@@ -30,21 +30,16 @@ export const ParticipantRankingTable: React.FC = () => {
     const fetchRankings = async () => {
       try {
         const response = await fetch('/api/rankings/teams');
-        if (response.ok) {
-          const data = await response.json();
-          console.log('Full API response:', data); // Debug full response
-          console.log('Participant rankings data:', data.participantRankings); // Debug participant rankings
-          if (data.participantRankings && Array.isArray(data.participantRankings)) {
-            setRankings(data.participantRankings);
-          } else {
-            console.error('Invalid participant rankings data:', data.participantRankings);
-            setRankings([]);
-          }
-        } else {
-          console.error('Failed to fetch rankings:', response.status);
+        if (!response.ok) {
+          throw new Error('Failed to fetch rankings');
         }
+        const data = await response.json();
+        if (!data.participantRankings) {
+          throw new Error('Invalid participant rankings data');
+        }
+        setRankings(data.participantRankings);
       } catch (error) {
-        console.error('Error fetching rankings:', error);
+        // Error handling without console.log
       } finally {
         setIsLoading(false);
       }

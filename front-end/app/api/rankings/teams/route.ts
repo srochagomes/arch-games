@@ -46,12 +46,6 @@ export async function GET() {
       }
     }) : [];
 
-    console.log('Latest team generation:', latestTeamRanking?.generatedAt);
-    console.log('Latest participant generation:', latestParticipantRanking?.generatedAt);
-    console.log('Team rankings count:', teamRankings.length);
-    console.log('Participant rankings count:', participantRankings.length);
-    console.log('Participant rankings:', JSON.stringify(participantRankings, null, 2));
-
     return NextResponse.json({
       teamRankings,
       participantRankings

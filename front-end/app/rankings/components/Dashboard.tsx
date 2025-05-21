@@ -16,6 +16,7 @@ import {
   Pie,
   Cell,
 } from 'recharts';
+import { ACTIVITY_OPTIONS, ActivityOption } from '@/app/api/types/activityOptions';
 
 interface TeamRanking {
   teamId: number;
@@ -79,7 +80,7 @@ const Dashboard: React.FC = () => {
         setCategoryDistribution(distributionData.categoryDistribution);
       }
     } catch (error) {
-      console.error('Error fetching dashboard data:', error);
+      // Error handling without console.log
     } finally {
       setIsLoading(false);
     }
@@ -134,7 +135,11 @@ const Dashboard: React.FC = () => {
                       <YAxis tick={{ fontSize: 12 }} />
                       <Tooltip />
                       <Legend wrapperStyle={{ fontSize: 12 }} />
-                      <Bar dataKey="scoreTotal" fill="#8884d8" name="Total Score" />
+                      <Bar dataKey="scoreTotal" name="Total Score">
+                        {teamRankings.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Bar>
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -151,27 +156,33 @@ const Dashboard: React.FC = () => {
                     <PieChart>
                       <Pie
                         data={teamScoreDistribution}
-                        dataKey="percentage"
+                        dataKey="scoreTotal"
                         nameKey="teamName"
                         cx="50%"
                         cy="50%"
                         outerRadius={120}
                         innerRadius={60}
-                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                        labelLine={true}
-                        style={{ fontSize: 12 }}
+                        label={false}
                       >
                         {teamScoreDistribution.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                       </Pie>
-                      <Tooltip />
+                      <Tooltip 
+                        formatter={(value: number) => [`${value} pontos`, 'Pontuação']}
+                        labelFormatter={(label) => label}
+                      />
                       <Legend 
                         wrapperStyle={{ fontSize: 12 }}
-                        formatter={(value) => value.length > 25 ? `${value.substring(0, 25)}...` : value}
                         layout="vertical"
                         align="right"
                         verticalAlign="middle"
+                        iconType="circle"
+                        payload={teamScoreDistribution.map((entry, index) => ({
+                          value: entry.teamName,
+                          type: 'circle',
+                          color: COLORS[index % COLORS.length]
+                        }))}
                       />
                     </PieChart>
                   </ResponsiveContainer>
@@ -189,12 +200,28 @@ const Dashboard: React.FC = () => {
             <CardContent>
               <div className="h-[400px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={participantRankings}>
+                  <BarChart 
+                    data={participantRankings}
+                    margin={{ top: 20, right: 100, bottom: 20, left: 20 }}
+                  >
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="participantName" />
-                    <YAxis />
+                    <XAxis 
+                      dataKey="participantName" 
+                      angle={-45}
+                      textAnchor="end"
+                      height={100}
+                      tickFormatter={(value) => value.length > 25 ? `${value.substring(0, 25)}...` : value}
+                      tick={{ fontSize: 12 }}
+                    />
+                    <YAxis tick={{ fontSize: 12 }} />
                     <Tooltip />
-                    <Legend />
+                    <Legend 
+                      wrapperStyle={{ fontSize: 12 }}
+                      layout="vertical"
+                      align="right"
+                      verticalAlign="middle"
+                      iconType="circle"
+                    />
                     <Bar dataKey="scoreTotal" fill="#82ca9d" name="Total Score" />
                   </BarChart>
                 </ResponsiveContainer>
@@ -211,13 +238,35 @@ const Dashboard: React.FC = () => {
             <CardContent>
               <div className="h-[400px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={categoryDistribution}>
+                  <BarChart 
+                    data={categoryDistribution}
+                    margin={{ top: 20, right: 30, bottom: 60, left: 40 }}
+                  >
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="category" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="totalScore" fill="#ffc658" name="Category Score" />
+                    <XAxis 
+                      dataKey="activityLabel"
+                      angle={-45}
+                      textAnchor="end"
+                      height={100}
+                      tick={{ fontSize: 12 }}
+                    />
+                    <YAxis 
+                      tick={{ fontSize: 12 }}
+                      label={{ value: 'Pontuação Total', angle: -90, position: 'insideLeft', style: { fontSize: 12 } }}
+                    />
+                    <Tooltip 
+                      formatter={(value: number) => [`${value} pontos`, 'Pontuação']}
+                      labelFormatter={(label) => `Categoria: ${label}`}
+                    />
+                    <Bar 
+                      dataKey="totalScore" 
+                      name="Pontuação Total"
+                      radius={[4, 4, 0, 0]}
+                    >
+                      {categoryDistribution.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Bar>
                   </BarChart>
                 </ResponsiveContainer>
               </div>

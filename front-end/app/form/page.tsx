@@ -379,26 +379,21 @@ export default function Page() {
 
   const handlePaste = async (e: ClipboardEvent<HTMLTextAreaElement>) => {
     e.preventDefault();
-    console.log('Paste event triggered');
     
     // Handle pasted files
     const items = Array.from(e.clipboardData.items);
     let imageAdded = false;
     
-    console.log('Clipboard items:', items.map(item => ({ type: item.type, kind: item.kind })));
-    
     for (const item of items) {
       if (item.type.startsWith('image/')) {
         const file = item.getAsFile();
         if (file) {
-          console.log('Image file found:', file.name, file.type, file.size);
           const newFile = new File([file], `pasted-image-${Date.now()}.${item.type.split('/')[1]}`, {
             type: item.type,
             lastModified: new Date().getTime()
           });
           addFiles([newFile]);
           imageAdded = true;
-          console.log('Image added to files state');
           break; // Only add the first image found
         }
       }
@@ -407,9 +402,7 @@ export default function Page() {
     // If no image was added through the first method, try the clipboard API
     if (!imageAdded) {
       try {
-        console.log('Trying Clipboard API');
         const permission = await navigator.permissions.query({ name: 'clipboard-read' as PermissionName });
-        console.log('Clipboard permission:', permission.state);
         
         if (permission.state === 'granted' || permission.state === 'prompt') {
           const clipboardItems = await navigator.clipboard.read();
@@ -417,14 +410,11 @@ export default function Page() {
             for (const type of clipboardItem.types) {
               if (type.startsWith('image/')) {
                 const blob = await clipboardItem.getType(type);
-                console.log('Image blob found:', blob.type, blob.size);
                 const newFile = new File([blob], `pasted-image-${Date.now()}.${type.split('/')[1]}`, {
                   type: type,
                   lastModified: new Date().getTime()
                 });
                 addFiles([newFile]);
-                console.log('Image added via Clipboard API');
-                break;
               }
             }
           }

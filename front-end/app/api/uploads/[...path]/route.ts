@@ -11,8 +11,6 @@ export async function GET(
     const pathSegments = params.path[0] === 'uploads' ? params.path.slice(1) : params.path;
     const filePath = path.join(process.cwd(), 'uploads', ...pathSegments);
     
-    console.log('Attempting to access file at:', filePath);
-    
     // Check if file exists
     try {
       await fs.access(filePath);

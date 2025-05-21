@@ -27,7 +27,6 @@ export default function ActivityDetailsModal({ activity, onClose }: ActivityDeta
   useEffect(() => {
     const fetchImages = async () => {
       try {
-        console.log('Fetching images for activity:', activity.key_process);
         const response = await fetch(`/api/activities/${activity.key_process}/images`, {
           method: 'GET',
           headers: {
@@ -40,7 +39,6 @@ export default function ActivityDetailsModal({ activity, onClose }: ActivityDeta
         }
         
         const data = await response.json();
-        console.log('Images data:', data);
         
         if (data.success) {
           setImages(data.images);

@@ -41,7 +41,6 @@ function isValidParticipantType(type: string): type is ParticipantType {
 }
 
 export async function sendToN8N(data: WebhookData): Promise<void> {
-  console.log('[Webhook] Starting N8N webhook process');
   try {
     if (data.files.length === 0) {
       throw new Error('No files provided');
@@ -77,7 +76,6 @@ export async function sendToN8N(data: WebhookData): Promise<void> {
     const authString = `webhook:${env.WEBHOOK_SECRET}`;
     const base64Auth = Buffer.from(authString).toString('base64');
 
-    console.log('[Webhook] Sending request to N8N webhook URL');
     if (!env.WEBHOOK_URL) {
       throw new Error('WEBHOOK_URL is not defined');
     }
@@ -94,10 +92,7 @@ export async function sendToN8N(data: WebhookData): Promise<void> {
     if (!response.ok) {
       throw new Error(`N8N webhook failed: ${response.statusText}`);
     }
-
-    console.log('[Webhook] Successfully sent data to N8N');
   } catch (error) {
-    console.error('[Webhook] Error in N8N webhook process:', error);
     throw new Error('N8N está fora do ar. Por favor, tente novamente mais tarde.');
   }
 } 

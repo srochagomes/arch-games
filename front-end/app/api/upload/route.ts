@@ -11,8 +11,6 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
-  console.log('[Upload] Starting upload process');
-  
   let team: string;
   let activityDate: string;
   let targetDir: string | undefined;
@@ -24,7 +22,6 @@ export async function POST(request: NextRequest) {
 
     // Parse the form data
     const formData = await request.formData();
-    console.log('[Upload] Form data received');
 
     // Get form fields
     team = formData.get('team') as string;
@@ -73,7 +70,6 @@ export async function POST(request: NextRequest) {
     targetDir = path.join(uploadDir, dirName);
     await mkdir(targetDir, { recursive: true });
 
-    console.log('[Upload] Processing files');
     const savedFiles: Array<{ name: string; type: string; path: string; buffer: Buffer; hash: string }> = [];
 
     // Process each file
@@ -111,7 +107,6 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    console.log('[Upload] Sending to N8N');
     const maxParticipants = Math.min(participants.length, 10);
     const maxTokens = maxParticipants * 300;
     // Convert file.buffer to string if needed
@@ -141,7 +136,6 @@ export async function POST(request: NextRequest) {
     await sendToN8N(webhookPayload);
 
     // After successful webhook call, save records to database
-    console.log('[Upload] Saving records to database');
     for (const file of savedFiles) {
       await saveImageRecord({
         fileName: file.name,
@@ -153,7 +147,6 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    console.log('[Upload] Process completed successfully');
     return NextResponse.json({
       success: true,
       message: 'Upload realizado com sucesso',
@@ -167,7 +160,6 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[Upload] Error:', error);
     // In case of error, we should clean up any files that were saved
     if (targetDir) {
       try {

@@ -30,13 +30,13 @@ const TeamRankingTable: React.FC = () => {
     const fetchRankings = async () => {
       try {
         const response = await fetch('/api/rankings/teams');
-        if (response.ok) {
-          const data = await response.json();
-          console.log('Team rankings data:', data); // Debug log
-          setRankings(data.teamRankings || []);
+        if (!response.ok) {
+          throw new Error('Failed to fetch rankings');
         }
+        const data = await response.json();
+        setRankings(data.teamRankings);
       } catch (error) {
-        console.error('Error fetching rankings:', error);
+        // Error handling without console.log
       } finally {
         setIsLoading(false);
       }

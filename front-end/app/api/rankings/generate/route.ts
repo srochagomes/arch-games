@@ -200,23 +200,25 @@ export async function POST() {
     }
 
     // Calculate and save category distribution
-    const categoryScores = activities.reduce((acc: Record<string, { teamId: number; category: string; totalScore: number }>, activity) => {
-      if (!activity.team_id) return acc;
+    const categoryScores = activities.reduce((acc: Record<string, { category: string; totalScore: number }>, activity) => {
+      if (!activity.category) return acc;
       
-      const key = `${activity.team_id}-${activity.category}`;
-      if (!acc[key]) {
-        acc[key] = {
-          teamId: activity.team_id,
+      if (!acc[activity.category]) {
+        acc[activity.category] = {
           category: activity.category,
           totalScore: 0
         };
       }
-      acc[key].totalScore += activity.calculated_score || 0;
+      acc[activity.category].totalScore += activity.calculated_score || 0;
       return acc;
     }, {});
 
     await prisma.categoryDistribution.createMany({
-      data: Object.values(categoryScores)
+      data: Object.values(categoryScores).map(score => ({
+        teamId: 1, // Using a default teamId since we're aggregating by category
+        category: score.category,
+        totalScore: score.totalScore
+      }))
     });
 
     return NextResponse.json({ 

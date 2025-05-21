@@ -1,41 +1,67 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { ACTIVITY_OPTIONS, ActivityOption } from '@/app/api/types/activityOptions';
+
+interface CategoryDistributionResult {
+  category: string;
+  totalScore: number;
+}
 
 export async function GET() {
   try {
-    // Get team score distribution
+    // Get all team score distributions with their teams
     const teamScoreDistribution = await prisma.teamScoreDistribution.findMany({
       include: {
-        team: true
+        team: {
+          select: {
+            name: true
+          }
+        }
+      },
+      orderBy: {
+        scoreTotal: 'desc'
       }
     });
 
-    // Get category distribution
-    const categoryDistribution = await prisma.categoryDistribution.findMany({
-      include: {
-        team: true
-      }
-    });
+    // Create a map of activity options for easy lookup
+    const activityOptionMap = ACTIVITY_OPTIONS.reduce((acc: Record<string, string>, option: ActivityOption) => {
+      acc[option.value] = option.label;
+      return acc;
+    }, {} as Record<string, string>);
+
+    // Get category distribution directly from the database
+    const categoryDistribution = await prisma.$queryRaw<CategoryDistributionResult[]>`
+      SELECT category, CAST(SUM("totalScore") AS FLOAT) as "totalScore"
+      FROM "arch_games"."CategoryDistribution"
+      WHERE "totalScore" > 0
+      GROUP BY category
+    `;
+
+    // Create a map of existing category scores
+    const categoryScoreMap = categoryDistribution.reduce((acc: Record<string, number>, item) => {
+      acc[item.category] = Number(item.totalScore);
+      return acc;
+    }, {});
 
     // Transform the data to include team names
-    const transformedTeamDistribution = teamScoreDistribution.map(dist => ({
-      ...dist,
-      teamName: dist.team.name
-    }));
+    const transformedData = {
+      teamScoreDistribution: teamScoreDistribution.map(item => ({
+        teamId: item.teamId,
+        scoreTotal: item.scoreTotal,
+        percentage: item.percentage,
+        teamName: item.team.name
+      })),
+      categoryDistribution: ACTIVITY_OPTIONS.map(option => ({
+        category: option.value,
+        totalScore: categoryScoreMap[option.value] || 0,
+        activityLabel: option.label
+      })).filter(item => item.totalScore > 0)
+    };
 
-    const transformedCategoryDistribution = categoryDistribution.map(dist => ({
-      ...dist,
-      teamName: dist.team.name
-    }));
-
-    return NextResponse.json({
-      teamScoreDistribution: transformedTeamDistribution,
-      categoryDistribution: transformedCategoryDistribution
-    });
+    return NextResponse.json(transformedData);
   } catch (error) {
-    console.error('Error fetching distribution data:', error);
     return NextResponse.json(
-      { success: false, message: 'Error fetching distribution data' },
+      { error: 'Internal Server Error' },
       { status: 500 }
     );
   }
