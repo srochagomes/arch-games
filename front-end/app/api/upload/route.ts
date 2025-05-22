@@ -5,10 +5,20 @@ import { env } from '@/config/env';
 import { randomUUID } from 'crypto';
 import { calculateImageHash } from '@/utils/imageHash';
 import { findDuplicateImage, saveImageRecord } from '@/utils/dbOperations';
-import { sendToN8N, MULTIPART_FILE_FIELD } from '@/utils/webhook';
+import { sendToN8N, MULTIPART_FILE_FIELD } from '@/app/utils/webhook';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+
+async function cleanupFiles(targetDir: string | undefined) {
+  if (targetDir) {
+    try {
+      await rm(targetDir, { recursive: true, force: true });
+    } catch (cleanupError) {
+      console.error('[Upload] Error during cleanup:', cleanupError);
+    }
+  }
+}
 
 export async function POST(request: NextRequest) {
   let team: string;
@@ -109,65 +119,59 @@ export async function POST(request: NextRequest) {
 
     const maxParticipants = Math.min(participants.length, 10);
     const maxTokens = maxParticipants * 300;
-    // Convert file.buffer to string if needed
-    const fileContent = savedFiles[0].buffer.toString();
 
     // Define webhookPayload with required properties
     const webhookPayload = {
-      event: 'file_upload',
-      data: {
+      key_process,
+      team,
       team_id: parseInt(team_id),
       participant_id: mainParticipant.id,
       participants: participants,
       activityDate,
-        quantityParticipants: participants.length,
-        maxTokens,
+      quantityParticipants: participants.length,
+      maxTokens,
       files: savedFiles.map(file => ({
         name: file.name,
         type: file.type,
         buffer: file.buffer
       })),
       fileNames: savedFiles.map((_, index) => `${MULTIPART_FILE_FIELD}${index}`).join(', ')
-      },
-      timestamp: Date.now()
     };
 
-    // Adjust function arguments to match the expected signature
-    await sendToN8N(webhookPayload);
+    try {
+      // First try to send to N8N
+      await sendToN8N(webhookPayload);
 
-    // After successful webhook call, save records to database
-    for (const file of savedFiles) {
-      await saveImageRecord({
-        fileName: file.name,
-        originalName: file.name,
-        mimeType: file.type,
-        size: file.buffer.length,
-        hash: file.hash,
-        activityId: key_process
+      // Only save records to database after successful webhook call
+      for (const file of savedFiles) {
+        await saveImageRecord({
+          fileName: path.join(dirName, file.name),
+          originalName: file.name,
+          mimeType: file.type,
+          size: file.buffer.length,
+          hash: file.hash,
+          activityId: key_process,
+          team: team
+        });
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: 'Upload realizado com sucesso',
+        data: {
+          directory: dirName,
+          files: savedFiles.map(f => f.name),
+          key_process,
+          quantityParticipants: participants.length,
+          maxTokens
+        }
       });
+    } catch (error) {
+      await cleanupFiles(targetDir);
+      throw error; // Re-throw to be caught by outer try-catch
     }
-
-    return NextResponse.json({
-      success: true,
-      message: 'Upload realizado com sucesso',
-      data: {
-        directory: dirName,
-        files: savedFiles.map(f => f.name),
-        key_process,
-        quantityParticipants: participants.length,
-        maxTokens
-      }
-    });
-
   } catch (error) {
-    // In case of error, we should clean up any files that were saved
-    if (targetDir) {
-      try {
-        await rm(targetDir, { recursive: true, force: true });
-      } catch (cleanupError) {
-        console.error('[Upload] Error during cleanup:', cleanupError);
-      }
-    }
+    await cleanupFiles(targetDir);
     return NextResponse.json({
       success: false,
       message: error instanceof Error ? error.message : 'Erro interno do servidor',

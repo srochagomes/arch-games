@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -6,6 +7,18 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
+    
+    // Update image status to PROCESSING
+    if (data.key_process) {
+      await prisma.image.updateMany({
+        where: {
+          key_process: data.key_process
+        },
+        data: {
+          status: 'PROCESSING'
+        }
+      });
+    }
     
     return NextResponse.json({ 
       success: true,

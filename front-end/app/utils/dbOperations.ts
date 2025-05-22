@@ -1,14 +1,25 @@
 import prisma from '@/lib/prisma';
 
-interface ImageRecord {
+export interface ImageRecord {
   id: number;
-  hash: string;
+  filename: string;
+  key_process: string;
+  activity_date: Date;
   name: string;
   team: string;
   type: string;
-  activity_date: Date;
-  upload_date: Date;
-  filename: string;
+  hash: string;
+  status: string | null;
+}
+
+export interface ImageMetadata {
+  fileName: string;
+  originalName: string;
+  mimeType: string;
+  size: number;
+  hash: string;
+  activityId: string;
+  team: string;
 }
 
 // DDL for creating the tables (to be run manually in psql or your DB tool)
@@ -41,9 +52,36 @@ GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA arch_games TO n8n_user;
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA arch_games TO n8n_user;
 `;
 
+export async function saveImageMetadata(metadata: ImageMetadata): Promise<ImageRecord> {
+  return prisma.image.create({
+    data: {
+      filename: metadata.fileName,
+      name: metadata.originalName,
+      type: metadata.mimeType,
+      hash: metadata.hash,
+      key_process: metadata.activityId,
+      team: metadata.team,
+      activity_date: new Date(),
+      status: null
+    }
+  });
+}
+
+export async function getImageByHash(hash: string): Promise<ImageRecord | null> {
+  return prisma.image.findFirst({
+    where: { hash },
+  });
+}
+
+export async function deleteImageMetadata(id: number): Promise<ImageRecord> {
+  return prisma.image.delete({
+    where: { id },
+  });
+}
+
 export async function findDuplicateImage(hash: string): Promise<ImageRecord | null> {
   try {
-    const record = await prisma.image.findUnique({
+    const record = await prisma.image.findFirst({
       where: {
         hash: hash
       }
@@ -55,29 +93,6 @@ export async function findDuplicateImage(hash: string): Promise<ImageRecord | nu
   }
 }
 
-export async function saveImageRecord(
-  hash: string,
-  name: string,
-  team: string,
-  type: string,
-  activity_date: Date,
-  filename: string,
-  key_process: string
-): Promise<void> {
-  try {
-    await prisma.image.create({
-      data: {
-        hash,
-        name,
-        team,
-        type,
-        activity_date,
-        filename,
-        key_process
-      }
-    });
-  } catch (error) {
-    console.error('Error saving image record:', error);
-    throw error;
-  }
+export async function saveImageRecord(metadata: ImageMetadata): Promise<ImageRecord> {
+  return saveImageMetadata(metadata);
 } 

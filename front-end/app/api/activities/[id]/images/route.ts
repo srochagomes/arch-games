@@ -9,7 +9,12 @@ interface ImageRecord {
   id: number;
   filename: string;
   key_process: string;
-  upload_date: Date;
+  activity_date: Date;
+  name: string;
+  team: string;
+  type: string;
+  hash: string;
+  status: string | null;
   [key: string]: any;
 }
 
@@ -23,7 +28,7 @@ export async function GET(
         key_process: params.id
       },
       orderBy: {
-        upload_date: 'desc'
+        activity_date: 'desc'
       }
     });
 

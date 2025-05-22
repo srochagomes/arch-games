@@ -43,6 +43,29 @@ export async function POST(request: Request) {
         calculated_score: modelActivity.calculated_score,
       },
     });
+
+    // Update image status based on activity creation success
+    try {
+      await prisma.image.updateMany({
+        where: {
+          key_process: modelActivity.key_process
+        },
+        data: {
+          status: 'PROCESSED'
+        }
+      });
+    } catch (error) {
+      console.error('Error updating image status:', error);
+      // If there's an error updating the image status, set it to PROCESS_WITH_ERRORS
+      await prisma.image.updateMany({
+        where: {
+          key_process: modelActivity.key_process
+        },
+        data: {
+          status: 'PROCESS_WITH_ERRORS'
+        }
+      });
+    }
     
     return corsResponse(
       NextResponse.json({
@@ -53,6 +76,21 @@ export async function POST(request: Request) {
 
   } catch (error) {
     console.error('Error processing activity:', error);
+    
+    // If there's an error creating the activity, update image status to PROCESS_WITH_ERRORS
+    try {
+      const modelActivity = await request.json();
+      await prisma.image.updateMany({
+        where: {
+          key_process: modelActivity.key_process
+        },
+        data: {
+          status: 'PROCESS_WITH_ERRORS'
+        }
+      });
+    } catch (updateError) {
+      console.error('Error updating image status after activity error:', updateError);
+    }
     
     // Handle specific database errors
     if (error instanceof Error) {

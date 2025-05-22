@@ -3,7 +3,7 @@ import fetch from 'node-fetch';
 import FormData from 'form-data';
 
 // Constants for form field names
-export const MULTIPART_FILE_FIELD = 'files';
+export const MULTIPART_FILE_FIELD = 'imageFiles';
 
 // Define valid participant types
 type ParticipantType = 'participant' | 'captain' | 'governance';
@@ -14,24 +14,16 @@ interface FileInfo {
   buffer: Buffer;
 }
 
-interface WebhookData {
+export interface WebhookData {
   key_process: string;
   team: string;
   team_id: number;
-  participant_id: string;
-  participants: Array<{
-    id: string;
-    name: string;
-    type: string;
-  }>;
+  participant_id: number;
+  participants: Array<{ id: number; name: string }>;
   activityDate: string;
   quantityParticipants: number;
   maxTokens: number;
-  files: Array<{
-    name: string;
-    type: string;
-    buffer: Buffer;
-  }>;
+  files: Array<{ name: string; type: string; buffer: Buffer }>;
   fileNames: string;
 }
 
@@ -41,58 +33,65 @@ function isValidParticipantType(type: string): type is ParticipantType {
 }
 
 export async function sendToN8N(data: WebhookData): Promise<void> {
+  const webhookUrl = env.N8N_WEBHOOK_URL;
+  const username = env.N8N_USERNAME;
+  const password = env.N8N_PASSWORD;
+
+  if (!webhookUrl) {
+    throw new Error('N8N webhook URL not configured');
+  }
+
+  if (!username || !password) {
+    throw new Error('N8N credentials not configured');
+  }
+
+  console.log('Sending webhook request to:', webhookUrl);
+
   try {
-    if (data.files.length === 0) {
-      throw new Error('No files provided');
-    }
-
-    // Create FormData instance
+    // Create FormData for multipart/form-data
     const formData = new FormData();
-
-    // Add all form fields
+    
+    // Add all data fields at root level
     formData.append('key_process', data.key_process);
     formData.append('team', data.team);
     formData.append('team_id', data.team_id.toString());
-    formData.append('participant_id', data.participant_id);
+    formData.append('participant_id', data.participant_id.toString());
     formData.append('participants', JSON.stringify(data.participants));
     formData.append('activityDate', data.activityDate);
     formData.append('quantityParticipants', data.quantityParticipants.toString());
     formData.append('maxTokens', data.maxTokens.toString());
 
-    // Create multipart attribute names string (files0, files1, etc.)
-    const fileNames = data.files.map((_, index) => `${MULTIPART_FILE_FIELD}${index}`).join(', ');
-    formData.append('fileNames', fileNames);
-
-    // Add files as binary with original filenames
+    // Add each file with its corresponding field name
     data.files.forEach((file, index) => {
-      const fieldName = `${MULTIPART_FILE_FIELD}${index}`;
-      formData.append(fieldName, file.buffer, {
+      formData.append(`${MULTIPART_FILE_FIELD}${index}`, file.buffer, {
         filename: file.name,
         contentType: file.type
       });
     });
 
-    // Create Basic Auth header
-    const authString = `webhook:${env.WEBHOOK_SECRET}`;
-    const base64Auth = Buffer.from(authString).toString('base64');
+    // Add fileNames field
+    formData.append('fileNames', data.fileNames);
 
-    if (!env.WEBHOOK_URL) {
-      throw new Error('WEBHOOK_URL is not defined');
-    }
-    const response = await fetch(env.WEBHOOK_URL, {
+    // Create basic auth header
+    const auth = Buffer.from(`${username}:${password}`).toString('base64');
+
+    const response = await fetch(webhookUrl, {
       method: 'POST',
       headers: {
-        'Authorization': `Basic ${base64Auth}`,
+        'Authorization': `Basic ${auth}`,
         ...formData.getHeaders()
       },
-      // @ts-ignore - FormData from 'form-data' is compatible with node-fetch
       body: formData
     });
 
     if (!response.ok) {
-      throw new Error(`N8N webhook failed: ${response.statusText}`);
+      const errorText = await response.text();
+      throw new Error(`N8N webhook failed: ${response.status} ${response.statusText} - ${errorText}`);
     }
+
+    console.log('Webhook request successful');
   } catch (error) {
-    throw new Error('N8N está fora do ar. Por favor, tente novamente mais tarde.');
+    console.error('Error in sendToN8N:', error);
+    throw error;
   }
 } 

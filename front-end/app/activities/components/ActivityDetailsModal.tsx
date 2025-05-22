@@ -4,15 +4,14 @@ import { Activity } from '@/types/activities';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 
-interface ImageRecord {
+interface ActivityImage {
   id: number;
-  hash: string;
+  filename: string;
   name: string;
   team: string;
   type: string;
   activity_date: string;
-  upload_date: string;
-  filename: string;
+  status: string | null;
 }
 
 interface ActivityDetailsModalProps {
@@ -21,7 +20,7 @@ interface ActivityDetailsModalProps {
 }
 
 export default function ActivityDetailsModal({ activity, onClose }: ActivityDetailsModalProps) {
-  const [images, setImages] = useState<ImageRecord[]>([]);
+  const [images, setImages] = useState<ActivityImage[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -122,16 +121,16 @@ export default function ActivityDetailsModal({ activity, onClose }: ActivityDeta
                   {images.map((image) => (
                     <div key={image.id} className="relative w-full h-[200px] rounded-lg overflow-hidden bg-gray-100">
                       <Image
-                        src={`/api/uploads${image.filename.replace('/uploads', '')}`}
+                        src={`/api/uploads/${image.filename}`}
                         alt={image.name}
                         fill
                         sizes="(max-width: 768px) 100vw, 50vw"
                         className="object-contain"
                         unoptimized
                       />
-          </div>
+                    </div>
                   ))}
-              </div>
+                </div>
               </div>
             )}
 

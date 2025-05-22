@@ -16,13 +16,14 @@ datasource db {
 }
 
 model team {
-  id           Int           @id @default(autoincrement())
-  name         String        @unique @db.VarChar(100)
-  participants participant[]
-  activities   activity[]
-  rankings     RankingTeam[]
+  id             Int           @id @default(autoincrement())
+  name           String        @unique @db.VarChar(100)
+  activityOption String        @default("physical_activity") @db.VarChar(50)
+  participants   participant[]
+  activities     activity[]
+  rankings       RankingTeam[]
   participantRankings RankingParticipant[]
-  scoreHistory TeamScoreHistory[]
+  scoreHistory   TeamScoreHistory[]
   scoreDistribution TeamScoreDistribution[]
   categoryDistribution CategoryDistribution[]
 
@@ -60,14 +61,15 @@ model activity {
 
 model image {
   id            Int      @id @default(autoincrement())
-  key_process   String
+  key_process   String   @db.VarChar(50)
   hash          String   @unique @db.VarChar(64)
-  name          String   @db.VarChar(255)
+  name          String   @db.VarChar(100)
   team          String   @db.VarChar(100)
   type          String   @db.VarChar(50)
   activity_date DateTime
   upload_date   DateTime @default(now())
   filename      String   @db.Text
+  status        String?  @db.VarChar(50)
 
   @@index([hash])
   @@map("image")
