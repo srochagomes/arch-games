@@ -507,11 +507,13 @@ export default function Page() {
                       className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
                     >
                       <option value="">Selecione uma equipe</option>
-                      {teams.map((team) => (
-                        <option key={team.id} value={team.id}>
-                          {team.name}
-                        </option>
-                      ))}
+                      {teams
+                        .sort((a, b) => a.name.localeCompare(b.name))
+                        .map((team) => (
+                          <option key={team.id} value={team.id}>
+                            {team.name}
+                          </option>
+                        ))}
                     </select>
                   </div>
                   {validationErrors.team && (
@@ -589,6 +591,7 @@ export default function Page() {
                           <option value="">Selecione um participante</option>
                           {participants
                             .filter(p => !formData.participant_selections.includes(p.id) || p.id === selection)
+                            .sort((a, b) => a.name.localeCompare(b.name))
                             .map((participant) => (
                               <option key={participant.id} value={participant.id}>
                                 {participant.name}

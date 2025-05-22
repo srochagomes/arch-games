@@ -133,11 +133,13 @@ export default function UploadStatus() {
                 </SelectTrigger>
                 <SelectContent className="bg-white border border-gray-200">
                   <SelectItem value="all" className="hover:bg-gray-100">Todas</SelectItem>
-                  {teams.map((team) => (
-                    <SelectItem key={team.id} value={team.name} className="hover:bg-gray-100">
-                      {team.name}
-                    </SelectItem>
-                  ))}
+                  {teams
+                    .sort((a, b) => a.name.localeCompare(b.name))
+                    .map((team) => (
+                      <SelectItem key={team.id} value={team.name} className="hover:bg-gray-100">
+                        {team.name}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
             </div>

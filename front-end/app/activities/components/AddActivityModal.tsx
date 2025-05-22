@@ -199,11 +199,13 @@ export default function AddActivityModal({ onClose, onAdd }: AddActivityModalPro
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Selecione um time</option>
-                {teams.map(team => (
-                  <option key={team.id} value={team.id}>
-                    {team.name}
-                  </option>
-                ))}
+                {teams
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map(team => (
+                    <option key={team.id} value={team.id}>
+                      {team.name}
+                    </option>
+                  ))}
               </select>
             </div>
 
@@ -221,11 +223,13 @@ export default function AddActivityModal({ onClose, onAdd }: AddActivityModalPro
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
               >
                 <option value="">Selecione um participante</option>
-                {participants.map(participant => (
-                  <option key={participant.id} value={participant.id}>
-                    {participant.name}
-                  </option>
-                ))}
+                {participants
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map(participant => (
+                    <option key={participant.id} value={participant.id}>
+                      {participant.name}
+                    </option>
+                  ))}
               </select>
             </div>
 
