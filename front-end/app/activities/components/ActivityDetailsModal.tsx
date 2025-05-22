@@ -121,7 +121,7 @@ export default function ActivityDetailsModal({ activity, onClose }: ActivityDeta
                   {images.map((image) => (
                     <div key={image.id} className="relative w-full h-[200px] rounded-lg overflow-hidden bg-gray-100">
                       <Image
-                        src={`/api/uploads/${image.filename}`}
+                        src={`/api/uploads/${image.filename.replace(/pasted-image-\d+\.png$/, 'file0.png')}`}
                         alt={image.name}
                         fill
                         sizes="(max-width: 768px) 100vw, 50vw"

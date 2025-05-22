@@ -9,6 +9,10 @@ export async function GET(
 ) {
   try {
     const filePath = path.join(env.UPLOAD_DIR, ...params.path);
+    console.log('Attempting to read file:', filePath);
+    console.log('Upload directory:', env.UPLOAD_DIR);
+    console.log('Path segments:', params.path);
+    console.log('Full URL path:', request.nextUrl.pathname);
     
     // Read the file
     const fileBuffer = await readFile(filePath);
@@ -32,6 +36,7 @@ export async function GET(
     });
   } catch (error) {
     console.error('Error serving file:', error);
+    console.error('Error details:', error instanceof Error ? error.message : 'Unknown error');
     return new NextResponse('File not found', { status: 404 });
   }
 } 

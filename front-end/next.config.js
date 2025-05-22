@@ -11,6 +11,8 @@ const nextConfig = {
         pathname: '/uploads/**',
       },
     ],
+    domains: ['localhost'],
+    unoptimized: true,
   },
 }
 

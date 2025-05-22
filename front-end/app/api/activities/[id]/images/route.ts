@@ -32,11 +32,17 @@ export async function GET(
       }
     });
 
+    console.log('Raw images from database:', images);
+
     // Transform absolute paths to relative paths
-    const transformedImages = images.map((image: ImageRecord) => ({
-      ...image,
-      filename: image.filename.replace('/home/programmer/desenvolvimento/arch-games/front-end', '')
-    }));
+    const transformedImages = images.map((image: ImageRecord) => {
+      const transformed = {
+        ...image,
+        filename: image.filename.replace('/home/programmer/desenvolvimento/arch-games/front-end', '')
+      };
+      console.log('Transformed image:', transformed);
+      return transformed;
+    });
 
     return NextResponse.json({
       success: true,
