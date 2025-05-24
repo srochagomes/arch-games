@@ -34,3 +34,6 @@ next-env.d.ts
 
 # Upload directory
 /uploads/ 
+
+log.txt
+front-end/log.txt

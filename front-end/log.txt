@@ -5,37 +5,59 @@ $ next dev -p 5446
   - Environments: .env.local, .env
 
  ✓ Starting...
- ✓ Ready in 1582ms
- ○ Compiling /activities ...
- ✓ Compiled /activities in 2.4s (883 modules)
- GET /activities 200 in 2720ms
- ✓ Compiled in 332ms (449 modules)
- GET /activities 200 in 35ms
- ○ Compiling /form ...
- ✓ Compiled /form in 574ms (875 modules)
- ✓ Compiled /api/teams in 436ms (470 modules)
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+ ✓ Ready in 1879ms
+ ○ Compiling / ...
+ ✓ Compiled / in 4.6s (506 modules)
+ ✓ Compiled in 532ms (259 modules)
+ GET / 200 in 5144ms
+ ✓ Compiled /form in 498ms (503 modules)
+ ✓ Compiled /api/teams in 212ms (285 modules)
 prisma:query SELECT "arch_games"."team"."id", "arch_games"."team"."name", "arch_games"."team"."activityOption" FROM "arch_games"."team" WHERE 1=1 ORDER BY "arch_games"."team"."name" ASC OFFSET $1
- GET /api/teams 200 in 545ms
- GET /api/teams 200 in 15ms
+ GET /api/teams 200 in 355ms
 prisma:query SELECT "arch_games"."team"."id", "arch_games"."team"."name", "arch_games"."team"."activityOption" FROM "arch_games"."team" WHERE 1=1 ORDER BY "arch_games"."team"."name" ASC OFFSET $1
- ✓ Compiled /api/participants in 92ms (472 modules)
-prisma:query SELECT "arch_games"."participant"."id", "arch_games"."participant"."name", "arch_games"."participant"."email", "arch_games"."participant"."type", "arch_games"."participant"."team_id", "arch_games"."participant"."created_at", "arch_games"."participant"."updated_at" FROM "arch_games"."participant" WHERE "arch_games"."participant"."team_id" = $1 ORDER BY "arch_games"."participant"."name" ASC OFFSET $2
-prisma:query SELECT "arch_games"."team"."id", "arch_games"."team"."name", "arch_games"."team"."activityOption" FROM "arch_games"."team" WHERE "arch_games"."team"."id" IN ($1) OFFSET $2
- GET /api/participants?team_id=6 200 in 121ms
-prisma:query SELECT "arch_games"."participant"."id", "arch_games"."participant"."name", "arch_games"."participant"."email", "arch_games"."participant"."type", "arch_games"."participant"."team_id", "arch_games"."participant"."created_at", "arch_games"."participant"."updated_at" FROM "arch_games"."participant" WHERE "arch_games"."participant"."team_id" = $1 ORDER BY "arch_games"."participant"."name" ASC OFFSET $2
-prisma:query SELECT "arch_games"."team"."id", "arch_games"."team"."name", "arch_games"."team"."activityOption" FROM "arch_games"."team" WHERE "arch_games"."team"."id" IN ($1) OFFSET $2
- GET /api/participants?team_id=6 200 in 7ms
-prisma:query SELECT "arch_games"."participant"."id", "arch_games"."participant"."name", "arch_games"."participant"."email", "arch_games"."participant"."type", "arch_games"."participant"."team_id", "arch_games"."participant"."created_at", "arch_games"."participant"."updated_at" FROM "arch_games"."participant" WHERE "arch_games"."participant"."team_id" = $1 ORDER BY "arch_games"."participant"."name" ASC OFFSET $2
-prisma:query SELECT "arch_games"."team"."id", "arch_games"."team"."name", "arch_games"."team"."activityOption" FROM "arch_games"."team" WHERE "arch_games"."team"."id" IN ($1) OFFSET $2
- GET /api/participants?team_id=6 200 in 6ms
- ○ Compiling /upload-status ...
- ✓ Compiled /upload-status in 791ms (2022 modules)
  GET /api/teams 200 in 12ms
+ ○ Compiling /upload-status ...
+ ✓ Compiled /upload-status in 2.9s (1836 modules)
 prisma:query SELECT "arch_games"."team"."id", "arch_games"."team"."name", "arch_games"."team"."activityOption" FROM "arch_games"."team" WHERE 1=1 ORDER BY "arch_games"."team"."name" ASC OFFSET $1
- ✓ Compiled /api/upload-status in 93ms (1028 modules)
- GET /api/upload-status? 200 in 211ms
+ GET /api/teams 200 in 31ms
+ ✓ Compiled /api/upload-status in 134ms (935 modules)
+prisma:query SELECT "arch_games"."image"."id", "arch_games"."image"."key_process", "arch_games"."image"."hash", "arch_games"."image"."name", "arch_games"."image"."team", "arch_games"."image"."type", "arch_games"."image"."activity_date", "arch_games"."image"."upload_date", "arch_games"."image"."filename", "arch_games"."image"."status" FROM "arch_games"."image" WHERE 1=1 ORDER BY "arch_games"."image"."activity_date" DESC OFFSET $1
+ GET /api/upload-status? 200 in 298ms
+ GET /api/teams 200 in 265ms
+prisma:query SELECT "arch_games"."team"."id", "arch_games"."team"."name", "arch_games"."team"."activityOption" FROM "arch_games"."team" WHERE 1=1 ORDER BY "arch_games"."team"."name" ASC OFFSET $1
+prisma:query SELECT "arch_games"."image"."id", "arch_games"."image"."key_process", "arch_games"."image"."hash", "arch_games"."image"."name", "arch_games"."image"."team", "arch_games"."image"."type", "arch_games"."image"."activity_date", "arch_games"."image"."upload_date", "arch_games"."image"."filename", "arch_games"."image"."status" FROM "arch_games"."image" WHERE 1=1 ORDER BY "arch_games"."image"."activity_date" DESC OFFSET $1
+ GET /api/upload-status? 200 in 13ms
+ ✓ Compiled /teams in 437ms (1850 modules)
+prisma:query SELECT "arch_games"."team"."id", "arch_games"."team"."name", "arch_games"."team"."activityOption" FROM "arch_games"."team" WHERE 1=1 ORDER BY "arch_games"."team"."name" ASC OFFSET $1
+ GET /api/teams 200 in 20ms
+prisma:query SELECT "arch_games"."team"."id", "arch_games"."team"."name", "arch_games"."team"."activityOption" FROM "arch_games"."team" WHERE 1=1 ORDER BY "arch_games"."team"."name" ASC OFFSET $1
+ GET /api/teams 200 in 13ms
+ ○ Compiling /participants ...
+ ✓ Compiled /participants in 510ms (1868 modules)
+ ✓ Compiled /rankings in 423ms (1892 modules)
+ ✓ Compiled /api/rankings/teams in 139ms (967 modules)
+prisma:query SELECT "arch_games"."RankingTeam"."id", "arch_games"."RankingTeam"."generatedAt" FROM "arch_games"."RankingTeam" WHERE 1=1 ORDER BY "arch_games"."RankingTeam"."generatedAt" DESC LIMIT $1 OFFSET $2
+prisma:query SELECT "arch_games"."RankingParticipant"."id", "arch_games"."RankingParticipant"."generatedAt" FROM "arch_games"."RankingParticipant" WHERE 1=1 ORDER BY "arch_games"."RankingParticipant"."generatedAt" DESC LIMIT $1 OFFSET $2
+ GET /api/rankings/teams 200 in 197ms
+prisma:query SELECT "arch_games"."RankingTeam"."id", "arch_games"."RankingTeam"."generatedAt" FROM "arch_games"."RankingTeam" WHERE 1=1 ORDER BY "arch_games"."RankingTeam"."generatedAt" DESC LIMIT $1 OFFSET $2
+prisma:query SELECT "arch_games"."RankingParticipant"."id", "arch_games"."RankingParticipant"."generatedAt" FROM "arch_games"."RankingParticipant" WHERE 1=1 ORDER BY "arch_games"."RankingParticipant"."generatedAt" DESC LIMIT $1 OFFSET $2
+ GET /api/rankings/teams 200 in 15ms
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 3.3s (2946 modules)
 prisma:query SELECT "arch_games"."image"."id", "arch_games"."image"."key_process", "arch_games"."image"."hash", "arch_games"."image"."name", "arch_games"."image"."team", "arch_games"."image"."type", "arch_games"."image"."activity_date", "arch_games"."image"."upload_date", "arch_games"."image"."filename", "arch_games"."image"."status" FROM "arch_games"."image" WHERE 1=1 ORDER BY "arch_games"."image"."activity_date" DESC OFFSET $1
 prisma:query SELECT "arch_games"."team"."id", "arch_games"."team"."name", "arch_games"."team"."activityOption" FROM "arch_games"."team" WHERE 1=1 ORDER BY "arch_games"."team"."name" ASC OFFSET $1
- GET /api/teams 200 in 197ms
+ GET /api/upload-status? 200 in 2008ms
+ GET /api/teams 200 in 2024ms
 prisma:query SELECT "arch_games"."image"."id", "arch_games"."image"."key_process", "arch_games"."image"."hash", "arch_games"."image"."name", "arch_games"."image"."team", "arch_games"."image"."type", "arch_games"."image"."activity_date", "arch_games"."image"."upload_date", "arch_games"."image"."filename", "arch_games"."image"."status" FROM "arch_games"."image" WHERE 1=1 ORDER BY "arch_games"."image"."activity_date" DESC OFFSET $1
- GET /api/upload-status? 200 in 9ms
+ GET /api/upload-status? 200 in 16ms
+ GET /api/teams 200 in 17ms
+prisma:query SELECT "arch_games"."team"."id", "arch_games"."team"."name", "arch_games"."team"."activityOption" FROM "arch_games"."team" WHERE 1=1 ORDER BY "arch_games"."team"."name" ASC OFFSET $1
+prisma:query SELECT "arch_games"."team"."id", "arch_games"."team"."name", "arch_games"."team"."activityOption" FROM "arch_games"."team" WHERE 1=1 ORDER BY "arch_games"."team"."name" ASC OFFSET $1
+ GET /api/teams 200 in 10ms
+prisma:query SELECT "arch_games"."team"."id", "arch_games"."team"."name", "arch_games"."team"."activityOption" FROM "arch_games"."team" WHERE 1=1 ORDER BY "arch_games"."team"."name" ASC OFFSET $1
+ GET /api/teams 200 in 10ms
