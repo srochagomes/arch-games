@@ -4,3 +4,7 @@ Untitled*.*
 ./n8n_data
 .~loc*.*
 .env
+
+/front-end/log.txt
+
+**/log.txt

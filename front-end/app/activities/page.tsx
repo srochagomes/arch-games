@@ -19,8 +19,8 @@ export default function ActivitiesPage() {
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState({
-    startDate: format(new Date(), 'dd/MM/yyyy'),
-    endDate: format(new Date(), 'dd/MM/yyyy'),
+    startDate: '',
+    endDate: '',
     participant: '',
     team: '',
   });
@@ -39,8 +39,8 @@ export default function ActivitiesPage() {
       const queryParams = new URLSearchParams({
         page: pageNum.toString(),
         pageSize: PAGE_SIZE.toString(),
-        ...(filters.startDate && { startDate: format(parse(filters.startDate, 'dd/MM/yyyy', new Date()), 'yyyy-MM-dd') }),
-        ...(filters.endDate && { endDate: format(parse(filters.endDate, 'dd/MM/yyyy', new Date()), 'yyyy-MM-dd') }),
+        ...(filters.startDate && { startDate: format(parse(filters.startDate, 'dd/MM/yyyy', new Date()), 'yyyy-MM-dd') + 'T00:00:00.000Z' }),
+        ...(filters.endDate && { endDate: format(parse(filters.endDate, 'dd/MM/yyyy', new Date()), 'yyyy-MM-dd') + 'T23:59:59.999Z' }),
         ...(filters.participant && { participant: filters.participant }),
         ...(filters.team && { team: filters.team }),
       });
