@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { format } from 'date-fns';
+import { format, parse } from 'date-fns';
 import ActivityDetailsModal from './components/ActivityDetailsModal';
 import UpdateScoresModal from './components/UpdateScoresModal';
 import AddActivityModal from './components/AddActivityModal';
@@ -19,8 +19,8 @@ export default function ActivitiesPage() {
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState({
-    startDate: '',
-    endDate: '',
+    startDate: format(new Date(), 'dd/MM/yyyy'),
+    endDate: format(new Date(), 'dd/MM/yyyy'),
     participant: '',
     team: '',
   });
@@ -39,8 +39,8 @@ export default function ActivitiesPage() {
       const queryParams = new URLSearchParams({
         page: pageNum.toString(),
         pageSize: PAGE_SIZE.toString(),
-        ...(filters.startDate && { startDate: filters.startDate }),
-        ...(filters.endDate && { endDate: filters.endDate }),
+        ...(filters.startDate && { startDate: format(parse(filters.startDate, 'dd/MM/yyyy', new Date()), 'yyyy-MM-dd') }),
+        ...(filters.endDate && { endDate: format(parse(filters.endDate, 'dd/MM/yyyy', new Date()), 'yyyy-MM-dd') }),
         ...(filters.participant && { participant: filters.participant }),
         ...(filters.team && { team: filters.team }),
       });
@@ -151,10 +151,11 @@ export default function ActivitiesPage() {
               Data Início
             </label>
             <input
-              type="date"
+              type="text"
               className="w-full rounded-md border-gray-300 text-sm"
               value={filters.startDate}
               onChange={(e) => setFilters(prev => ({ ...prev, startDate: e.target.value }))}
+              placeholder="dd/mm/yyyy"
             />
           </div>
           <div className="flex flex-col space-y-2">
@@ -162,10 +163,11 @@ export default function ActivitiesPage() {
               Data Fim
             </label>
             <input
-              type="date"
+              type="text"
               className="w-full rounded-md border-gray-300 text-sm"
               value={filters.endDate}
               onChange={(e) => setFilters(prev => ({ ...prev, endDate: e.target.value }))}
+              placeholder="dd/mm/yyyy"
             />
           </div>
           <div className="flex flex-col space-y-2">

@@ -1,0 +1,41 @@
+yarn run v1.22.19
+$ next dev -p 5446
+  ▲ Next.js 14.2.28
+  - Local:        http://localhost:5446
+  - Environments: .env.local, .env
+
+ ✓ Starting...
+ ✓ Ready in 1582ms
+ ○ Compiling /activities ...
+ ✓ Compiled /activities in 2.4s (883 modules)
+ GET /activities 200 in 2720ms
+ ✓ Compiled in 332ms (449 modules)
+ GET /activities 200 in 35ms
+ ○ Compiling /form ...
+ ✓ Compiled /form in 574ms (875 modules)
+ ✓ Compiled /api/teams in 436ms (470 modules)
+prisma:query SELECT "arch_games"."team"."id", "arch_games"."team"."name", "arch_games"."team"."activityOption" FROM "arch_games"."team" WHERE 1=1 ORDER BY "arch_games"."team"."name" ASC OFFSET $1
+ GET /api/teams 200 in 545ms
+ GET /api/teams 200 in 15ms
+prisma:query SELECT "arch_games"."team"."id", "arch_games"."team"."name", "arch_games"."team"."activityOption" FROM "arch_games"."team" WHERE 1=1 ORDER BY "arch_games"."team"."name" ASC OFFSET $1
+ ✓ Compiled /api/participants in 92ms (472 modules)
+prisma:query SELECT "arch_games"."participant"."id", "arch_games"."participant"."name", "arch_games"."participant"."email", "arch_games"."participant"."type", "arch_games"."participant"."team_id", "arch_games"."participant"."created_at", "arch_games"."participant"."updated_at" FROM "arch_games"."participant" WHERE "arch_games"."participant"."team_id" = $1 ORDER BY "arch_games"."participant"."name" ASC OFFSET $2
+prisma:query SELECT "arch_games"."team"."id", "arch_games"."team"."name", "arch_games"."team"."activityOption" FROM "arch_games"."team" WHERE "arch_games"."team"."id" IN ($1) OFFSET $2
+ GET /api/participants?team_id=6 200 in 121ms
+prisma:query SELECT "arch_games"."participant"."id", "arch_games"."participant"."name", "arch_games"."participant"."email", "arch_games"."participant"."type", "arch_games"."participant"."team_id", "arch_games"."participant"."created_at", "arch_games"."participant"."updated_at" FROM "arch_games"."participant" WHERE "arch_games"."participant"."team_id" = $1 ORDER BY "arch_games"."participant"."name" ASC OFFSET $2
+prisma:query SELECT "arch_games"."team"."id", "arch_games"."team"."name", "arch_games"."team"."activityOption" FROM "arch_games"."team" WHERE "arch_games"."team"."id" IN ($1) OFFSET $2
+ GET /api/participants?team_id=6 200 in 7ms
+prisma:query SELECT "arch_games"."participant"."id", "arch_games"."participant"."name", "arch_games"."participant"."email", "arch_games"."participant"."type", "arch_games"."participant"."team_id", "arch_games"."participant"."created_at", "arch_games"."participant"."updated_at" FROM "arch_games"."participant" WHERE "arch_games"."participant"."team_id" = $1 ORDER BY "arch_games"."participant"."name" ASC OFFSET $2
+prisma:query SELECT "arch_games"."team"."id", "arch_games"."team"."name", "arch_games"."team"."activityOption" FROM "arch_games"."team" WHERE "arch_games"."team"."id" IN ($1) OFFSET $2
+ GET /api/participants?team_id=6 200 in 6ms
+ ○ Compiling /upload-status ...
+ ✓ Compiled /upload-status in 791ms (2022 modules)
+ GET /api/teams 200 in 12ms
+prisma:query SELECT "arch_games"."team"."id", "arch_games"."team"."name", "arch_games"."team"."activityOption" FROM "arch_games"."team" WHERE 1=1 ORDER BY "arch_games"."team"."name" ASC OFFSET $1
+ ✓ Compiled /api/upload-status in 93ms (1028 modules)
+ GET /api/upload-status? 200 in 211ms
+prisma:query SELECT "arch_games"."image"."id", "arch_games"."image"."key_process", "arch_games"."image"."hash", "arch_games"."image"."name", "arch_games"."image"."team", "arch_games"."image"."type", "arch_games"."image"."activity_date", "arch_games"."image"."upload_date", "arch_games"."image"."filename", "arch_games"."image"."status" FROM "arch_games"."image" WHERE 1=1 ORDER BY "arch_games"."image"."activity_date" DESC OFFSET $1
+prisma:query SELECT "arch_games"."team"."id", "arch_games"."team"."name", "arch_games"."team"."activityOption" FROM "arch_games"."team" WHERE 1=1 ORDER BY "arch_games"."team"."name" ASC OFFSET $1
+ GET /api/teams 200 in 197ms
+prisma:query SELECT "arch_games"."image"."id", "arch_games"."image"."key_process", "arch_games"."image"."hash", "arch_games"."image"."name", "arch_games"."image"."team", "arch_games"."image"."type", "arch_games"."image"."activity_date", "arch_games"."image"."upload_date", "arch_games"."image"."filename", "arch_games"."image"."status" FROM "arch_games"."image" WHERE 1=1 ORDER BY "arch_games"."image"."activity_date" DESC OFFSET $1
+ GET /api/upload-status? 200 in 9ms

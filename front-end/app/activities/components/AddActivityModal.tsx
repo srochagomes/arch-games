@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
-import { format } from 'date-fns';
+import { format, parse } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 import { Activity } from '@/types/activities';
 
@@ -24,6 +24,11 @@ interface ActivityOption {
   multiplier: number;
 }
 
+interface ParticipantFormData {
+  participant_id: string;
+  team_id: string;
+}
+
 const ACTIVITY_OPTIONS: ActivityOption[] = [
   { value: 'physical_activity', label: 'Atividade Física', category: 'physical_activity', base_score: 10, multiplier: 1 },
   { value: 'duolingo', label: 'Duolingo', category: 'duolingo', base_score: 5, multiplier: 1 },
@@ -45,14 +50,14 @@ interface AddActivityModalProps {
 export default function AddActivityModal({ onClose, onAdd }: AddActivityModalProps) {
   const [loading, setLoading] = useState(false);
   const [teams, setTeams] = useState<Team[]>([]);
-  const [participants, setParticipants] = useState<Participant[]>([]);
-  const [selectedTeamId, setSelectedTeamId] = useState<number | ''>('');
+  const [allParticipants, setAllParticipants] = useState<Participant[]>([]);
+  const [participantForms, setParticipantForms] = useState<ParticipantFormData[]>([
+    { participant_id: '', team_id: '' }
+  ]);
   const [formData, setFormData] = useState({
-    participant_id: '',
-    team_id: '',
     activity: '',
     description: '',
-    date: format(new Date(), 'yyyy-MM-dd'),
+    date: format(new Date(), 'dd/MM/yyyy'),
     time: format(new Date(), 'HH:mm'),
     score: '',
   });
@@ -68,7 +73,6 @@ export default function AddActivityModal({ onClose, onAdd }: AddActivityModalPro
         const data = await response.json();
         setTeams(data.teams || []);
       } catch (error) {
-        // Error handling without console.log
         setTeams([]);
       }
     };
@@ -76,83 +80,107 @@ export default function AddActivityModal({ onClose, onAdd }: AddActivityModalPro
     fetchTeams();
   }, []);
 
-  // Fetch participants when team is selected
+  // Fetch all participants on component mount
   useEffect(() => {
-    const fetchParticipants = async () => {
-      if (!selectedTeamId) {
-        setParticipants([]);
-        setFormData(prev => ({ ...prev, participant_id: '' }));
-        return;
-      }
-
+    const fetchAllParticipants = async () => {
       try {
-        const response = await fetch(`/api/participants?team_id=${selectedTeamId}`);
+        const response = await fetch('/api/participants');
         if (!response.ok) {
           throw new Error('Failed to fetch participants');
         }
         const data = await response.json();
-        setParticipants(data || []);
+        setAllParticipants(data || []);
       } catch (error) {
-        // Error handling without console.log
+        setAllParticipants([]);
       }
     };
 
-    fetchParticipants();
-  }, [selectedTeamId]);
+    fetchAllParticipants();
+  }, []);
+
+  const handleAddParticipant = () => {
+    setParticipantForms(prev => [...prev, { participant_id: '', team_id: '' }]);
+  };
+
+  const handleRemoveParticipant = (index: number) => {
+    setParticipantForms(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleParticipantChange = (index: number, field: keyof ParticipantFormData, value: string) => {
+    setParticipantForms(prev => {
+      const newForms = [...prev];
+      newForms[index] = { ...newForms[index], [field]: value };
+      if (field === 'team_id') {
+        newForms[index].participant_id = '';
+      }
+      return newForms;
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const selectedParticipant = participants.find(p => p.id === formData.participant_id);
-      const selectedTeam = teams.find(t => t.id === Number(formData.team_id));
       const selectedActivity = ACTIVITY_OPTIONS.find(a => a.value === formData.activity);
-
-      if (!selectedParticipant || !selectedTeam || !selectedActivity) {
-        throw new Error('Dados incompletos. Por favor, preencha todos os campos.');
+      if (!selectedActivity) {
+        throw new Error('Atividade inválida');
       }
 
       const key_process = uuidv4();
-      const dateTime = new Date(`${formData.date}T${formData.time}`);
+      const parsedDate = parse(formData.date, 'dd/MM/yyyy', new Date());
+      const dateTime = new Date(`${format(parsedDate, 'yyyy-MM-dd')}T${formData.time}`);
       const base_score = Number(formData.score);
       const calculated_score = base_score * selectedActivity.multiplier;
 
-      const response = await fetch('/api/activities', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          participant: selectedParticipant.name,
-          team: selectedTeam.name,
-          team_id: selectedTeam.id,
-          participant_id: selectedParticipant.id,
-          date: dateTime.toISOString(),
-          category: selectedActivity.value,
-          key_process,
-          activity: {
-            inputType: "MANUALY",
-            description: formData.description || selectedActivity.label,
-            dateTime: dateTime.toISOString(),
-            category: selectedActivity.category
+      // Create activity records for each participant
+      const activityPromises = participantForms.map(async (participantForm) => {
+        const selectedParticipant = allParticipants.find(p => p.id === participantForm.participant_id);
+        const selectedTeam = teams.find(t => t.id === Number(participantForm.team_id));
+
+        if (!selectedParticipant || !selectedTeam) {
+          throw new Error('Dados incompletos. Por favor, preencha todos os campos.');
+        }
+
+        const response = await fetch('/api/activities', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
           },
-          type: selectedParticipant.type,
-          base_score,
-          multiplier: selectedActivity.multiplier,
-          calculated_score
-        }),
+          body: JSON.stringify({
+            participant: selectedParticipant.name,
+            team: selectedTeam.name,
+            team_id: selectedTeam.id,
+            participant_id: selectedParticipant.id,
+            date: dateTime.toISOString(),
+            category: selectedActivity.value,
+            key_process,
+            activity: {
+              inputType: "MANUALY",
+              description: formData.description || selectedActivity.label,
+              dateTime: dateTime.toISOString(),
+              category: selectedActivity.category
+            },
+            type: selectedParticipant.type,
+            base_score,
+            multiplier: selectedActivity.multiplier,
+            calculated_score
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to add activity');
+        }
+
+        return response.json();
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to add activity');
-      }
-
-      toast.success('Atividade adicionada com sucesso!');
+      await Promise.all(activityPromises);
+      toast.success('Atividades adicionadas com sucesso!');
       onAdd();
       onClose();
-    } catch (error) {
-      // Error handling without console.log
+    } catch (error: any) {
+      toast.error(error.message || 'Erro ao adicionar atividades');
     } finally {
       setLoading(false);
     }
@@ -160,13 +188,7 @@ export default function AddActivityModal({ onClose, onAdd }: AddActivityModalPro
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    
-    if (name === 'team_id') {
-      setSelectedTeamId(value ? Number(value) : '');
-      setFormData(prev => ({ ...prev, [name]: value, participant_id: '' }));
-    } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
-    }
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   return (
@@ -185,54 +207,83 @@ export default function AddActivityModal({ onClose, onAdd }: AddActivityModalPro
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Participants Section */}
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold text-gray-900">Participantes</h3>
+              <button
+                type="button"
+                onClick={handleAddParticipant}
+                className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Adicionar Participante
+              </button>
+            </div>
+
+            {participantForms.map((form, index) => (
+              <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border rounded-lg relative">
+                {index > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveParticipant(index)}
+                    className="absolute top-2 right-2 text-red-600 hover:text-red-800"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Time
+                  </label>
+                  <select
+                    value={form.team_id}
+                    onChange={(e) => handleParticipantChange(index, 'team_id', e.target.value)}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Selecione um time</option>
+                    {teams
+                      .sort((a, b) => a.name.localeCompare(b.name))
+                      .map(team => (
+                        <option key={team.id} value={team.id}>
+                          {team.name}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Participante
+                  </label>
+                  <select
+                    value={form.participant_id}
+                    onChange={(e) => handleParticipantChange(index, 'participant_id', e.target.value)}
+                    required
+                    disabled={!form.team_id}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                  >
+                    <option value="">Selecione um participante</option>
+                    {allParticipants
+                      .filter(p => p.team_id === Number(form.team_id))
+                      .sort((a, b) => a.name.localeCompare(b.name))
+                      .map(participant => (
+                        <option key={participant.id} value={participant.id}>
+                          {participant.name}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Activity Details Section */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label htmlFor="team_id" className="block text-sm font-medium text-gray-700 mb-1">
-                Time
-              </label>
-              <select
-                id="team_id"
-                name="team_id"
-                value={formData.team_id}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Selecione um time</option>
-                {teams
-                  .sort((a, b) => a.name.localeCompare(b.name))
-                  .map(team => (
-                    <option key={team.id} value={team.id}>
-                      {team.name}
-                    </option>
-                  ))}
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="participant_id" className="block text-sm font-medium text-gray-700 mb-1">
-                Participante
-              </label>
-              <select
-                id="participant_id"
-                name="participant_id"
-                value={formData.participant_id}
-                onChange={handleChange}
-                required
-                disabled={!selectedTeamId}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-              >
-                <option value="">Selecione um participante</option>
-                {participants
-                  .sort((a, b) => a.name.localeCompare(b.name))
-                  .map(participant => (
-                    <option key={participant.id} value={participant.id}>
-                      {participant.name}
-                    </option>
-                  ))}
-              </select>
-            </div>
-
             <div>
               <label htmlFor="activity" className="block text-sm font-medium text-gray-700 mb-1">
                 Atividade
@@ -275,12 +326,13 @@ export default function AddActivityModal({ onClose, onAdd }: AddActivityModalPro
                 Data
               </label>
               <input
-                type="date"
+                type="text"
                 id="date"
                 name="date"
                 value={formData.date}
                 onChange={handleChange}
                 required
+                placeholder="dd/mm/yyyy"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
