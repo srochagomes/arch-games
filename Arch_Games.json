@@ -37,7 +37,7 @@
           "mode": "list",
           "cachedResultName": "GPT-4O-2024-11-20"
         },
-        "text": "=You are a digital analyst for a corporate game system. Based on uploaded image(s), extract and classify the shared activity and return the following JSON structure, fully minified and valid:\n\n{\n  \"participants\":[{...},{...}],\n  \"activity\":{...}\n}\n\nInputs (do not change):\n- team: {{ $json.body.team }}\n- team_id: {{ $json.body.team_id }}\n- date_activity: {{ $json.body.activityDate }}\n- key_process: {{ $json.body.key_process }}\n- participants: {{ $json.body.participants }}\n\nInstructions:\n1. For each participant:\n- Use name → participant\n- Use id → participant_id\n- Use type as-is\n- Copy: team, team_id, date_activity → date, key_process\n\n2. Process shared activity only once and reuse it for all.\n\n3. Handle time logic:\n- If start + duration_minutes → calculate end\n- If only duration_hours → convert to duration_minutes\n- If no date → use activityDate\n\n4. Extract and classify the shared activity into ONE of the following categories, based on the image context:\n- \"physical_activity\" → Workout apps, GPS, pace, time, distance, steps, calories, maps (e.g., Strava, Garmin).\n- \"duolingo\" → Duolingo UI, XP points, streaks, language, levels.\n- \"professional_training\" → Certificates, courses (Udemy, Coursera, Alura), modules, lessons, platform names.\n- \"corporate_meeting\" → Zoom/Teams/Meet screens, meeting titles, agendas, attendees.\n- \"happy_hour\" → Informal gathering, food, drinks, group selfies, social moments.\n- \"books\" → Book covers, reading logs, summaries, author names, digital reader screenshots.\n- \"games\" → Quizzes, scoreboards, podiums, trivia, results.\n- \"amigo_de_valor\" → Recognition messages, badges, appreciation, helpful actions, compliments.\n- \"blood_donation\" → Certificates, hospital symbols, blood bags, donation scenes.\n- \"lacre_event\" → Tabs, bottles, collections for charity, quantity of materials.\n\n- In the \"activity\" block, extract or infer any visual detail and assign it to the proper attribute:\n  e.g., \"description\", \"location\", \"platform\", \"duration_minutes\", \"start\", \"participants\", \"photo_provided\", etc.\n  If start and duration_minutes exist, calculate end\n  If only duration_hours exists, convert to duration_minutes\n  If no date found, use activityDate as date\n\n5.Only return fields with actual values. If a field is null, empty, or undefined → remove it from output.\n\nRules:\n- Remove null, undefined, or empty fields\n- Output must be a **single valid JSON object** with `participants` and `activity`\n- Keys and values must be in double quotes\n- DO NOT return markdown (```), comments, placeholders, explanation\n- NO line breaks or unnecessary space (minified JSON)\n- All values must be in Brazilian Portuguese\n- Final output must be valid for `JSON.parse()`\n\nExample (structure only, do not reuse values):\n\n{\"participants\":[{\"participant\":\"Nome\",\"participant_id\":\"UUID\",\"team_id\":\"13\",\"team\":\"Equipe\",\"date\":\"2025-05-20\",\"key_process\":\"UUID\",\"type\":\"participant\"}],\"activity\":{\"description\":\"Extraído\",\"platform\":\"Duolingo\",\"points\":300,\"duration_minutes\":45,\"start\":\"2025-05-20T09:00:00\",\"end\":\"2025-05-20T09:45:00\"}}\n",
+        "text": "=You are a digital analyst for a corporate game system. Based on uploaded image(s), extract and classify the shared activity and return the following JSON structure, fully minified and valid:\n\n{\n  \"participants\":[{...},{...}],\n  \"activity\":{...}\n}\n\nInputs (do not change):\n- team: {{ $json.body.team }}\n- team_id: {{ $json.body.team_id }}\n- date_activity: {{ $json.body.activityDate }}\n- key_process: {{ $json.body.key_process }}\n- participants: {{ $json.body.participants }}\n\nInstructions:\n1. For each participant:\n- Use name → participant\n- Use id → participant_id\n- Use type as-is\n- Copy: team, team_id, date_activity → date, key_process\n\n2. Process shared activity only once and reuse it for all.\n\n3. Handle time logic:\n- If start + duration_minutes → calculate end\n- If only duration_hours → convert to duration_minutes\n- If no date → use activityDate\n\n4. Extract and classify the shared activity into ONE of the following categories, based on the image context:\n- \"physical_activity\" → Workout apps, GPS, pace, time, distance, steps, calories, maps (e.g., Strava, Garmin).\n- \"duolingo\" → Duolingo UI, XP points, streaks, language, levels.\n- \"professional_training\" → Certificates, courses (Udemy, Coursera, Alura), modules, lessons, platform names.\n- \"corporate_meeting\" → Zoom/Teams/Meet screens, meeting titles, agendas, attendees.\n- \"happy_hour\" → Informal gathering, food, drinks, group selfies, social moments.\n- \"books\" → Book covers, reading logs, summaries, author names, digital reader screenshots.\n- \"games\" → Quizzes, scoreboards, podiums, trivia, results.\n- \"amigo_de_valor\" → Recognition messages, badges, appreciation, helpful actions, compliments.\n- \"blood_donation\" → Certificates, hospital symbols, blood bags, donation scenes.\n- \"lacre_event\" → Tabs, bottles, collections for charity, quantity of materials.\n\n- In the \"activity\" block, extract or infer any visual detail and assign it to the proper attribute:\n  e.g., \"description\", \"location\", \"platform\", \"duration_minutes\", \"start\", \"participants\", \"photo_provided\", etc.\n  If start and duration_minutes exist, calculate end\n  If only duration_hours exists, convert to duration_minutes\n  If no date found, use activityDate as date\n\n5.Only return fields with actual values. If a field is null, empty, or undefined → remove it from output.\n\nRules:\n- Remove null, undefined, or empty fields\n- Output must be a **single valid JSON object** with `participants` and `activity`\n- Keys and values must be in double quotes\n- DO NOT return markdown (```), comments, placeholders, explanation\n- NO line breaks or unnecessary space (minified JSON)\n- All values must be in Brazilian Portuguese\n- Final output must be valid for `JSON.parse()`\n\nExample (structure only, do not reuse values):\n\n{\"participants\":[{\"category\":\"happy_hour\", \"participant\":\"Nome\",\"participant_id\":\"UUID\",\"team_id\":\"13\",\"team\":\"Equipe\",\"date\":\"2025-05-20\",\"key_process\":\"UUID\",\"type\":\"participant\"}],\"activity\":{\"description\":\"Extraído\",\"platform\":\"Duolingo\",\"points\":300,\"duration_minutes\":45,\"start\":\"2025-05-20T09:00:00\",\"end\":\"2025-05-20T09:45:00\"}}\n",
         "inputType": "base64",
         "binaryPropertyName": "={{ $json.body.fileNames }}",
         "options": {
@@ -91,7 +91,7 @@
                 },
                 "conditions": [
                   {
-                    "leftValue": "={{ $json.category }}",
+                    "leftValue": "={{ $('Participant-split').item.json.category }}",
                     "rightValue": "professional_training",
                     "operator": {
                       "type": "string",
@@ -116,7 +116,7 @@
                 "conditions": [
                   {
                     "id": "2f71ed07-9b69-4e24-9847-4013f26e697d",
-                    "leftValue": "={{ $json.category }}",
+                    "leftValue": "={{ $('Participant-split').item.json.category }}",
                     "rightValue": "physical_activity",
                     "operator": {
                       "type": "string",
@@ -141,7 +141,7 @@
                 "conditions": [
                   {
                     "id": "4d1bae62-a3f4-4cc8-8670-362db26ba590",
-                    "leftValue": "={{ $json.category }}",
+                    "leftValue": "={{ $('Participant-split').item.json.category }}",
                     "rightValue": "duolingo",
                     "operator": {
                       "type": "string",
@@ -166,7 +166,7 @@
                 "conditions": [
                   {
                     "id": "47b12ec8-01ef-4fe2-a1aa-9bf3ada416fc",
-                    "leftValue": "={{ $json.category }}",
+                    "leftValue": "={{ $('Participant-split').item.json.category }}",
                     "rightValue": "corporate_meeting",
                     "operator": {
                       "type": "string",
@@ -191,7 +191,7 @@
                 "conditions": [
                   {
                     "id": "015c3629-81b7-46e8-b290-e9a9998727e8",
-                    "leftValue": "={{ $json.category }}",
+                    "leftValue": "={{ $('Participant-split').item.json.category }}",
                     "rightValue": "happy_hour",
                     "operator": {
                       "type": "string",
@@ -216,7 +216,7 @@
                 "conditions": [
                   {
                     "id": "973b38c8-f425-464c-86c0-16361c784c91",
-                    "leftValue": "={{ $json.category }}",
+                    "leftValue": "={{ $('Participant-split').item.json.category }}",
                     "rightValue": "books",
                     "operator": {
                       "type": "string",
@@ -241,7 +241,7 @@
                 "conditions": [
                   {
                     "id": "77a5104d-c4c6-4167-8c0b-7cf065dcb522",
-                    "leftValue": "={{ $json.category }}",
+                    "leftValue": "={{ $('Participant-split').item.json.category }}",
                     "rightValue": "games",
                     "operator": {
                       "type": "string",
@@ -266,7 +266,7 @@
                 "conditions": [
                   {
                     "id": "3d70d667-6276-438e-9f9d-6891b0c4277b",
-                    "leftValue": "={{ $json.category }}",
+                    "leftValue": "={{ $('Participant-split').item.json.category }}",
                     "rightValue": "amigo_de_valor",
                     "operator": {
                       "type": "string",
@@ -291,7 +291,7 @@
                 "conditions": [
                   {
                     "id": "ab6d6157-f09d-4f7c-8208-c0f16c24befb",
-                    "leftValue": "={{ $json.category }}",
+                    "leftValue": "={{ $('Participant-split').item.json.category }}",
                     "rightValue": "blood_donation",
                     "operator": {
                       "type": "string",
@@ -316,7 +316,7 @@
                 "conditions": [
                   {
                     "id": "acc5775d-aedf-473c-b51e-c90faaa4f58e",
-                    "leftValue": "={{ $json.category }}",
+                    "leftValue": "={{ $('Participant-split').item.json.category }}",
                     "rightValue": "lacre_event",
                     "operator": {
                       "type": "string",
@@ -341,7 +341,7 @@
                 "conditions": [
                   {
                     "id": "78a2d531-357d-4b12-ab9e-97dde5c7155a",
-                    "leftValue": "={{ $json.category }}",
+                    "leftValue": "={{ $('Participant-split').item.json.category }}",
                     "rightValue": "not_found",
                     "operator": {
                       "type": "string",
@@ -364,7 +364,7 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
       "position": [
-        -2840,
+        -2620,
         -328
       ],
       "id": "2715b65f-4e61-4e06-a876-15e94d5ab222",
@@ -376,12 +376,12 @@
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const input = $json;\n\nif (input.category !== \"professional_training\" || !input.activity) {\n  return [{ json: { score: 0, message: \"Not applicable\" } }];\n}\n\nconst activity = input.activity;\nlet score = 0;\n\n// Base score for certificate\nif (activity.certificate === true) {\n  score += 50;\n} else {\n  score += 30;\n}\n\n// Bonus for long duration\nif (activity.duration_hours && activity.duration_hours >= 8) {\n  score += 10;\n}\n\n// Bonus for known platforms\nconst recognizedPlatforms = [\"Coursera\", \"Udemy\", \"LinkedIn Learning\", \"AWS Training\"];\nif (activity.platform && recognizedPlatforms.includes(activity.platform)) {\n  score += 10;\n}\n\n// Apply multiplier by type\nconst type = (input.type || \"\").toLowerCase();\n\nlet multiplier = 1.0;\nif (type === \"capitão\") {\n  multiplier = 1.2;\n} else if (type === \"governança\") {\n  multiplier = 0.8;\n}\n\nconst finalScore = Math.round(score * multiplier);\n\nreturn {\n  json: {\n    ...input,\n    base_score: score,\n    multiplier: multiplier,\n    calculated_score: finalScore\n  }\n};\n"
+        "jsCode": "const input = $('Participant-split').item.json;\nconst totalScore = $(\"Total Pontos Dia\").item.json.totalScore || 0;\n\nif (input.category !== \"professional_training\" || !input.activity) {\n  return [{ json: { score: 0, message: \"Not applicable\" } }];\n}\n\nconst activity = input.activity;\nlet score = 0;\nconst duration = activity.duration_minutes || 0;\n\n// Regra: 200 pontos a cada 60 minutos, mínimo de 60 min\nif (duration >= 60) {\n  score = Math.floor(duration / 60) * 200;\n} else {\n  return [{ json: { ...input, base_score: 0, calculated_score: 0, message: \"Curso muito curto ou não pontuável\" } }];\n}\n\n// Multiplicador por tipo\nconst type = (input.type || \"\").toLowerCase();\nlet multiplier = 1.0;\nif (type === \"captain\") {\n  multiplier = 1.5;\n} else if (type === \"governance\") {\n  multiplier = 1.8;\n}\n\nlet calculatedScore = Math.round(score * multiplier);\n\n\nreturn {\n  json: {\n    ...input,\n    base_score: score,\n    multiplier,\n    calculated_score: calculatedScore,\n    total_before: totalScore,\n    total_after: totalScore + calculatedScore\n  }\n};\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -2620,
+        -2400,
         -1160
       ],
       "id": "0dac50c6-e02d-4b5e-a2a1-90fd980acf6a",
@@ -390,12 +390,12 @@
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const input = $json;\n\nif (input.category !== \"physical_activity\" || !input.activity) {\n  return [{ json: { score: 0, message: \"Not applicable\" } }];\n}\n\nconst activity = input.activity;\nlet score = 0;\n\n// Base points\nscore += 10;\n\n// Distance\nif (activity.distance_km && activity.distance_km >= 5) {\n  score += 10;\n}\n\n// Duration\nif (activity.duration_minutes && activity.duration_minutes >= 30) {\n  score += 10;\n}\n\n// Tracker used\nif (activity.tracker) {\n  score += 5;\n}\n\n// Screenshot\nif (activity.screenshot_provided === true) {\n  score += 5;\n}\n\n// Apply multiplier based on type\nconst type = (input.type || \"\").toLowerCase();\n\nlet multiplier = 1.0;\nif (type === \"capitão\") {\n  multiplier = 1.2;\n} else if (type === \"governança\") {\n  multiplier = 0.8;\n}\n\nconst finalScore = Math.round(score * multiplier);\n\nreturn {\n  json: {\n    ...input,\n    base_score: score,\n    multiplier: multiplier,\n    calculated_score: finalScore\n  }\n};"
+        "jsCode": "const input = $('Participant-split').item.json;\nconst totalScore = $(\"Total Pontos Dia\").item.json.totalScore || 0;\n\nif (input.category !== \"physical_activity\" || !input.activity) {\n  return [{ json: { score: 0, message: \"Not applicable\" } }];\n}\n\nconst activity = input.activity;\n\n// Step 1: Validate duration\nif (!activity.duration_minutes || activity.duration_minutes < 15) {\n  return [{ json: { score: 0, message: \"Menos de 15 minutos - sem pontuação\" } }];\n}\n\n// Step 2: Apply capped duration\nconst effectiveMinutes = Math.min(activity.duration_minutes, 90);\nconst blocks = Math.floor(effectiveMinutes / 15);\nlet score = blocks * 100;\n\n// Step 3: Apply multiplier by participant type\nconst type = (input.type || \"\").toLowerCase();\nlet multiplier = 1.0;\nif (type === \"captain\") {\n  multiplier = 1.5;\n} else if (type === \"governance\") {\n  multiplier = 1.8;\n}\n\nlet calculatedScore = Math.round(score * multiplier);\n\n// Step 4: Apply daily limit for this category\nconst DAILY_LIMIT = 600;\nif (totalScore + calculatedScore > DAILY_LIMIT) {\n  calculatedScore = Math.max(0, DAILY_LIMIT - totalScore);\n}\n\n// Step 5: Return full object with score breakdown\nreturn {\n  json: {\n    ...input,\n    base_score: score,\n    multiplier,\n    calculated_score: calculatedScore,\n    total_before: totalScore,\n    total_after: totalScore + calculatedScore\n  }\n};\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -2620,
+        -2400,
         -960
       ],
       "id": "ddd9748e-864b-4f8f-be10-9d855b145892",
@@ -404,12 +404,12 @@
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const input = $json;\n\nif (input.category !== \"duolingo\" || !input.activity) {\n  return [{ json: { score: 0, message: \"Not applicable\" } }];\n}\n\nconst activity = input.activity;\nlet score = 0;\n\n// Base score\nscore += 10;\n\n// XP bonus\nif (activity.points && activity.points >= 300) {\n  score += 10;\n}\n\n// Bonus if level is defined\nif (activity.level) {\n  score += 5;\n}\n\n// Bonus for streak\nif (activity.streak_days && activity.streak_days >= 5) {\n  score += 5;\n}\n\n// Screenshot bonus\nif (activity.screenshot_provided === true) {\n  score += 5;\n}\n\n// Apply multiplier by type\nconst type = (input.type || \"\").toLowerCase();\nlet multiplier = 1.0;\n\nif (type === \"capitão\") {\n  multiplier = 1.2;\n} else if (type === \"governança\") {\n  multiplier = 0.8;\n}\n\nconst finalScore = Math.round(score * multiplier);\n\nreturn {\n  json: {\n    ...input,\n    base_score: score,\n    multiplier: multiplier,\n    calculated_score: finalScore\n  }\n};\n"
+        "jsCode": "const input = $('Participant-split').item.json;\nconst totalScore = $(\"Total Pontos Dia\").item.json.totalScore || 0;\n\nif (input.category !== \"duolingo\" || !input.activity) {\n  return [{ json: { score: 0, message: \"Not applicable\" } }];\n}\n\nconst activity = input.activity;\nlet score = 10;\n\nif (activity.points >= 300) score += 10;\nif (activity.level) score += 5;\nif (activity.streak_days >= 5) score += 5;\nif (activity.screenshot_provided === true) score += 5;\n\nconst type = (input.type || \"participant\").toLowerCase();\nlet multiplier = 1.0;\n\nif (type === \"captain\") multiplier = 1.5;\nelse if (type === \"governance\") multiplier = 1.8;\n\nlet calculatedScore = Math.round(score * multiplier);\nconst DAILY_LIMIT = 1000;\n\ncalculatedScore = Math.max(0, Math.min(calculatedScore, DAILY_LIMIT - totalScore));\n\nreturn {\n  json: {\n    ...input,\n    base_score: score,\n    multiplier,\n    calculated_score: calculatedScore,\n    total_before: totalScore,\n    total_after: totalScore + calculatedScore\n  }\n};\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -2620,
+        -2400,
         -760
       ],
       "id": "dd965bcf-caf7-46a8-8577-d6a263ed80b9",
@@ -418,12 +418,12 @@
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const input = $json;\n\nif (input.category !== \"happy_hour\" || !input.activity) {\n  return [{ json: { score: 0, message: \"Not applicable\" } }];\n}\n\nconst activity = input.activity;\nlet score = 0;\n\n// Base participation\nscore += 10;\n\n// Bonus for photo\nif (activity.photo_provided === true) {\n  score += 5;\n}\n\n// Bonus for group of 3+\nif (input.quantityParticipants >= 3) {\n  score += 5;\n}\n\n// Apply multiplier by type\nconst type = (input.type || \"\").toLowerCase();\nlet multiplier = 1.0;\n\nif (type === \"capitão\") {\n  multiplier = 1.2;\n} else if (type === \"governança\") {\n  multiplier = 0.8;\n}\n\nconst finalScore = Math.round(score * multiplier);\n\nreturn {\n  json: {\n    ...input,\n    base_score: score,\n    multiplier: multiplier,\n    calculated_score: finalScore\n  }\n};\n"
+        "jsCode": "const input = $('Participant-split').item.json;\nconst totalScore = $(\"Total Pontos Dia\").item.json.totalScore || 0;\n\nif (input.category !== \"happy_hour\" || !input.activity || input.quantityParticipants < 3) {\n  return [{ json: { score: 0, message: \"Menos de 3 participantes ou categoria inválida\" } }];\n}\n\nconst activity = input.activity;\nlet score = 300;\n\n// Evento oficial tem pontuação fixa\nif (activity.official_event === true) {\n  score = 500;\n} else if (activity.full_team === true) {\n  score += 200;\n}\n\n// Multiplicador por tipo\nconst type = (input.type || \"\").toLowerCase();\nlet multiplier = 1.0;\n\nif (type === \"captain\") {\n  multiplier = 1.5;\n} else if (type === \"governance\") {\n  multiplier = 1.8;\n}\n\nlet calculated_score = Math.round(score * multiplier);\n\n// Limite diário (1000 pts)\nconst DAILY_LIMIT = 1000;\nif (totalScore + calculated_score > DAILY_LIMIT) {\n  calculated_score = Math.max(0, DAILY_LIMIT - totalScore);\n}\n\nreturn {\n  json: {\n    ...input,\n    base_score: score,\n    multiplier,\n    calculated_score,\n    total_before: totalScore,\n    total_after: totalScore + calculated_score\n  }\n};\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -2620,
+        -2400,
         -360
       ],
       "id": "8ec4f79f-b1fe-4a88-87de-307fd830b7e9",
@@ -433,12 +433,12 @@
     },
     {
       "parameters": {
-        "jsCode": "const input = $json;\n\nif (input.category !== \"corporate_meeting\" || !input.activity) {\n  return [{ json: { score: 0, message: \"Not applicable\" } }];\n}\n\nconst activity = input.activity;\nlet score = 0;\n\n// Base points\nscore += 10;\n\n// Bonus for meeting duration\nif (activity.duration_minutes && activity.duration_minutes >= 60) {\n  score += 5;\n}\n\n// Bonus for screenshot or print\nif (activity.screenshot_provided === true) {\n  score += 5;\n}\n\n// Bonus for group of 3+\nif (input.quantityParticipants >= 3) {\n  score += 5;\n}\n\n// Apply multiplier by type\nconst type = (input.type || \"\").toLowerCase();\nlet multiplier = 1.0;\n\nif (type === \"capitão\") {\n  multiplier = 1.2;\n} else if (type === \"governança\") {\n  multiplier = 0.8;\n}\n\nconst finalScore = Math.round(score * multiplier);\n\nreturn {\n  json: {\n    ...input,\n    base_score: score,\n    multiplier: multiplier,\n    calculated_score: finalScore\n  }\n};\n"
+        "jsCode": "const input = $('Participant-split').item.json;\nconst totalScore = $(\"Total Pontos Dia\").item.json.totalScore || 0;\n\nif (input.category !== \"corporate_meeting\" || !input.activity) {\n  return [{ json: { score: 0, message: \"Not applicable\" } }];\n}\n\nconst activity = input.activity;\nlet score = activity.general_meeting === true ? 300 : 200;\n\n// Bônus por resumo curto (<= 200 caracteres)\nif (!activity.general_meeting && activity.summary && activity.summary.length <= 200) {\n  score += 100;\n}\n\nconst type = (input.type || \"participant\").toLowerCase();\nlet multiplier = 1.0;\n\nif (type === \"captain\") multiplier = 1.5;\nelse if (type === \"governance\") multiplier = 1.8;\n\nlet calculatedScore = Math.round(score * multiplier);\nconst DAILY_LIMIT = 1000;\n\ncalculatedScore = Math.max(0, Math.min(calculatedScore, DAILY_LIMIT - totalScore));\n\nreturn {\n  json: {\n    ...input,\n    base_score: score,\n    multiplier,\n    calculated_score: calculatedScore,\n    total_before: totalScore,\n    total_after: totalScore + calculatedScore\n  }\n};\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -2620,
+        -2400,
         -560
       ],
       "id": "110718e9-18ff-40da-b92b-ca71af3428f2",
@@ -447,12 +447,12 @@
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const input = $json;\n\nif (input.category !== \"books\" || !input.activity) {\n  return [{ json: { score: 0, message: \"Not applicable\" } }];\n}\n\nconst activity = input.activity;\nlet score = 0;\n\n// Base for reading a book\nscore += 10;\n\n// Bonus: pages > 200\nif (activity.pages && activity.pages > 200) {\n  score += 10;\n}\n\n// Bonus: summary submitted\nif (activity.summary_submitted === true) {\n  score += 5;\n}\n\n// Bonus: non-empty summary text\nif (activity.summary_text && activity.summary_text.trim().length >= 50) {\n  score += 5;\n}\n\n// Apply multiplier by type\nconst type = (input.type || \"\").toLowerCase();\nlet multiplier = 1.0;\n\nif (type === \"capitão\") {\n  multiplier = 1.2;\n} else if (type === \"governança\") {\n  multiplier = 0.8;\n}\n\nconst finalScore = Math.round(score * multiplier);\n\nreturn {\n  json: {\n    ...input,\n    base_score: score,\n    multiplier: multiplier,\n    calculated_score: finalScore\n  }\n};\n"
+        "jsCode": "const input = $('Participant-split').item.json;\nconst totalScore = $(\"Total Pontos Dia\").item.json.totalScore || 0;\n\nif (input.category !== \"books\" || !input.activity) {\n  return [{ json: { score: 0, message: \"Not applicable\" } }];\n}\n\nconst activity = input.activity;\nlet score = 0;\n\n// Validação obrigatória\nif (!activity.summary_submitted || !activity.summary_text || activity.summary_text.trim().length < 50) {\n  return [{ json: { score: 0, message: \"Resumo inválido ou ausente\" } }];\n}\n\n// Pontuação por páginas\nif (activity.pages) {\n  const pages = activity.pages;\n  if (pages <= 150) score = 500;\n  else if (pages <= 300) score = 700;\n  else if (pages <= 500) score = 900;\n  else score = 1100;\n}\n// Pontuação por minutos (audiobook)\nelse if (activity.duration_minutes) {\n  const min = activity.duration_minutes;\n  if (min <= 15) score = 100;\n  else if (min <= 30) score = 200;\n  else if (min <= 45) score = 300;\n  else if (min <= 60) score = 400;\n  else if (min <= 75) score = 500;\n  else score = 600;\n} else {\n  return [{ json: { score: 0, message: \"Sem páginas ou minutos válidos para pontuar\" } }];\n}\n\n// Multiplicador por tipo\nconst type = (input.type || \"\").toLowerCase();\nlet multiplier = 1.0;\nif (type === \"captain\") multiplier = 1.5;\nelse if (type === \"governance\") multiplier = 1.8;\n\nlet calculated_score = Math.round(score * multiplier);\n\n// Limite diário\nconst DAILY_LIMIT = 1000;\nif (totalScore + calculated_score > DAILY_LIMIT) {\n  calculated_score = Math.max(0, DAILY_LIMIT - totalScore);\n}\n\nreturn {\n  json: {\n    ...input,\n    base_score: score,\n    multiplier,\n    calculated_score,\n    total_before: totalScore,\n    total_after: totalScore + calculated_score\n  }\n};\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -2620,
+        -2400,
         -160
       ],
       "id": "76c88b38-cf15-4a2c-99dd-8f24cf826528",
@@ -461,12 +461,12 @@
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const input = $json;\n\nif (input.category !== \"games\" || !input.activity) {\n  return [{ json: { score: 0, message: \"Not applicable\" } }];\n}\n\nconst activity = input.activity;\nlet score = 0;\n\n// Base participation\nscore += 10;\n\n// Bonus for quiz/trivia type\nif (activity.type && [\"trivia\", \"quiz\"].includes(activity.type.toLowerCase())) {\n  score += 5;\n}\n\n// Bonus for 10 or more participants\nif (input.quantityParticipants >= 10) {\n  score += 5;\n}\n\n// Bonus for podium finish (rank 1–3)\nif (activity.rank && activity.rank >= 1 && activity.rank <= 3) {\n  score += 10;\n}\n\n// Bonus for screenshot\nif (activity.screenshot_provided === true) {\n  score += 5;\n}\n\n// Apply multiplier by type\nconst type = (input.type || \"\").toLowerCase();\nlet multiplier = 1.0;\n\nif (type === \"capitão\") {\n  multiplier = 1.2;\n} else if (type === \"governança\") {\n  multiplier = 0.8;\n}\n\nconst finalScore = Math.round(score * multiplier);\n\nreturn {\n  json: {\n    ...input,\n    base_score: score,\n    multiplier: multiplier,\n    calculated_score: finalScore\n  }\n};\n"
+        "jsCode": "const input = $('Participant-split').item.json;\nconst totalScore = $(\"Total Pontos Dia\").item.json.totalScore || 0;\n\nif (input.category !== \"games\" || !input.activity) {\n  return [{ json: { score: 0, message: \"Not applicable\" } }];\n}\n\nconst activity = input.activity;\nlet score = 0;\n\n// Requisito mínimo\nif (!activity.duration_minutes || activity.duration_minutes < 30) {\n  return [{ json: { score: 0, message: \"Tempo insuficiente para pontuar\" } }];\n}\n\nconst duration = activity.duration_minutes;\n\n// Pontuação base por tempo\nif (duration >= 90) score = 300;\nelse if (duration >= 60) score = 200;\nelse if (duration >= 30) score = 100;\n\n// Bônus por tipo de jogo\nif (activity.type && [\"trivia\", \"quiz\"].includes(activity.type.toLowerCase())) {\n  score += 50;\n}\n\n// Bônus por posição no ranking\nif (activity.rank && activity.rank >= 1 && activity.rank <= 3) {\n  score += 50;\n}\n\n// Screenshot bônus\nif (activity.screenshot_provided === true) {\n  score += 20;\n}\n\n// Multiplicador\nconst type = (input.type || \"\").toLowerCase();\nlet multiplier = 1.0;\nif (type === \"captain\") multiplier = 1.5;\nelse if (type === \"governance\") multiplier = 1.8;\n\nlet calculated_score = Math.round(score * multiplier);\n\n// Limite diário\nconst DAILY_LIMIT = 1000;\nif (totalScore + calculated_score > DAILY_LIMIT) {\n  calculated_score = Math.max(0, DAILY_LIMIT - totalScore);\n}\n\nreturn {\n  json: {\n    ...input,\n    base_score: score,\n    multiplier,\n    calculated_score,\n    total_before: totalScore,\n    total_after: totalScore + calculated_score\n  }\n};\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -2620,
+        -2400,
         40
       ],
       "id": "857ad4f0-53d9-43e1-9262-3be6f268f685",
@@ -475,12 +475,12 @@
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const input = $json;\n\nif (input.category !== \"amigo_de_valor\" || !input.activity) {\n  return [{ json: { score: 0, message: \"Not applicable\" } }];\n}\n\nconst activity = input.activity;\nlet score = 0;\n\n// Base for having a kind/helpful action\nscore += 10;\n\n// Bonus: recognized_by filled\nif (activity.recognized_by && activity.recognized_by.trim() !== \"\") {\n  score += 10;\n}\n\n// Bonus: feedback/document/photo marked as submitted\nif (activity.feedback_given === true) {\n  score += 5;\n}\n\n// Apply multiplier by type\nconst type = (input.type || \"\").toLowerCase();\nlet multiplier = 1.0;\n\nif (type === \"capitão\") {\n  multiplier = 1.2;\n} else if (type === \"governança\") {\n  multiplier = 0.8;\n}\n\nconst finalScore = Math.round(score * multiplier);\n\nreturn {\n  json: {\n    ...input,\n    base_score: score,\n    multiplier: multiplier,\n    calculated_score: finalScore\n  }\n};\n"
+        "jsCode": "const input = $('Participant-split').item.json;\nconst totalScore = $(\"Total Pontos Dia\").item.json.totalScore || 0;\n\nif (input.category !== \"amigo_de_valor\" || !input.activity || !input.date) {\n  return [{ json: { score: 0, message: \"Not applicable\" } }];\n}\n\nconst activity = input.activity;\nconst date = input.date.split(\"T\")[0]; // Only the date part (YYYY-MM-DD)\nconst openingDate = activity.campaign_opening_date || null;\n\nlet score = 0;\n\n// Scoring rules\nif (openingDate && openingDate === date) {\n  score = 500;\n} else {\n  score = 300;\n}\n\n// Multiplier by participant type\nconst type = (input.type || \"\").toLowerCase();\nlet multiplier = 1.0;\n\nif (type === \"captain\") multiplier = 1.5;\nelse if (type === \"governance\") multiplier = 1.8;\n\nlet calculated_score = Math.round(score * multiplier);\n\n// Daily limit enforcement\nconst DAILY_LIMIT = 1000;\nif (totalScore + calculated_score > DAILY_LIMIT) {\n  calculated_score = Math.max(0, DAILY_LIMIT - totalScore);\n}\n\nreturn {\n  json: {\n    ...input,\n    base_score: score,\n    multiplier,\n    calculated_score,\n    total_before: totalScore,\n    total_after: totalScore + calculated_score\n  }\n};\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -2620,
+        -2400,
         240
       ],
       "id": "665e2f0b-c989-4854-b0d7-63c35e3f33e7",
@@ -488,12 +488,12 @@
     },
     {
       "parameters": {
-        "jsCode": "const input = $json;\n\nif (input.category !== \"blood_donation\" || !input.activity) {\n  return [{ json: { score: 0, message: \"Not applicable\" } }];\n}\n\nconst activity = input.activity;\nlet score = 0;\n\n// Base score for donation\nscore += 20;\n\n// Bonus if type of donation is specified\nif (activity.type && activity.type.trim() !== \"\") {\n  score += 5;\n}\n\n// Bonus if certificate was provided\nif (activity.certificate_provided === true) {\n  score += 5;\n}\n\n// Bonus if photo was taken\nif (activity.photo_taken === true) {\n  score += 5;\n}\n\n// Apply multiplier based on type\nconst type = (input.type || \"\").toLowerCase();\nlet multiplier = 1.0;\n\nif (type === \"capitão\") {\n  multiplier = 1.2;\n} else if (type === \"governança\") {\n  multiplier = 0.8;\n}\n\nconst finalScore = Math.round(score * multiplier);\n\nreturn {\n  json: {\n    ...input,\n    base_score: score,\n    multiplier: multiplier,\n    calculated_score: finalScore\n  }\n};\n"
+        "jsCode": "const input = $('Participant-split').item.json;\nconst totalScore = $(\"Total Pontos Dia\").item.json.totalScore || 0;\n\nif (input.category !== \"blood_donation\" || !input.activity) {\n  return [{ json: { score: 0, message: \"Not applicable\" } }];\n}\n\nconst activity = input.activity;\nlet score = 300; // Pontuação base\n\n// Bônus por tipo de doação especificado\nif (activity.type && activity.type.trim() !== \"\") {\n  score += 50;\n}\n\n// Bônus por certificado\nif (activity.certificate_provided === true) {\n  score += 50;\n}\n\n// Bônus por foto\nif (activity.photo_taken === true) {\n  score += 100;\n}\n\n// Multiplicador por tipo de participante\nconst type = (input.type || \"\").toLowerCase();\nlet multiplier = 1.0;\nif (type === \"captain\") multiplier = 1.5;\nelse if (type === \"governance\") multiplier = 1.8;\n\nlet calculatedScore = Math.round(score * multiplier);\n\n// Aplicar limite diário (1000 pontos)\nconst DAILY_LIMIT = 1000;\nif (totalScore + calculatedScore > DAILY_LIMIT) {\n  calculatedScore = Math.max(0, DAILY_LIMIT - totalScore);\n}\n\nreturn {\n  json: {\n    ...input,\n    base_score: score,\n    multiplier,\n    calculated_score: calculatedScore,\n    total_before: totalScore,\n    total_after: totalScore + calculatedScore\n  }\n};\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -2620,
+        -2400,
         440
       ],
       "id": "a220d756-5c59-45cd-b19c-7f2fb59aa58a",
@@ -502,12 +502,12 @@
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const input = $json;\n\nif (input.category !== \"lacre_event\" || !input.activity) {\n  return [{ json: { score: 0, message: \"Not applicable\" } }];\n}\n\nconst activity = input.activity;\nlet score = 0;\n\n// Base score for participating in event\nscore += 10;\n\n// Bonus: photo was provided\nif (activity.photo_provided === true) {\n  score += 5;\n}\n\n// Bonus: collected tabs ≥ 500\nif (activity.tabs_collected && activity.tabs_collected >= 500) {\n  score += 10;\n}\n\n// Bonus: placed among top 3\nif (activity.position && activity.position >= 1 && activity.position <= 3) {\n  score += 5;\n}\n\n// Apply multiplier based on type\nconst type = (input.type || \"\").toLowerCase();\nlet multiplier = 1.0;\n\nif (type === \"capitão\") {\n  multiplier = 1.2;\n} else if (type === \"governança\") {\n  multiplier = 0.8;\n}\n\nconst finalScore = Math.round(score * multiplier);\n\nreturn {\n  json: {\n    ...input,\n    base_score: score,\n    multiplier: multiplier,\n    calculated_score: finalScore\n  }\n};\n"
+        "jsCode": "const input = $('Participant-split').item.json;\nconst totalScore = $(\"Total Pontos Dia\").item.json.totalScore || 0;\n\nif (input.category !== \"lacre_event\" || !input.activity) {\n  return [{ json: { score: 0, message: \"Not applicable\" } }];\n}\n\nconst activity = input.activity;\nlet score = 0;\n\n// Pontuação por colocação\nif (activity.position === 1) {\n  score = 1000;\n} else if (activity.position === 2) {\n  score = 600;\n} else if (activity.position === 3) {\n  score = 500;\n} else if (activity.position >= 4) {\n  score = 400;\n} else {\n  // Posição indefinida ou não fornecida\n  score = 100;\n}\n\n// Multiplicador por tipo\nconst type = (input.type || \"\").toLowerCase();\nlet multiplier = 1.0;\nif (type === \"captain\") multiplier = 1.5;\nelse if (type === \"governance\") multiplier = 1.8;\n\n// Calcula score com multiplicador\nlet calculated_score = Math.round(score * multiplier);\n\n// Aplica limite diário\nconst DAILY_LIMIT = 1000;\nif (totalScore + calculated_score > DAILY_LIMIT) {\n  calculated_score = Math.max(0, DAILY_LIMIT - totalScore);\n}\n\nreturn {\n  json: {\n    ...input,\n    base_score: score,\n    multiplier,\n    calculated_score,\n    total_before: totalScore,\n    total_after: totalScore + calculated_score\n  }\n};\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -2620,
+        -2400,
         640
       ],
       "id": "08ce0b28-a851-48bc-a3c8-be9a62fc38ab",
@@ -516,12 +516,12 @@
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const input = $json;\n\n// Força resposta padrão para categoria não encontrada\nreturn {\n  json: {\n    ...input,\n    category: \"not_found\",\n    base_score: 0,\n    multiplier: 1.0,\n    calculated_score: 0\n  }\n};"
+        "jsCode": "const input = $('Participant-split').item.json;\n\n// Força resposta padrão para categoria não encontrada\nreturn {\n  json: {\n    ...input,\n    category: \"not_found\",\n    base_score: 0,\n    multiplier: 1.0,\n    calculated_score: 0\n  }\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -2620,
+        -2400,
         840
       ],
       "id": "863aac41-93e7-4182-9d6a-021c40b86a4e",
@@ -558,7 +558,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -2400,
+        -2180,
         -160
       ],
       "id": "bd9de931-04fc-402a-9636-639c0f4ac540",
@@ -567,6 +567,44 @@
       "alwaysOutputData": false,
       "retryOnFail": true,
       "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "url": "=http://192.168.15.138:5446/api/rankings/daily-scores",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "date",
+              "value": "={{ $json.date.slice(0,10) }}"
+            },
+            {
+              "name": "participantId",
+              "value": "={{ $json.participant_id }}"
+            },
+            {
+              "name": "teamId",
+              "value": "={{ $json.team_id }}"
+            },
+            {
+              "name": "category",
+              "value": "={{ $json.category }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2840,
+        -160
+      ],
+      "id": "5ade7359-b743-4139-8925-986a59f1757b",
+      "name": "Total Pontos Dia",
+      "executeOnce": false,
+      "retryOnFail": true,
+      "alwaysOutputData": false
     },
     {
       "parameters": {
@@ -580,7 +618,7 @@
         -160
       ],
       "id": "31051d5d-1360-4b85-a6b3-da6bc35ba213",
-      "name": "Split Out",
+      "name": "Participant-split",
       "alwaysOutputData": false
     }
   ],
@@ -612,7 +650,7 @@
       "main": [
         [
           {
-            "node": "Split Out",
+            "node": "Participant-split",
             "type": "main",
             "index": 0
           }
@@ -821,7 +859,12 @@
         ]
       ]
     },
-    "Split Out": {
+    "Arch Games HTTP Request": {
+      "main": [
+        []
+      ]
+    },
+    "Total Pontos Dia": {
       "main": [
         [
           {
@@ -832,9 +875,15 @@
         ]
       ]
     },
-    "Arch Games HTTP Request": {
+    "Participant-split": {
       "main": [
-        []
+        [
+          {
+            "node": "Total Pontos Dia",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     }
   },
@@ -843,10 +892,10 @@
     "executionOrder": "v1",
     "callerPolicy": "workflowsFromSameOwner"
   },
-  "versionId": "66d5a8d2-3be5-4d01-a85a-0eaaa706a544",
+  "versionId": "6e3fa16f-fba5-45e1-a4f9-6b3b916cd2e8",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "1f0810f0cd4a78059c7072f98a7dd941e8c6ca3dcafda09bb95e07cf60953c90"
+    "instanceId": "3d38ed6a3803a92368d20274d1c690b41504b09bb6f3116231a48bb6ff5e1db6"
   },
   "id": "gqq62LQI3XCRSl6N",
   "tags": []
