@@ -124,9 +124,11 @@ export default function Page() {
       const response = await fetch('/api/teams');
       if (!response.ok) throw new Error('Failed to fetch teams');
       const data = await response.json();
-      setTeams(data.teams);
-      if (data.teams.length > 0) {
-        const firstTeamId = data.teams[0].id;
+      // Handle both paginated and non-paginated responses
+      const teams = Array.isArray(data) ? data : data.teams;
+      setTeams(teams);
+      if (teams.length > 0) {
+        const firstTeamId = teams[0].id;
         setFormData(prev => ({ ...prev, team_id: firstTeamId }));
         fetchParticipants(firstTeamId);
       }
@@ -141,7 +143,9 @@ export default function Page() {
       const response = await fetch(`/api/participants?team_id=${teamId}`);
       if (!response.ok) throw new Error('Failed to fetch participants');
       const data = await response.json();
-      setParticipants(data.data || []);
+      // Handle both paginated and non-paginated responses
+      const participants = Array.isArray(data) ? data : data.data;
+      setParticipants(participants || []);
       // Reset participant selections when team changes
       setFormData(prev => ({
         ...prev,

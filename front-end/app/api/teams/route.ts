@@ -4,34 +4,49 @@ import prisma from '@/lib/prisma';
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
-    const skip = (page - 1) * limit;
+    const page = searchParams.get('page');
+    const limit = searchParams.get('limit');
+
+    // If pagination parameters are not provided, return all records
+    if (!page || !limit) {
+      const teams = await prisma.team.findMany({
+        orderBy: {
+          name: 'asc'
+        }
+      });
+
+      return NextResponse.json(teams);
+    }
+
+    // Otherwise, handle pagination
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const skip = (pageNum - 1) * limitNum;
 
     // Get total count for pagination
     const total = await prisma.team.count();
 
     const teams = await prisma.team.findMany({
       orderBy: {
-        name: 'asc',
+        name: 'asc'
       },
       skip,
-      take: limit
+      take: limitNum
     });
 
     return NextResponse.json({
       teams,
       pagination: {
         total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit)
+        page: pageNum,
+        limit: limitNum,
+        totalPages: Math.ceil(total / limitNum)
       }
     });
   } catch (error) {
     console.error('Error fetching teams:', error);
     return NextResponse.json(
-      { error: 'Internal Server Error' },
+      { error: 'Failed to fetch teams' },
       { status: 500 }
     );
   }
