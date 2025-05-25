@@ -141,7 +141,7 @@ export default function Page() {
       const response = await fetch(`/api/participants?team_id=${teamId}`);
       if (!response.ok) throw new Error('Failed to fetch participants');
       const data = await response.json();
-      setParticipants(data);
+      setParticipants(data.data || []);
       // Reset participant selections when team changes
       setFormData(prev => ({
         ...prev,
