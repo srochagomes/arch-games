@@ -121,12 +121,17 @@ export default function ActivityDetailsModal({ activity, onClose }: ActivityDeta
                   {images.map((image) => (
                     <div key={image.id} className="relative w-full h-[200px] rounded-lg overflow-hidden bg-gray-100">
                       <Image
-                        src={`/api/uploads/${image.filename.replace(/pasted-image-\d+\.png$/, 'file0.png')}`}
+                        src={`/api/uploads/${encodeURIComponent(image.filename)}`}
                         alt={image.name}
                         fill
                         sizes="(max-width: 768px) 100vw, 50vw"
                         className="object-contain"
                         unoptimized
+                        onError={(e) => {
+                          console.error('Error loading image:', image.filename);
+                          const target = e.target as HTMLImageElement;
+                          target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2YzZjRmNiIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiM5Y2EzYWYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5JbWFnZW0gbmFvIGVuY29udHJhZGE8L3RleHQ+PC9zdmc+';
+                        }}
                       />
                     </div>
                   ))}

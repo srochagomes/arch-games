@@ -17,96 +17,160 @@ export async function OPTIONS() {
 }
 
 export async function POST(request: Request) {
+  let modelActivity: ModelActivity | undefined;
+  
   try {
-    const modelActivity: ModelActivity = await request.json();
+    const payload = await request.json();
+    console.log('Received payload:', JSON.stringify(payload, null, 2));
+    
+    // Validate payload structure
+    if (!payload || typeof payload !== 'object') {
+      throw new Error('Invalid payload: must be an object');
+    }
+
+    // Check if this is a validation response
+    if ('score' in payload && 'message' in payload) {
+      return corsResponse(
+        NextResponse.json({
+          message: payload.message,
+          score: payload.score
+        }, { status: 200 })
+      );
+    }
+
+    // Handle both direct activity data and wrapped body format
+    modelActivity = payload.body || payload;
+    
+    if (!modelActivity || typeof modelActivity !== 'object') {
+      throw new Error('Invalid activity data: must be an object');
+    }
+
+    // Validate required fields before accessing them
+    const requiredFields = ['participant', 'team', 'date', 'type', 'category', 'key_process'] as const;
+    const missingFields = requiredFields.filter(field => {
+      if (!modelActivity) return true;
+      return !(field in modelActivity) || modelActivity[field] === undefined || modelActivity[field] === null;
+    });
+    
+    if (missingFields.length > 0) {
+      throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
+    }
+
+    console.log('Processing activity:', JSON.stringify(modelActivity, null, 2));
 
     // Ensure the date string has seconds and milliseconds for proper Date parsing
     const dateStr = modelActivity.date;
-    const formattedDate = dateStr.includes(':') && dateStr.split(':').length === 2 
-      ? `${dateStr}:00.000Z`
-      : dateStr;
+    if (!dateStr || typeof dateStr !== 'string') {
+      throw new Error('Invalid date format');
+    }
+
+    // Format the date string to ensure it's a valid ISO date
+    let formattedDate: string;
+    try {
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) {
+        throw new Error('Invalid date');
+      }
+      formattedDate = date.toISOString();
+    } catch (error) {
+      throw new Error('Invalid date format');
+    }
+
+    console.log('Formatted date:', formattedDate);
 
     // Store the activity in the database
-    const storedActivity = await prisma.activity.create({
-      data: {
-        participant: modelActivity.participant,
-        team: modelActivity.team,
-        team_id: modelActivity.team_id ? parseInt(modelActivity.team_id.toString()) : null,
-        participant_id: modelActivity.participant_id ? modelActivity.participant_id.toString() : null,
-        date: new Date(formattedDate), // Convert string date to Date object with proper formatting
-        type: modelActivity.type,
-        category: modelActivity.category,
-        key_process: modelActivity.key_process,
-        activity: modelActivity.activity as any, // Store the activity object as JSON
-        base_score: modelActivity.base_score,
-        multiplier: modelActivity.multiplier,
-        calculated_score: modelActivity.calculated_score,
-      },
-    });
+    const activityData = {
+      participant: modelActivity.participant,
+      team: modelActivity.team,
+      team_id: modelActivity.team_id ? parseInt(modelActivity.team_id.toString()) : null,
+      participant_id: modelActivity.participant_id ? modelActivity.participant_id.toString() : null,
+      date: new Date(formattedDate),
+      type: modelActivity.type,
+      category: modelActivity.category,
+      key_process: modelActivity.key_process,
+      activity: modelActivity.activity as any,
+      base_score: modelActivity.base_score || 0,
+      multiplier: modelActivity.multiplier || 1,
+      calculated_score: modelActivity.calculated_score || 0,
+    };
 
-    // Update image status based on activity creation success
+    console.log('Creating activity with data:', JSON.stringify(activityData, null, 2));
+
     try {
-      await prisma.image.updateMany({
-        where: {
-          key_process: modelActivity.key_process
-        },
-        data: {
-          status: 'PROCESSED'
-        }
+      const storedActivity = await prisma.activity.create({
+        data: activityData,
       });
-    } catch (error) {
-      console.error('Error updating image status:', error);
-      // If there's an error updating the image status, set it to PROCESS_WITH_ERRORS
-      await prisma.image.updateMany({
-        where: {
-          key_process: modelActivity.key_process
-        },
-        data: {
-          status: 'PROCESS_WITH_ERRORS'
-        }
-      });
-    }
-    
-    return corsResponse(
-      NextResponse.json({
-        message: 'Activity recorded successfully',
-        data: storedActivity
-      }, { status: 201 })
-    );
 
+      console.log('Activity created successfully:', storedActivity.id);
+
+      // Update image status based on activity creation success
+      try {
+        await prisma.image.updateMany({
+          where: {
+            key_process: modelActivity.key_process
+          },
+          data: {
+            status: 'PROCESSED'
+          }
+        });
+        console.log('Image status updated to PROCESSED');
+      } catch (error) {
+        console.error('Error updating image status:', error);
+        // If there's an error updating the image status, set it to PROCESS_WITH_ERRORS
+        await prisma.image.updateMany({
+          where: {
+            key_process: modelActivity.key_process
+          },
+          data: {
+            status: 'PROCESS_WITH_ERRORS'
+          }
+        });
+        console.log('Image status updated to PROCESS_WITH_ERRORS');
+      }
+      
+      return corsResponse(
+        NextResponse.json({
+          message: 'Activity recorded successfully',
+          data: storedActivity
+        }, { status: 201 })
+      );
+    } catch (dbError) {
+      console.error('Database error:', dbError);
+      throw new Error(`Database error: ${dbError instanceof Error ? dbError.message : 'Unknown error'}`);
+    }
   } catch (error) {
     console.error('Error processing activity:', error);
     
-    // If there's an error creating the activity, update image status to PROCESS_WITH_ERRORS
-    try {
-      const modelActivity = await request.json();
-      await prisma.image.updateMany({
-        where: {
-          key_process: modelActivity.key_process
-        },
-        data: {
-          status: 'PROCESS_WITH_ERRORS'
-        }
-      });
-    } catch (updateError) {
-      console.error('Error updating image status after activity error:', updateError);
+    // Log detailed error information
+    if (error instanceof Error) {
+      console.error('Error name:', error.name);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
     }
     
-    // Handle specific database errors
-    if (error instanceof Error) {
-      if (error.message.includes('prisma')) {
-        return corsResponse(
-          NextResponse.json(
-            { error: 'Database error occurred' },
-            { status: 500 }
-          )
-        );
+    // If there's an error creating the activity and we have the modelActivity, update image status
+    if (modelActivity?.key_process) {
+      try {
+        await prisma.image.updateMany({
+          where: {
+            key_process: modelActivity.key_process
+          },
+          data: {
+            status: 'PROCESS_WITH_ERRORS'
+          }
+        });
+        console.log('Image status updated to PROCESS_WITH_ERRORS after error');
+      } catch (updateError) {
+        console.error('Error updating image status after activity error:', updateError);
       }
     }
     
     return corsResponse(
       NextResponse.json(
-        { error: 'Internal server error' },
+        { 
+          error: 'Internal server error',
+          details: error instanceof Error ? error.message : 'Unknown error'
+        },
         { status: 500 }
       )
     );

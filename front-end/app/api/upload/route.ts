@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Save file to disk
-      const filename = `file${savedFiles.length}${path.extname(file.name)}`;
+      const filename = file.name;
       const filepath = path.join(targetDir, filename);
       await writeFile(filepath, buffer);
 

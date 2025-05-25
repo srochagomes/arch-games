@@ -21,6 +21,9 @@ import {
 } from '@/components/ui/table';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { Trash2 } from "lucide-react";
+import NotificationDialog from '@/components/NotificationDialog';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 
 interface ImageRecord {
   id: number;
@@ -43,6 +46,24 @@ export default function UploadStatus() {
   const [images, setImages] = useState<ImageRecord[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
+  const [notification, setNotification] = useState<{
+    open: boolean;
+    type: 'success' | 'error';
+    title: string;
+    message: string;
+  }>({
+    open: false,
+    type: 'success',
+    title: '',
+    message: ''
+  });
+  const [deleteConfirmation, setDeleteConfirmation] = useState<{
+    open: boolean;
+    key_process: string | null;
+  }>({
+    open: false,
+    key_process: null
+  });
   const [filters, setFilters] = useState({
     status: '',
     team: '',
@@ -54,7 +75,7 @@ export default function UploadStatus() {
       try {
         const response = await fetch('/api/teams');
         const data = await response.json();
-        if (data.success) {
+        if (data.teams) {
           setTeams(data.teams);
         }
       } catch (error) {
@@ -98,6 +119,48 @@ export default function UploadStatus() {
     setFilters(prev => ({ ...prev, team: value === 'all' ? '' : value }));
   };
 
+  const handleDelete = async (key_process: string) => {
+    setDeleteConfirmation({
+      open: true,
+      key_process
+    });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirmation.key_process) return;
+
+    try {
+      const response = await fetch(`/api/upload-status/delete?key_process=${deleteConfirmation.key_process}`, {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Erro ao excluir upload');
+      }
+
+      setNotification({
+        open: true,
+        type: 'success',
+        title: 'Sucesso',
+        message: 'Upload excluído com sucesso'
+      });
+      // Refresh the data
+      fetchImages();
+    } catch (error) {
+      console.error('Error deleting upload:', error);
+      setNotification({
+        open: true,
+        type: 'error',
+        title: 'Erro',
+        message: error instanceof Error ? error.message : 'Erro ao excluir upload'
+      });
+    } finally {
+      setDeleteConfirmation({ open: false, key_process: null });
+    }
+  };
+
   return (
     <div className="container mx-auto py-6">
       <Card>
@@ -133,7 +196,7 @@ export default function UploadStatus() {
                 </SelectTrigger>
                 <SelectContent className="bg-white border border-gray-200">
                   <SelectItem value="all" className="hover:bg-gray-100">Todas</SelectItem>
-                  {teams
+                  {teams && teams.length > 0 && teams
                     .sort((a, b) => a.name.localeCompare(b.name))
                     .map((team) => (
                       <SelectItem key={team.id} value={team.name} className="hover:bg-gray-100">
@@ -172,6 +235,7 @@ export default function UploadStatus() {
                   <TableHead>Equipe</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Tipo</TableHead>
+                  <TableHead>Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -193,6 +257,16 @@ export default function UploadStatus() {
                       </span>
                     </TableCell>
                     <TableCell>{image.type}</TableCell>
+                    <TableCell>
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        onClick={() => handleDelete(image.key_process)}
+                        className="h-8 w-8"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -200,6 +274,24 @@ export default function UploadStatus() {
           )}
         </CardContent>
       </Card>
+
+      <NotificationDialog
+        open={notification.open}
+        onClose={() => setNotification(prev => ({ ...prev, open: false }))}
+        title={notification.title}
+        message={notification.message}
+        type={notification.type}
+      />
+
+      <ConfirmDialog
+        open={deleteConfirmation.open}
+        onOpenChange={(open: boolean) => setDeleteConfirmation(prev => ({ ...prev, open }))}
+        title="Confirmar Exclusão"
+        description="Tem certeza que deseja excluir este upload? Esta ação não pode ser desfeita."
+        onConfirm={confirmDelete}
+        confirmText="Sim, excluir"
+        cancelText="Não, cancelar"
+      />
     </div>
   );
 } 

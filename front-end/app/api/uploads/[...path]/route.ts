@@ -8,10 +8,25 @@ export async function GET(
   { params }: { params: { path: string[] } }
 ) {
   try {
-    const filePath = path.join(env.UPLOAD_DIR, ...params.path);
+    // Decode each path segment and join them with the correct path separator
+    const decodedPath = params.path.map(segment => decodeURIComponent(segment));
+    const fullPath = decodedPath.join('/');
+    
+    // Join the path segments and ensure it's within the upload directory
+    const filePath = path.join(env.UPLOAD_DIR, fullPath);
+    
+    // Security check: ensure the file path is within the upload directory
+    const normalizedFilePath = path.normalize(filePath);
+    const normalizedUploadDir = path.normalize(env.UPLOAD_DIR);
+    
+    if (!normalizedFilePath.startsWith(normalizedUploadDir)) {
+      console.error('Attempted to access file outside upload directory:', filePath);
+      return new NextResponse('File not found', { status: 404 });
+    }
+
     console.log('Attempting to read file:', filePath);
     console.log('Upload directory:', env.UPLOAD_DIR);
-    console.log('Path segments:', params.path);
+    console.log('Full path:', fullPath);
     console.log('Full URL path:', request.nextUrl.pathname);
     
     // Read the file
