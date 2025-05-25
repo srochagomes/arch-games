@@ -39,17 +39,37 @@ export async function GET(request: NextRequest) {
       };
     }
 
-    const [activities, total] = await Promise.all([
-      prisma.activity.findMany({
-        where,
-        orderBy: {
-          date: 'desc',
-        },
-        skip: (page - 1) * pageSize,
-        take: pageSize,
-      }),
-      prisma.activity.count({ where })
-    ]);
+    // Calculate the correct offset
+    const offset = (page - 1) * pageSize;
+
+    console.log('Query params:', {
+      page,
+      pageSize,
+      offset,
+      where
+    });
+
+    // First get the total count
+    const total = await prisma.activity.count({ where });
+    const totalPages = Math.ceil(total / pageSize);
+
+    // Then get the paginated results
+    const activities = await prisma.activity.findMany({
+      where,
+      orderBy: {
+        date: 'desc',
+      },
+      skip: offset,
+      take: pageSize,
+    });
+
+    console.log('Query results:', {
+      activitiesCount: activities.length,
+      total,
+      totalPages,
+      currentPage: page,
+      hasMore: page < totalPages
+    });
 
     return NextResponse.json({ 
       activities,
@@ -57,7 +77,7 @@ export async function GET(request: NextRequest) {
         total,
         page,
         pageSize,
-        totalPages: Math.ceil(total / pageSize)
+        totalPages
       }
     });
   } catch (error) {

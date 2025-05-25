@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { format, parse } from 'date-fns';
 import ActivityDetailsModal from './components/ActivityDetailsModal';
 import UpdateScoresModal from './components/UpdateScoresModal';
@@ -15,91 +15,232 @@ const PAGE_SIZE = 20;
 
 export default function ActivitiesPage() {
   const [activities, setActivities] = useState<Activity[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isSceneTriggered, setIsSceneTriggered] = useState(false);
   const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
+  const sceneTriggerRef = useRef<HTMLDivElement>(null);
+  const [totalPages, setTotalPages] = useState(1);
   const [filters, setFilters] = useState({
     startDate: '',
     endDate: '',
     participant: '',
     team: '',
   });
-  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
   const [activityToUpdateScores, setActivityToUpdateScores] = useState<Activity | null>(null);
-  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [activityToDelete, setActivityToDelete] = useState<Activity | null>(null);
   const [addModalOpen, setAddModalOpen] = useState(false);
-  const observer = useRef<IntersectionObserver | null>(null);
-  const lastActivityRef = useRef<HTMLTableRowElement>(null);
   const [activityWithHistory, setActivityWithHistory] = useState<Activity | null>(null);
 
-  const fetchActivities = async (pageNum: number, isNewSearch = false) => {
+  const fetchActivities = useCallback(async (pageNum: number, isRefresh = false) => {
     try {
-      setLoading(true);
-      const queryParams = new URLSearchParams({
-        page: pageNum.toString(),
-        pageSize: PAGE_SIZE.toString(),
-        ...(filters.startDate && { startDate: format(parse(filters.startDate, 'dd/MM/yyyy', new Date()), 'yyyy-MM-dd') + 'T00:00:00.000Z' }),
-        ...(filters.endDate && { endDate: format(parse(filters.endDate, 'dd/MM/yyyy', new Date()), 'yyyy-MM-dd') + 'T23:59:59.999Z' }),
-        ...(filters.participant && { participant: filters.participant }),
-        ...(filters.team && { team: filters.team }),
-      });
+      const response = await fetch(`/api/activities?page=${pageNum}&limit=10`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch activities');
+      }
+      const responseData = await response.json();
+      
+      // Log the response for debugging
+      console.log('API Response:', responseData);
+      
+      // Check if response has the expected structure
+      if (!responseData || !responseData.data || !Array.isArray(responseData.data)) {
+        throw new Error('Invalid response format from server');
+      }
 
-      const response = await fetch(`/api/activities/list?${queryParams}`);
-      const data = await response.json();
-
-      if (isNewSearch) {
-        setActivities(data.activities);
+      const activities = responseData.data;
+      
+      if (isRefresh) {
+        setActivities(activities);
       } else {
-        setActivities(prev => [...prev, ...data.activities]);
+        setActivities(prev => {
+          // Create a map of existing activities by ID
+          const existingMap = new Map(prev.map(activity => [activity.id, activity]));
+          
+          // Update or add new activities
+          activities.forEach((activity: Activity) => {
+            if (activity && activity.id) {
+              existingMap.set(activity.id, activity);
+            }
+          });
+          
+          // Convert map back to array and sort by date
+          return Array.from(existingMap.values())
+            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        });
       }
-      setHasMore(data.activities.length === PAGE_SIZE);
-    } catch (error) {
-      console.error('Error fetching activities:', error);
+      
+      // Set hasMore based on pagination data
+      const hasMorePages = responseData.pagination && 
+        responseData.pagination.page < responseData.pagination.totalPages;
+      setHasMore(hasMorePages);
+      
+      setError(null);
+      setLastUpdate(new Date());
+    } catch (err) {
+      console.error('Error fetching activities:', err);
+      setError(err instanceof Error ? err.message : 'An error occurred');
+      setActivities([]); // Reset activities on error
+      setHasMore(false); // Stop infinite scroll on error
     } finally {
-      setLoading(false);
+      setIsLoading(false);
+      setIsLoadingMore(false);
+      setIsRefreshing(false);
     }
-  };
+  }, []);
 
+  // Initial load
   useEffect(() => {
-    const options = {
-      root: null,
-      rootMargin: '20px',
-      threshold: 0.1,
-    };
+    fetchActivities(1, true);
+  }, [fetchActivities]);
 
-    observer.current = new IntersectionObserver((entries) => {
-      const target = entries[0];
-      if (target.isIntersecting && hasMore && !loading) {
-        setPage(prev => prev + 1);
+  // Intersection Observer for infinite scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting && !isLoadingMore && !isSceneTriggered && hasMore) {
+          console.log('Scene triggered - loading more activities');
+          setIsSceneTriggered(true);
+          setIsLoadingMore(true);
+          setPage(prev => prev + 1);
+        }
+      },
+      { 
+        threshold: 0.1,
+        rootMargin: '100px' // Add some margin to trigger earlier
       }
-    }, options);
+    );
 
-    if (lastActivityRef.current) {
-      observer.current.observe(lastActivityRef.current);
+    const currentTrigger = sceneTriggerRef.current;
+    if (currentTrigger) {
+      observer.observe(currentTrigger);
     }
 
     return () => {
-      if (observer.current) {
-        observer.current.disconnect();
+      if (currentTrigger) {
+        observer.unobserve(currentTrigger);
       }
     };
-  }, [hasMore, loading]);
+  }, [isLoadingMore, isSceneTriggered, hasMore]);
 
+  // Load more when page changes
   useEffect(() => {
-    if (page > 1) {
-      fetchActivities(page, false);
+    if (page > 1 && hasMore) {
+      fetchActivities(page);
+    }
+  }, [page, fetchActivities, hasMore]);
+
+  // Reset scene trigger after loading
+  useEffect(() => {
+    if (!isLoadingMore) {
+      setIsSceneTriggered(false);
+    }
+  }, [isLoadingMore]);
+
+  // Add a maximum page limit
+  useEffect(() => {
+    if (page > 100) { // Set a reasonable maximum page limit
+      setHasMore(false);
+      console.log('Reached maximum page limit');
     }
   }, [page]);
 
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    setPage(1);
+    await fetchActivities(1, true);
+  }, [fetchActivities]);
+
+  const handleCreateActivity = useCallback(async (newActivity: Activity) => {
+    try {
+      const response = await fetch('/api/activities', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newActivity),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create activity');
+      }
+
+      const createdActivity = await response.json();
+      setActivities(prev => [createdActivity, ...prev]);
+      setIsModalOpen(false);
+      toast.success('Activity created successfully!');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to create activity');
+    }
+  }, []);
+
+  const handleUpdateActivity = useCallback(async (updatedActivity: Activity) => {
+    try {
+      const response = await fetch(`/api/activities/${updatedActivity.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedActivity),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update activity');
+      }
+
+      const updated = await response.json();
+      setActivities(prev => 
+        prev.map(activity => 
+          activity.id === updated.id ? updated : activity
+        )
+      );
+      setIsUpdateModalOpen(false);
+      setSelectedActivity(null);
+      toast.success('Activity updated successfully!');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to update activity');
+    }
+  }, []);
+
+  const handleDeleteActivity = useCallback(async (activity: Activity) => {
+    try {
+      const response = await fetch(`/api/activities/${activity.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete activity');
+      }
+
+      setActivities(prev => prev.filter(a => a.id !== activity.id));
+      setIsDeleteModalOpen(false);
+      setSelectedActivity(null);
+      toast.success('Activity deleted successfully!');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to delete activity');
+    }
+  }, []);
+
   const handleSearch = () => {
     setPage(1);
+    setError(null);
     fetchActivities(1, true);
   };
 
   const handleDeleteClick = (activity: Activity) => {
     setActivityToDelete(activity);
-    setDeleteConfirmOpen(true);
+    setIsDeleteModalOpen(true);
   };
 
   const handleDeleteConfirm = async () => {
@@ -121,13 +262,13 @@ export default function ActivitiesPage() {
       console.error('Error deleting activity:', error);
       toast.error(error.message || 'Erro ao excluir atividade');
     } finally {
-      setDeleteConfirmOpen(false);
+      setIsDeleteModalOpen(false);
       setActivityToDelete(null);
     }
   };
 
   const handleDeleteCancel = () => {
-    setDeleteConfirmOpen(false);
+    setIsDeleteModalOpen(false);
     setActivityToDelete(null);
   };
 
@@ -206,20 +347,47 @@ export default function ActivitiesPage() {
       </div>
 
       {/* Activities Grid */}
-      <ResponsiveTable
-        activities={activities}
-        onViewHistory={setActivityWithHistory}
-        onViewDetails={setSelectedActivity}
-        onUpdateScores={setActivityToUpdateScores}
-        onDelete={handleDeleteClick}
-        lastActivityRef={lastActivityRef}
-      />
+      <div className="relative">
+        <ResponsiveTable
+          activities={activities}
+          onViewHistory={setActivityWithHistory}
+          onViewDetails={setSelectedActivity}
+          onUpdateScores={setActivityToUpdateScores}
+          onDelete={handleDeleteClick}
+          lastActivityRef={sceneTriggerRef}
+        />
 
-      {loading && (
-        <div className="flex justify-center mt-4">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        </div>
-      )}
+        {/* Scene Trigger Element */}
+        <div 
+          ref={sceneTriggerRef}
+          className="h-20 w-full"
+          style={{ position: 'absolute', bottom: 0 }}
+        />
+
+        {isLoadingMore && (
+          <div className="flex justify-center mt-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          </div>
+        )}
+
+        {error && (
+          <div className="text-red-600 text-center mt-4">
+            {error}
+          </div>
+        )}
+
+        {!isLoading && !error && activities.length === 0 && (
+          <div className="text-gray-500 text-center mt-4">
+            Nenhuma atividade encontrada
+          </div>
+        )}
+
+        {!isLoading && !error && !hasMore && activities.length > 0 && (
+          <div className="text-gray-500 text-center mt-4">
+            Não há mais atividades para carregar
+          </div>
+        )}
+      </div>
 
       {selectedActivity && (
         <ActivityDetailsModal
@@ -250,8 +418,8 @@ export default function ActivitiesPage() {
       )}
 
       <ConfirmDialog
-        open={deleteConfirmOpen}
-        onOpenChange={setDeleteConfirmOpen}
+        open={isDeleteModalOpen}
+        onOpenChange={setIsDeleteModalOpen}
         title="Confirmar Exclusão"
         description={`Tem certeza que deseja excluir esta atividade de ${activityToDelete?.participant}?`}
         onConfirm={handleDeleteConfirm}
