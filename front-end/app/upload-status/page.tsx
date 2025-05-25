@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/table';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Trash2 } from "lucide-react";
+import { Trash2, Eye, X } from "lucide-react";
 import NotificationDialog from '@/components/NotificationDialog';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 
@@ -64,6 +64,7 @@ export default function UploadStatus() {
     open: false,
     key_process: null
   });
+  const [selectedImage, setSelectedImage] = useState<ImageRecord | null>(null);
   const [filters, setFilters] = useState({
     status: '',
     team: '',
@@ -95,13 +96,26 @@ export default function UploadStatus() {
       const queryParams = new URLSearchParams();
       if (filters.status) queryParams.append('status', filters.status);
       if (filters.team) queryParams.append('team', filters.team);
-      if (filters.participant) queryParams.append('participant', filters.participant);
+      if (filters.participant) queryParams.append('participant', filters.participant.trim());
+
+      console.log('Fetching with params:', queryParams.toString());
 
       const response = await fetch(`/api/upload-status?${queryParams.toString()}`);
       const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.message || 'Error fetching images');
+      }
+
       setImages(data.images);
     } catch (error) {
       console.error('Error fetching images:', error);
+      setNotification({
+        open: true,
+        type: 'error',
+        title: 'Erro',
+        message: error instanceof Error ? error.message : 'Erro ao buscar imagens'
+      });
     } finally {
       setLoading(false);
     }
@@ -231,10 +245,12 @@ export default function UploadStatus() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Data</TableHead>
+                  <TableHead>Participante</TableHead>
                   <TableHead>Nome do Arquivo</TableHead>
                   <TableHead>Equipe</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Tipo</TableHead>
+                  <TableHead>Detalhes</TableHead>
                   <TableHead>Ações</TableHead>
                 </TableRow>
               </TableHeader>
@@ -245,6 +261,7 @@ export default function UploadStatus() {
                       {format(new Date(image.activity_date), "dd/MM/yyyy HH:mm", { locale: ptBR })}
                     </TableCell>
                     <TableCell>{image.name}</TableCell>
+                    <TableCell>{image.filename}</TableCell>
                     <TableCell>{image.team}</TableCell>
                     <TableCell>
                       <span className={`px-2 py-1 rounded-full text-xs ${
@@ -257,6 +274,16 @@ export default function UploadStatus() {
                       </span>
                     </TableCell>
                     <TableCell>{image.type}</TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setSelectedImage(image)}
+                        className="h-8 w-8"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
                     <TableCell>
                       <Button
                         variant="destructive"
@@ -292,6 +319,60 @@ export default function UploadStatus() {
         confirmText="Sim, excluir"
         cancelText="Não, cancelar"
       />
+
+      {selectedImage && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg max-w-3xl w-full mx-4">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">Detalhes da Imagem</h2>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setSelectedImage(null)}
+                className="h-8 w-8"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            <div className="aspect-video relative mb-4">
+              <img
+                src={`/api/uploads/${encodeURIComponent(selectedImage.filename)}`}
+                alt={selectedImage.name}
+                className="object-contain w-full h-full"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm font-medium text-gray-500">Participante</p>
+                <p className="mt-1">{selectedImage.name}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">Equipe</p>
+                <p className="mt-1">{selectedImage.team}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">Data</p>
+                <p className="mt-1">
+                  {format(new Date(selectedImage.activity_date), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">Status</p>
+                <p className="mt-1">
+                  <span className={`px-2 py-1 rounded-full text-xs ${
+                    selectedImage.status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
+                    selectedImage.status === 'PROCESSING' ? 'bg-yellow-100 text-yellow-800' :
+                    selectedImage.status === 'ERROR' ? 'bg-red-100 text-red-800' :
+                    'bg-gray-100 text-gray-800'
+                  }`}>
+                    {selectedImage.status || 'Pendente'}
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 

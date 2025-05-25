@@ -10,6 +10,8 @@ export async function GET(request: Request) {
     const team = searchParams.get('team');
     const participant = searchParams.get('participant');
 
+    console.log('Received search params:', { status, team, participant });
+
     const where: any = {};
 
     if (status) {
@@ -24,18 +26,41 @@ export async function GET(request: Request) {
     }
 
     if (participant) {
-      where.name = {
+      where.filename = {
         contains: participant,
         mode: 'insensitive'
       };
     }
 
+    console.log('Filter conditions:', JSON.stringify(where, null, 2));
+
     const images = await prisma.image.findMany({
       where,
       orderBy: {
         activity_date: 'desc'
+      },
+      select: {
+        id: true,
+        filename: true,
+        key_process: true,
+        activity_date: true,
+        name: true,
+        team: true,
+        type: true,
+        hash: true,
+        status: true
       }
     });
+
+    console.log('Found images:', images.length);
+    if (images.length > 0) {
+      console.log('First image:', {
+        filename: images[0].filename,
+        name: images[0].name,
+        team: images[0].team,
+        status: images[0].status
+      });
+    }
 
     return NextResponse.json({
       success: true,
