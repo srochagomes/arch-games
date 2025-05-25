@@ -5,8 +5,14 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const teamId = searchParams.get('team_id');
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '10');
+    const skip = (page - 1) * limit;
 
     const where = teamId ? { team_id: parseInt(teamId) } : {};
+
+    // Get total count for pagination
+    const total = await prisma.participant.count({ where });
 
     const participants = await prisma.participant.findMany({
       where,
@@ -15,9 +21,20 @@ export async function GET(request: Request) {
       },
       orderBy: {
         name: 'asc'
+      },
+      skip,
+      take: limit
+    });
+
+    return NextResponse.json({
+      data: participants,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
       }
     });
-    return NextResponse.json(participants);
   } catch (error) {
     console.error('Error fetching participants:', error);
     return NextResponse.json(

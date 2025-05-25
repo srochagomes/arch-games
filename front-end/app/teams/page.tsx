@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { toast, Toaster } from 'react-hot-toast';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 
 interface Team {
   id: number;
@@ -12,28 +13,111 @@ interface Team {
 export default function TeamsPage() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(false);
-  const [editingTeam, setEditingTeam] = useState<Team | null>(null);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [name, setName] = useState('');
-  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [editingTeam, setEditingTeam] = useState<Team | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [teamToDelete, setTeamToDelete] = useState<Team | null>(null);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isSceneTriggered, setIsSceneTriggered] = useState(false);
+  const sceneTriggerRef = useRef<HTMLDivElement>(null);
 
-  const fetchTeams = async () => {
+  useEffect(() => {
+    fetchTeams(1, true);
+  }, []);
+
+  const fetchTeams = async (pageNum: number, isRefresh = false) => {
     try {
-      setLoading(true);
-      const response = await fetch('/api/teams');
+      const response = await fetch(`/api/teams?page=${pageNum}&limit=10`);
+      if (!response.ok) throw new Error('Failed to fetch teams');
       const data = await response.json();
-      setTeams(data.teams);
+      
+      if (isRefresh) {
+        setTeams(data.teams);
+      } else {
+        setTeams(prev => {
+          // Create a map of existing teams by ID
+          const existingMap = new Map(prev.map(t => [t.id, t]));
+          
+          // Update or add new teams
+          data.teams.forEach((team: Team) => {
+            if (team && team.id) {
+              existingMap.set(team.id, team);
+            }
+          });
+          
+          // Convert map back to array and sort by name
+          return Array.from(existingMap.values())
+            .sort((a, b) => a.name.localeCompare(b.name));
+        });
+      }
+
+      // Set hasMore based on pagination data
+      const hasMorePages = data.pagination && 
+        data.pagination.page < data.pagination.totalPages;
+      setHasMore(hasMorePages);
+      
     } catch (error) {
-      console.error('Error fetching teams:', error);
-      toast.error('Erro ao carregar times');
+      toast.error('Error loading teams');
+      console.error('Error:', error);
     } finally {
       setLoading(false);
+      setIsLoadingMore(false);
     }
   };
 
+  // Intersection Observer for infinite scroll
   useEffect(() => {
-    fetchTeams();
-  }, []);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting && !isLoadingMore && !isSceneTriggered && hasMore) {
+          console.log('Scene triggered - loading more teams');
+          setIsSceneTriggered(true);
+          setIsLoadingMore(true);
+          setPage(prev => prev + 1);
+        }
+      },
+      { 
+        threshold: 0.1,
+        rootMargin: '100px' // Add some margin to trigger earlier
+      }
+    );
+
+    const currentTrigger = sceneTriggerRef.current;
+    if (currentTrigger) {
+      observer.observe(currentTrigger);
+    }
+
+    return () => {
+      if (currentTrigger) {
+        observer.unobserve(currentTrigger);
+      }
+    };
+  }, [isLoadingMore, isSceneTriggered, hasMore]);
+
+  // Load more when page changes
+  useEffect(() => {
+    if (page > 1 && hasMore) {
+      fetchTeams(page);
+    }
+  }, [page, hasMore]);
+
+  // Reset scene trigger after loading
+  useEffect(() => {
+    if (!isLoadingMore) {
+      setIsSceneTriggered(false);
+    }
+  }, [isLoadingMore]);
+
+  // Add a maximum page limit
+  useEffect(() => {
+    if (page > 100) { // Set a reasonable maximum page limit
+      setHasMore(false);
+      console.log('Reached maximum page limit');
+    }
+  }, [page]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,7 +145,7 @@ export default function TeamsPage() {
       toast.success(editingTeam ? 'Time atualizado com sucesso!' : 'Time criado com sucesso!');
       setName('');
       setEditingTeam(null);
-      fetchTeams();
+      fetchTeams(1, true);
     } catch (error: any) {
       toast.error(error.message || 'Erro ao salvar time');
     } finally {
@@ -74,12 +158,12 @@ export default function TeamsPage() {
     setName(team.name);
   };
 
-  const handleDeleteClick = (team: Team) => {
+  const handleDelete = (team: Team) => {
     setTeamToDelete(team);
-    setDeleteConfirmOpen(true);
+    setShowDeleteDialog(true);
   };
 
-  const handleDeleteConfirm = async () => {
+  const confirmDelete = async () => {
     if (!teamToDelete) return;
 
     try {
@@ -94,12 +178,12 @@ export default function TeamsPage() {
       }
 
       toast.success('Time excluído com sucesso!');
-      fetchTeams();
+      fetchTeams(1, true);
     } catch (error: any) {
       toast.error(error.message || 'Erro ao excluir time');
     } finally {
       setLoading(false);
-      setDeleteConfirmOpen(false);
+      setShowDeleteDialog(false);
       setTeamToDelete(null);
     }
   };
@@ -160,57 +244,75 @@ export default function TeamsPage() {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                ID
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Nome
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Ações
               </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {teams.map((team) => (
-              <tr key={team.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {team.id}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              <tr key={team.id}>
+                <td className="px-6 py-4 whitespace-nowrap">
                   {team.name}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <button
                     onClick={() => handleEdit(team)}
-                    className="text-blue-600 hover:text-blue-800 mr-2"
+                    className="text-indigo-600 hover:text-indigo-900 mr-4 p-2 hover:bg-indigo-50 rounded-full transition-colors"
+                    title="Editar time"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
+                    <FiEdit2 className="w-5 h-5" />
                   </button>
                   <button
-                    onClick={() => handleDeleteClick(team)}
-                    className="text-red-600 hover:text-red-800"
+                    onClick={() => handleDelete(team)}
+                    className="text-red-600 hover:text-red-900 p-2 hover:bg-red-50 rounded-full transition-colors"
+                    title="Excluir time"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
+                    <FiTrash2 className="w-5 h-5" />
                   </button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+
+        {/* Scene Trigger Element */}
+        <div 
+          ref={sceneTriggerRef}
+          className="h-20 w-full"
+          style={{ position: 'relative' }}
+        />
+
+        {isLoadingMore && (
+          <div className="flex justify-center py-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          </div>
+        )}
+
+        {!loading && !hasMore && teams.length > 0 && (
+          <div className="text-gray-500 text-center py-4">
+            Não há mais times para carregar
+          </div>
+        )}
+
+        {!loading && teams.length === 0 && (
+          <div className="text-gray-500 text-center py-4">
+            Nenhum time encontrado
+          </div>
+        )}
       </div>
 
+      {/* Delete Confirmation Dialog */}
       <ConfirmDialog
-        open={deleteConfirmOpen}
-        onOpenChange={setDeleteConfirmOpen}
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
         title="Confirmar Exclusão"
-        description={`Tem certeza que deseja excluir o time "${teamToDelete?.name}"?`}
+        description="Tem certeza que deseja excluir este time? Esta ação não pode ser desfeita."
         confirmText="Excluir"
         cancelText="Cancelar"
-        onConfirm={handleDeleteConfirm}
+        onConfirm={confirmDelete}
       />
     </div>
   );

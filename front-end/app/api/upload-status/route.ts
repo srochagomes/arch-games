@@ -9,8 +9,11 @@ export async function GET(request: Request) {
     const status = searchParams.get('status');
     const team = searchParams.get('team');
     const participant = searchParams.get('participant');
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '10');
+    const skip = (page - 1) * limit;
 
-    console.log('Received search params:', { status, team, participant });
+    console.log('Received search params:', { status, team, participant, page, limit });
 
     const where: any = {};
 
@@ -34,11 +37,16 @@ export async function GET(request: Request) {
 
     console.log('Filter conditions:', JSON.stringify(where, null, 2));
 
+    // Get total count for pagination
+    const total = await prisma.image.count({ where });
+
     const images = await prisma.image.findMany({
       where,
       orderBy: {
         activity_date: 'desc'
       },
+      skip,
+      take: limit,
       select: {
         id: true,
         filename: true,
@@ -64,7 +72,13 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       success: true,
-      images
+      data: images,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
     });
   } catch (error) {
     console.error('Error fetching images:', error);

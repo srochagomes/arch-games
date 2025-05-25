@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
@@ -25,6 +25,7 @@ export default function ParticipantsPage() {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [type, setType] = useState('participant');
@@ -32,23 +33,107 @@ export default function ParticipantsPage() {
   const [editingParticipant, setEditingParticipant] = useState<Participant | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [participantToDelete, setParticipantToDelete] = useState<Participant | null>(null);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isSceneTriggered, setIsSceneTriggered] = useState(false);
+  const sceneTriggerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetchParticipants();
+    fetchParticipants(1, true);
     fetchTeams();
   }, []);
 
-  const fetchParticipants = async () => {
+  const fetchParticipants = async (pageNum: number, isRefresh = false) => {
     try {
-      const response = await fetch('/api/participants');
+      const response = await fetch(`/api/participants?page=${pageNum}&limit=10`);
       if (!response.ok) throw new Error('Failed to fetch participants');
       const data = await response.json();
-      setParticipants(data);
+      
+      if (isRefresh) {
+        setParticipants(data.data);
+      } else {
+        setParticipants(prev => {
+          // Create a map of existing participants by ID
+          const existingMap = new Map(prev.map(p => [p.id, p]));
+          
+          // Update or add new participants
+          data.data.forEach((participant: Participant) => {
+            if (participant && participant.id) {
+              existingMap.set(participant.id, participant);
+            }
+          });
+          
+          // Convert map back to array and sort by name
+          return Array.from(existingMap.values())
+            .sort((a, b) => a.name.localeCompare(b.name));
+        });
+      }
+
+      // Set hasMore based on pagination data
+      const hasMorePages = data.pagination && 
+        data.pagination.page < data.pagination.totalPages;
+      setHasMore(hasMorePages);
+      
     } catch (error) {
       toast.error('Error loading participants');
       console.error('Error:', error);
+    } finally {
+      setLoading(false);
+      setIsLoadingMore(false);
     }
   };
+
+  // Intersection Observer for infinite scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting && !isLoadingMore && !isSceneTriggered && hasMore) {
+          console.log('Scene triggered - loading more participants');
+          setIsSceneTriggered(true);
+          setIsLoadingMore(true);
+          setPage(prev => prev + 1);
+        }
+      },
+      { 
+        threshold: 0.1,
+        rootMargin: '100px' // Add some margin to trigger earlier
+      }
+    );
+
+    const currentTrigger = sceneTriggerRef.current;
+    if (currentTrigger) {
+      observer.observe(currentTrigger);
+    }
+
+    return () => {
+      if (currentTrigger) {
+        observer.unobserve(currentTrigger);
+      }
+    };
+  }, [isLoadingMore, isSceneTriggered, hasMore]);
+
+  // Load more when page changes
+  useEffect(() => {
+    if (page > 1 && hasMore) {
+      fetchParticipants(page);
+    }
+  }, [page, hasMore]);
+
+  // Reset scene trigger after loading
+  useEffect(() => {
+    if (!isLoadingMore) {
+      setIsSceneTriggered(false);
+    }
+  }, [isLoadingMore]);
+
+  // Add a maximum page limit
+  useEffect(() => {
+    if (page > 100) { // Set a reasonable maximum page limit
+      setHasMore(false);
+      console.log('Reached maximum page limit');
+    }
+  }, [page]);
 
   const fetchTeams = async () => {
     try {
@@ -99,7 +184,7 @@ export default function ParticipantsPage() {
           : 'Participant created successfully'
       );
       
-      fetchParticipants();
+      fetchParticipants(1, true);
       handleCancel();
     } catch (error) {
       toast.error('Error saving participant');
@@ -142,7 +227,7 @@ export default function ParticipantsPage() {
       }
       
       toast.success('Participant deleted successfully');
-      fetchParticipants();
+      fetchParticipants(1, true);
     } catch (error) {
       console.error('Error:', error);
       toast.error('Erro ao excluir participante. Tente novamente mais tarde.');
@@ -313,6 +398,31 @@ export default function ParticipantsPage() {
             ))}
           </tbody>
         </table>
+
+        {/* Scene Trigger Element */}
+        <div 
+          ref={sceneTriggerRef}
+          className="h-20 w-full"
+          style={{ position: 'relative' }}
+        />
+
+        {isLoadingMore && (
+          <div className="flex justify-center py-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          </div>
+        )}
+
+        {!loading && !hasMore && participants.length > 0 && (
+          <div className="text-gray-500 text-center py-4">
+            Não há mais participantes para carregar
+          </div>
+        )}
+
+        {!loading && participants.length === 0 && (
+          <div className="text-gray-500 text-center py-4">
+            Nenhum participante encontrado
+          </div>
+        )}
       </div>
 
       {/* Delete Confirmation Dialog */}

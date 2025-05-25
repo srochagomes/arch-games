@@ -3,13 +3,31 @@ import prisma from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '10');
+    const skip = (page - 1) * limit;
+
+    // Get total count for pagination
+    const total = await prisma.team.count();
+
     const teams = await prisma.team.findMany({
       orderBy: {
         name: 'asc',
       },
+      skip,
+      take: limit
     });
 
-    return NextResponse.json({ teams });
+    return NextResponse.json({
+      teams,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
   } catch (error) {
     console.error('Error fetching teams:', error);
     return NextResponse.json(
