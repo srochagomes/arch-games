@@ -28,10 +28,12 @@ export async function GET(request: Request) {
     }
 
     // Parse the date and set it to the start of the day in UTC
-    const startDate = new Date(date + 'T00:00:00.000Z');
+    const startDate = new Date(date);
+    startDate.setUTCHours(0, 0, 0, 0);
     
     // Set end date to the end of the day in UTC
-    const endDate = new Date(date + 'T23:59:59.999Z');
+    const endDate = new Date(date);
+    endDate.setUTCHours(23, 59, 59, 999);
 
     console.log('Date range:', {
       startDate: startDate.toISOString(),
@@ -135,7 +137,7 @@ export async function GET(request: Request) {
       scoreMap.set(key, {
         teamName: activity.team_relation.name,
         participantName: activity.participant_relation.name,
-        totalScore: currentScore + activity.calculated_score,
+        totalScore: currentScore + (activity.calculated_score || 0),
         category: activity.category
       });
     });

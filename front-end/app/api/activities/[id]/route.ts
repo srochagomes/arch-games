@@ -41,14 +41,28 @@ export async function PATCH(
 ) {
   try {
     const { id } = params;
-    const { base_score, multiplier, calculated_score, change_reason } = await request.json();
+    const { base_score, multiplier, calculated_score, change_reason, category } = await request.json();
+
+    // First verify that the activity exists
+    const existingActivity = await prisma.activity.findUnique({
+      where: { id }
+    });
+
+    if (!existingActivity) {
+      return corsResponse(
+        NextResponse.json(
+          { error: 'Activity not found' },
+          { status: 404 }
+        )
+      );
+    }
 
     // Create a score change history record
     await prisma.scoreChangeHistory.create({
       data: {
         activity_id: id,
-        old_base_score: (await prisma.activity.findUnique({ where: { id } }))?.base_score || 0,
-        old_multiplier: (await prisma.activity.findUnique({ where: { id } }))?.multiplier || 0,
+        old_base_score: existingActivity.base_score,
+        old_multiplier: existingActivity.multiplier,
         new_base_score: base_score,
         new_multiplier: multiplier,
         change_reason,
@@ -56,13 +70,14 @@ export async function PATCH(
       },
     });
 
-    // Update the activity with new scores
+    // Update the activity with new scores and category
     const updatedActivity = await prisma.activity.update({
       where: { id },
       data: {
         base_score,
         multiplier,
         calculated_score,
+        category,
       },
     });
 

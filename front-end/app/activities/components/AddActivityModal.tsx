@@ -188,7 +188,14 @@ export default function AddActivityModal({ onClose, onAdd }: AddActivityModalPro
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
+    if (name === 'date') {
+      // Convert from yyyy-MM-dd (HTML date input) to dd/MM/yyyy
+      const date = new Date(value);
+      const formattedDate = format(date, 'dd/MM/yyyy');
+      setFormData(prev => ({ ...prev, [name]: formattedDate }));
+    } else {
       setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   return (
@@ -326,13 +333,12 @@ export default function AddActivityModal({ onClose, onAdd }: AddActivityModalPro
                 Data
               </label>
               <input
-                type="text"
+                type="date"
                 id="date"
                 name="date"
-                value={formData.date}
+                value={format(parse(formData.date, 'dd/MM/yyyy', new Date()), 'yyyy-MM-dd')}
                 onChange={handleChange}
                 required
-                placeholder="dd/mm/yyyy"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>

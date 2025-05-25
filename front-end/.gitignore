@@ -37,3 +37,4 @@ next-env.d.ts
 
 log.txt
 front-end/log.txt
+yarn-error.log

@@ -4,6 +4,27 @@ import { useState } from 'react';
 import { Activity } from '@/types/activities';
 import { toast } from 'react-hot-toast';
 
+interface ActivityOption {
+  value: string;
+  label: string;
+  category: string;
+  base_score: number;
+  multiplier: number;
+}
+
+const ACTIVITY_OPTIONS: ActivityOption[] = [
+  { value: 'physical_activity', label: 'Atividade Física', category: 'physical_activity', base_score: 10, multiplier: 1 },
+  { value: 'duolingo', label: 'Duolingo', category: 'duolingo', base_score: 5, multiplier: 1 },
+  { value: 'professional_training', label: 'Treinamento Profissional', category: 'professional_training', base_score: 15, multiplier: 1 },
+  { value: 'corporate_meeting', label: 'Reunião Corporativa', category: 'corporate_meeting', base_score: 5, multiplier: 1 },
+  { value: 'happy_hour', label: 'Happy Hour', category: 'happy_hour', base_score: 5, multiplier: 1 },
+  { value: 'books', label: 'Livros', category: 'books', base_score: 10, multiplier: 1 },
+  { value: 'games', label: 'Jogos', category: 'games', base_score: 5, multiplier: 1 },
+  { value: 'amigo_de_valor', label: 'Amigo de Valor', category: 'amigo_de_valor', base_score: 15, multiplier: 1 },
+  { value: 'blood_donation', label: 'Doação de Sangue', category: 'blood_donation', base_score: 20, multiplier: 1 },
+  { value: 'lacre_event', label: 'Evento Lacre', category: 'lacre_event', base_score: 10, multiplier: 1 },
+];
+
 interface UpdateScoresModalProps {
   activity: Activity;
   onClose: () => void;
@@ -15,6 +36,7 @@ export default function UpdateScoresModal({ activity, onClose, onUpdate }: Updat
     base_score: activity.base_score,
     multiplier: activity.multiplier,
     change_reason: '',
+    category: activity.category,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -36,6 +58,7 @@ export default function UpdateScoresModal({ activity, onClose, onUpdate }: Updat
           multiplier: scores.multiplier,
           calculated_score: scores.base_score * scores.multiplier,
           change_reason: scores.change_reason,
+          category: scores.category,
         }),
       });
 
@@ -68,6 +91,24 @@ export default function UpdateScoresModal({ activity, onClose, onUpdate }: Updat
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Category
+            </label>
+            <select
+              value={scores.category}
+              onChange={(e) => setScores(prev => ({ ...prev, category: e.target.value }))}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              required
+            >
+              {ACTIVITY_OPTIONS.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Base Score
