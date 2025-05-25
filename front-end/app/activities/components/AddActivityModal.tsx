@@ -142,35 +142,35 @@ export default function AddActivityModal({ onClose, onAdd }: AddActivityModalPro
           throw new Error('Dados incompletos. Por favor, preencha todos os campos.');
         }
 
-        const response = await fetch('/api/activities', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
+      const response = await fetch('/api/activities', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          participant: selectedParticipant.name,
+          team: selectedTeam.name,
+          team_id: selectedTeam.id,
+          participant_id: selectedParticipant.id,
+          date: dateTime.toISOString(),
+          category: selectedActivity.value,
+          key_process,
+          activity: {
+            inputType: "MANUALY",
+            description: formData.description || selectedActivity.label,
+            dateTime: dateTime.toISOString(),
+            category: selectedActivity.category
           },
-          body: JSON.stringify({
-            participant: selectedParticipant.name,
-            team: selectedTeam.name,
-            team_id: selectedTeam.id,
-            participant_id: selectedParticipant.id,
-            date: dateTime.toISOString(),
-            category: selectedActivity.value,
-            key_process,
-            activity: {
-              inputType: "MANUALY",
-              description: formData.description || selectedActivity.label,
-              dateTime: dateTime.toISOString(),
-              category: selectedActivity.category
-            },
-            type: selectedParticipant.type,
-            base_score,
-            multiplier: selectedActivity.multiplier,
-            calculated_score
-          }),
-        });
+          type: selectedParticipant.type,
+          base_score,
+          multiplier: selectedActivity.multiplier,
+          calculated_score
+        }),
+      });
 
-        if (!response.ok) {
-          throw new Error('Failed to add activity');
-        }
+      if (!response.ok) {
+        throw new Error('Failed to add activity');
+      }
 
         return response.json();
       });
@@ -188,7 +188,7 @@ export default function AddActivityModal({ onClose, onAdd }: AddActivityModalPro
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+      setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   return (
@@ -236,51 +236,51 @@ export default function AddActivityModal({ onClose, onAdd }: AddActivityModalPro
                     </svg>
                   </button>
                 )}
-                <div>
+            <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Time
-                  </label>
-                  <select
+                Time
+              </label>
+              <select
                     value={form.team_id}
                     onChange={(e) => handleParticipantChange(index, 'team_id', e.target.value)}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Selecione um time</option>
-                    {teams
-                      .sort((a, b) => a.name.localeCompare(b.name))
-                      .map(team => (
-                        <option key={team.id} value={team.id}>
-                          {team.name}
-                        </option>
-                      ))}
-                  </select>
-                </div>
-                <div>
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Selecione um time</option>
+                {teams
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map(team => (
+                    <option key={team.id} value={team.id}>
+                      {team.name}
+                    </option>
+                  ))}
+              </select>
+            </div>
+            <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Participante
-                  </label>
-                  <select
+                Participante
+              </label>
+              <select
                     value={form.participant_id}
                     onChange={(e) => handleParticipantChange(index, 'participant_id', e.target.value)}
-                    required
+                required
                     disabled={!form.team_id}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                  >
-                    <option value="">Selecione um participante</option>
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+              >
+                <option value="">Selecione um participante</option>
                     {allParticipants
                       .filter(p => p.team_id === Number(form.team_id))
-                      .sort((a, b) => a.name.localeCompare(b.name))
-                      .map(participant => (
-                        <option key={participant.id} value={participant.id}>
-                          {participant.name}
-                        </option>
-                      ))}
-                  </select>
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map(participant => (
+                    <option key={participant.id} value={participant.id}>
+                      {participant.name}
+                    </option>
+                  ))}
+              </select>
                 </div>
               </div>
             ))}
-          </div>
+            </div>
 
           {/* Activity Details Section */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

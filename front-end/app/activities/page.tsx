@@ -11,10 +11,16 @@ import { toast } from 'react-hot-toast';
 import ScoreHistoryModal from './components/ScoreHistoryModal';
 import ResponsiveTable from './components/ResponsiveTable';
 
+interface Team {
+  id: string;
+  name: string;
+}
+
 const PAGE_SIZE = 20;
 
 export default function ActivitiesPage() {
   const [activities, setActivities] = useState<Activity[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isSceneTriggered, setIsSceneTriggered] = useState(false);
@@ -59,7 +65,7 @@ export default function ActivitiesPage() {
       }
 
       const activities = responseData.data;
-      
+
       if (isRefresh) {
         setActivities(activities);
       } else {
@@ -71,7 +77,7 @@ export default function ActivitiesPage() {
           activities.forEach((activity: Activity) => {
             if (activity && activity.id) {
               existingMap.set(activity.id, activity);
-            }
+      }
           });
           
           // Convert map back to array and sort by date
@@ -99,6 +105,27 @@ export default function ActivitiesPage() {
     }
   }, []);
 
+  // Fetch teams on component mount
+  useEffect(() => {
+    const fetchTeams = async () => {
+      try {
+        const response = await fetch('/api/teams');
+        if (!response.ok) {
+          throw new Error('Failed to fetch teams');
+        }
+        const data = await response.json();
+        // Handle both direct array response and paginated response
+        const teamsData = Array.isArray(data) ? data : (data.teams || []);
+        setTeams(teamsData);
+      } catch (error) {
+        console.error('Error fetching teams:', error);
+        setTeams([]);
+      }
+    };
+
+    fetchTeams();
+  }, []);
+
   // Initial load
   useEffect(() => {
     fetchActivities(1, true);
@@ -113,7 +140,7 @@ export default function ActivitiesPage() {
           console.log('Scene triggered - loading more activities');
           setIsSceneTriggered(true);
           setIsLoadingMore(true);
-          setPage(prev => prev + 1);
+        setPage(prev => prev + 1);
         }
       },
       { 
@@ -232,11 +259,53 @@ export default function ActivitiesPage() {
     }
   }, []);
 
-  const handleSearch = () => {
-    setPage(1);
-    setError(null);
-    fetchActivities(1, true);
-  };
+  const handleSearch = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setPage(1);
+      
+      // Format dates if they exist
+      let formattedStartDate = '';
+      let formattedEndDate = '';
+      
+      if (filters.startDate) {
+        const parsedStartDate = parse(filters.startDate, 'dd/MM/yyyy', new Date());
+        formattedStartDate = format(parsedStartDate, 'yyyy-MM-dd');
+      }
+      
+      if (filters.endDate) {
+        const parsedEndDate = parse(filters.endDate, 'dd/MM/yyyy', new Date());
+        formattedEndDate = format(parsedEndDate, 'yyyy-MM-dd');
+      }
+      
+      // Build query parameters
+      const queryParams = new URLSearchParams({
+        page: '1',
+        limit: '10',
+      });
+      
+      if (formattedStartDate) queryParams.append('startDate', formattedStartDate);
+      if (formattedEndDate) queryParams.append('endDate', formattedEndDate);
+      if (filters.participant) queryParams.append('participant', filters.participant);
+      if (filters.team) queryParams.append('team', filters.team);
+      
+      const response = await fetch(`/api/activities/list?${queryParams.toString()}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch activities');
+      }
+      
+      const data = await response.json();
+      setActivities(data.activities || []);
+      setHasMore(data.pagination.page < data.pagination.totalPages);
+      setTotalPages(data.pagination.totalPages);
+      setError(null);
+    } catch (error) {
+      console.error('Error searching activities:', error);
+      setError('Failed to search activities');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [filters]);
 
   const handleDeleteClick = (activity: Activity) => {
     setActivityToDelete(activity);
@@ -327,13 +396,20 @@ export default function ActivitiesPage() {
             <label className="block text-sm font-medium text-gray-700">
               Time
             </label>
-            <input
-              type="text"
+            <select
               className="w-full rounded-md border-gray-300 text-sm"
               value={filters.team}
               onChange={(e) => setFilters(prev => ({ ...prev, team: e.target.value }))}
-              placeholder="Nome do time"
-            />
+            >
+              <option value="">Todos os times</option>
+              {teams
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map(team => (
+                  <option key={team.id} value={team.name}>
+                    {team.name}
+                  </option>
+                ))}
+            </select>
           </div>
         </div>
         <div className="mt-4 flex justify-end">
@@ -365,10 +441,10 @@ export default function ActivitiesPage() {
         />
 
         {isLoadingMore && (
-          <div className="flex justify-center mt-4">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          </div>
-        )}
+        <div className="flex justify-center mt-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      )}
 
         {error && (
           <div className="text-red-600 text-center mt-4">

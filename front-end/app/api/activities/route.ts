@@ -80,14 +80,14 @@ export async function POST(request: Request) {
 
     // Store the activity in the database
     const activityData = {
-      participant: modelActivity.participant,
-      team: modelActivity.team,
-      team_id: modelActivity.team_id ? parseInt(modelActivity.team_id.toString()) : null,
-      participant_id: modelActivity.participant_id ? modelActivity.participant_id.toString() : null,
+        participant: modelActivity.participant,
+        team: modelActivity.team,
+        team_id: modelActivity.team_id ? parseInt(modelActivity.team_id.toString()) : null,
+        participant_id: modelActivity.participant_id ? modelActivity.participant_id.toString() : null,
       date: new Date(formattedDate),
-      type: modelActivity.type,
-      category: modelActivity.category,
-      key_process: modelActivity.key_process,
+        type: modelActivity.type,
+        category: modelActivity.category,
+        key_process: modelActivity.key_process,
       activity: modelActivity.activity as any,
       base_score: modelActivity.base_score || 0,
       multiplier: modelActivity.multiplier || 1,
@@ -99,41 +99,41 @@ export async function POST(request: Request) {
     try {
       const storedActivity = await prisma.activity.create({
         data: activityData,
-      });
+    });
 
       console.log('Activity created successfully:', storedActivity.id);
 
-      // Update image status based on activity creation success
-      try {
-        await prisma.image.updateMany({
-          where: {
-            key_process: modelActivity.key_process
-          },
-          data: {
-            status: 'PROCESSED'
-          }
-        });
+    // Update image status based on activity creation success
+    try {
+      await prisma.image.updateMany({
+        where: {
+          key_process: modelActivity.key_process
+        },
+        data: {
+          status: 'PROCESSED'
+        }
+      });
         console.log('Image status updated to PROCESSED');
-      } catch (error) {
-        console.error('Error updating image status:', error);
-        // If there's an error updating the image status, set it to PROCESS_WITH_ERRORS
-        await prisma.image.updateMany({
-          where: {
-            key_process: modelActivity.key_process
-          },
-          data: {
-            status: 'PROCESS_WITH_ERRORS'
-          }
-        });
+    } catch (error) {
+      console.error('Error updating image status:', error);
+      // If there's an error updating the image status, set it to PROCESS_WITH_ERRORS
+      await prisma.image.updateMany({
+        where: {
+          key_process: modelActivity.key_process
+        },
+        data: {
+          status: 'PROCESS_WITH_ERRORS'
+        }
+      });
         console.log('Image status updated to PROCESS_WITH_ERRORS');
-      }
-      
-      return corsResponse(
-        NextResponse.json({
-          message: 'Activity recorded successfully',
-          data: storedActivity
-        }, { status: 201 })
-      );
+    }
+    
+    return corsResponse(
+      NextResponse.json({
+        message: 'Activity recorded successfully',
+        data: storedActivity
+      }, { status: 201 })
+    );
     } catch (dbError) {
       console.error('Database error:', dbError);
       throw new Error(`Database error: ${dbError instanceof Error ? dbError.message : 'Unknown error'}`);
@@ -151,17 +151,17 @@ export async function POST(request: Request) {
     // If there's an error creating the activity and we have the modelActivity, update image status
     if (modelActivity?.key_process) {
       try {
-        await prisma.image.updateMany({
-          where: {
-            key_process: modelActivity.key_process
-          },
-          data: {
-            status: 'PROCESS_WITH_ERRORS'
-          }
-        });
+      await prisma.image.updateMany({
+        where: {
+          key_process: modelActivity.key_process
+        },
+        data: {
+          status: 'PROCESS_WITH_ERRORS'
+        }
+      });
         console.log('Image status updated to PROCESS_WITH_ERRORS after error');
-      } catch (updateError) {
-        console.error('Error updating image status after activity error:', updateError);
+    } catch (updateError) {
+      console.error('Error updating image status after activity error:', updateError);
       }
     }
     

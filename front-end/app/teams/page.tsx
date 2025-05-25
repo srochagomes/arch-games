@@ -34,7 +34,7 @@ export default function TeamsPage() {
       const data = await response.json();
       
       if (isRefresh) {
-        setTeams(data.teams);
+      setTeams(data.teams);
       } else {
         setTeams(prev => {
           // Create a map of existing teams by ID

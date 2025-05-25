@@ -18,10 +18,10 @@ export async function GET(request: NextRequest) {
     if (startDate || endDate) {
       where.date = {};
       if (startDate) {
-        where.date.gte = new Date(startDate);
+        where.date.gte = new Date(startDate + 'T00:00:00.000Z');
       }
       if (endDate) {
-        where.date.lte = new Date(endDate);
+        where.date.lte = new Date(endDate + 'T23:59:59.999Z');
       }
     }
 
@@ -61,6 +61,10 @@ export async function GET(request: NextRequest) {
       },
       skip: offset,
       take: pageSize,
+      include: {
+        team_relation: true,
+        participant_relation: true,
+      }
     });
 
     console.log('Query results:', {

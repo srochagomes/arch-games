@@ -81,11 +81,12 @@ export default function UploadStatus() {
       try {
         const response = await fetch('/api/teams');
         const data = await response.json();
-        if (data.teams) {
-          setTeams(data.teams);
-        }
+        // Handle both paginated and non-paginated responses
+        const teams = Array.isArray(data) ? data : data.teams;
+        setTeams(teams || []);
       } catch (error) {
         console.error('Error fetching teams:', error);
+        setTeams([]);
       }
     };
 
@@ -331,41 +332,41 @@ export default function UploadStatus() {
 
           <div className="relative">
             {isLoading ? (
-              <div className="text-center">Carregando...</div>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Data</TableHead>
+            <div className="text-center">Carregando...</div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Data</TableHead>
                     <TableHead>Participante</TableHead>
-                    <TableHead>Nome do Arquivo</TableHead>
-                    <TableHead>Equipe</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Tipo</TableHead>
+                  <TableHead>Nome do Arquivo</TableHead>
+                  <TableHead>Equipe</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Tipo</TableHead>
                     <TableHead>Detalhes</TableHead>
                     <TableHead>Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {images.map((image) => (
-                    <TableRow key={image.id}>
-                      <TableCell>
-                        {format(new Date(image.activity_date), "dd/MM/yyyy HH:mm", { locale: ptBR })}
-                      </TableCell>
-                      <TableCell>{image.name}</TableCell>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {images.map((image) => (
+                  <TableRow key={image.id}>
+                    <TableCell>
+                      {format(new Date(image.activity_date), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                    </TableCell>
+                    <TableCell>{image.name}</TableCell>
                       <TableCell>{image.filename}</TableCell>
-                      <TableCell>{image.team}</TableCell>
-                      <TableCell>
-                        <span className={`px-2 py-1 rounded-full text-xs ${
-                          image.status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
-                          image.status === 'PROCESSING' ? 'bg-yellow-100 text-yellow-800' :
-                          image.status === 'ERROR' ? 'bg-red-100 text-red-800' :
-                          'bg-gray-100 text-gray-800'
-                        }`}>
-                          {image.status || 'Pendente'}
-                        </span>
-                      </TableCell>
-                      <TableCell>{image.type}</TableCell>
+                    <TableCell>{image.team}</TableCell>
+                    <TableCell>
+                      <span className={`px-2 py-1 rounded-full text-xs ${
+                        image.status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
+                        image.status === 'PROCESSING' ? 'bg-yellow-100 text-yellow-800' :
+                        image.status === 'ERROR' ? 'bg-red-100 text-red-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {image.status || 'Pendente'}
+                      </span>
+                    </TableCell>
+                    <TableCell>{image.type}</TableCell>
                       <TableCell>
                         <Button
                           variant="ghost"
@@ -386,11 +387,11 @@ export default function UploadStatus() {
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
 
             {/* Scene Trigger Element */}
             <div 
