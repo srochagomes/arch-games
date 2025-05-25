@@ -138,15 +138,19 @@ export default function ParticipantsPage() {
   const fetchTeams = async () => {
     try {
       const response = await fetch('/api/teams');
-      if (!response.ok) throw new Error('Failed to fetch teams');
+      if (!response.ok) {
+        throw new Error('Failed to fetch teams');
+      }
       const data = await response.json();
-      setTeams(data.teams);
-      if (data.teams.length > 0 && !teamId) {
-        setTeamId(data.teams[0].id.toString());
+      // Handle both direct array response and paginated response
+      const teamsData = Array.isArray(data) ? data : (data.teams || []);
+      setTeams(teamsData);
+      if (teamsData.length > 0 && !teamId) {
+        setTeamId(teamsData[0].id.toString());
       }
     } catch (error) {
-      toast.error('Error loading teams');
-      console.error('Error:', error);
+      console.error('Error fetching teams:', error);
+      setTeams([]);
     }
   };
 
