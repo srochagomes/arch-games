@@ -69,9 +69,14 @@ export async function POST(request: NextRequest) {
     // Generate process ID and create directory
     const key_process = randomUUID();
     const date = new Date(activityDate);
+    
+    // Adjust for timezone to prevent date shifting
+    const userTimezoneOffset = date.getTimezoneOffset() * 60000;
+    const adjustedDate = new Date(date.getTime() - userTimezoneOffset);
+    
     const teamStr = team.trim().replace(/\s+/g, '_');
     const participantStr = mainParticipant.name.trim().replace(/\s+/g, '_');
-    const dateStr = date.toISOString()
+    const dateStr = adjustedDate.toISOString()
       .replace('T', '-')
       .replace(/:/g, '-')
       .replace(/\./g, '-')

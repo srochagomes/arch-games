@@ -64,19 +64,32 @@ export async function POST(request: Request) {
       throw new Error('Invalid date format');
     }
 
-    // Format the date string to ensure it's a valid ISO date
-    let formattedDate: string;
-    try {
-      const date = new Date(dateStr);
-      if (isNaN(date.getTime())) {
-        throw new Error('Invalid date');
-      }
-      formattedDate = date.toISOString();
-    } catch (error) {
+    // Parse the date and adjust for timezone
+    let formattedDate = dateStr;
+    if (!dateStr.includes(':')) {
       throw new Error('Invalid date format');
     }
+    const timeParts = dateStr.split(':');
+    if (timeParts.length === 2) {
+      formattedDate = `${dateStr}:00`;
+    }
 
-    console.log('Formatted date:', formattedDate);
+    // Create a date object from the input string
+    const inputDate = new Date(formattedDate);
+    
+    // Adjust for timezone to prevent date shifting
+    const userTimezoneOffset = inputDate.getTimezoneOffset() * 60000;
+    const adjustedDate = new Date(inputDate.getTime() - userTimezoneOffset);
+    
+    // Format the date with timezone offset
+    const year = adjustedDate.getFullYear();
+    const month = String(adjustedDate.getMonth() + 1).padStart(2, '0');
+    const day = String(adjustedDate.getDate()).padStart(2, '0');
+    const hours = String(adjustedDate.getHours()).padStart(2, '0');
+    const minutes = String(adjustedDate.getMinutes()).padStart(2, '0');
+    const seconds = String(adjustedDate.getSeconds()).padStart(2, '0');
+    
+    formattedDate = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}Z`;
 
     // Store the activity in the database
     const activityData = {
@@ -84,14 +97,14 @@ export async function POST(request: Request) {
         team: modelActivity.team,
         team_id: modelActivity.team_id ? parseInt(modelActivity.team_id.toString()) : null,
         participant_id: modelActivity.participant_id ? modelActivity.participant_id.toString() : null,
-      date: new Date(formattedDate),
+        date: formattedDate,
         type: modelActivity.type,
         category: modelActivity.category,
         key_process: modelActivity.key_process,
-      activity: modelActivity.activity as any,
-      base_score: modelActivity.base_score || 0,
-      multiplier: modelActivity.multiplier || 1,
-      calculated_score: modelActivity.calculated_score || 0,
+        activity: modelActivity.activity as any,
+        base_score: modelActivity.base_score || 0,
+        multiplier: modelActivity.multiplier || 1,
+        calculated_score: modelActivity.calculated_score || 0,
     };
 
     console.log('Creating activity with data:', JSON.stringify(activityData, null, 2));
@@ -212,6 +225,25 @@ export async function GET(request: Request) {
       skip,
       take: limit,
     });
+
+    // Adjust dates in the response to match the input format
+    const adjustedActivities = activities.map(activity => {
+      const date = new Date(activity.date);
+      const userTimezoneOffset = date.getTimezoneOffset() * 60000;
+      const adjustedDate = new Date(date.getTime() + userTimezoneOffset);
+      
+      const year = adjustedDate.getFullYear();
+      const month = String(adjustedDate.getMonth() + 1).padStart(2, '0');
+      const day = String(adjustedDate.getDate()).padStart(2, '0');
+      const hours = String(adjustedDate.getHours()).padStart(2, '0');
+      const minutes = String(adjustedDate.getMinutes()).padStart(2, '0');
+      const seconds = String(adjustedDate.getSeconds()).padStart(2, '0');
+      
+      return {
+        ...activity,
+        date: `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`
+      };
+    });
     
     // Get total count for pagination
     const total = await prisma.activity.count({
@@ -220,7 +252,7 @@ export async function GET(request: Request) {
     
     return corsResponse(
       NextResponse.json({
-        data: activities,
+        data: adjustedActivities,
         pagination: {
           total,
           page,

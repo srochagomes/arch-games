@@ -131,6 +131,8 @@ export default function AddActivityModal({ onClose, onAdd }: AddActivityModalPro
       const key_process = uuidv4();
       const parsedDate = parse(formData.date, 'dd/MM/yyyy', new Date());
       const dateTime = new Date(`${format(parsedDate, 'yyyy-MM-dd')}T${formData.time}`);
+      // Format the date to ensure it's saved in the correct timezone
+      const formattedDateTime = format(dateTime, "yyyy-MM-dd'T'HH:mm:ss");
       const base_score = Number(formData.score);
       const calculated_score = base_score * selectedActivity.multiplier;
 
@@ -153,13 +155,13 @@ export default function AddActivityModal({ onClose, onAdd }: AddActivityModalPro
           team: selectedTeam.name,
           team_id: selectedTeam.id,
           participant_id: selectedParticipant.id,
-          date: dateTime.toISOString(),
+          date: formattedDateTime,
           category: selectedActivity.value,
           key_process,
           activity: {
             inputType: "MANUALY",
             description: formData.description || selectedActivity.label,
-            dateTime: dateTime.toISOString(),
+            dateTime: formattedDateTime,
             category: selectedActivity.category
           },
           type: selectedParticipant.type,
