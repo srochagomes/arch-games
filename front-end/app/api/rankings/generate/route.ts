@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { calculateTeamRankings } from '@/lib/ranking';
 
 interface TeamScore {
   teamId: number;
@@ -22,12 +23,102 @@ type Activity = any;
 type RankingTeam = any;
 type RankingParticipant = any;
 
+export const dynamic = 'force-dynamic';
+
 export async function POST() {
   try {
-    // Get all teams
-    const teams = await prisma.team.findMany();
-    
-    // Get ALL activities without filtering by calculated_score
+    // Get all teams with their participants and activities
+    const teams = await prisma.team.findMany({
+      include: {
+        participants: {
+          include: {
+            activities: true
+          }
+        }
+      }
+    });
+
+    // Calculate team rankings
+    const teamRankings = await calculateTeamRankings(teams);
+
+    // Get the latest generation timestamp
+    const latestGeneration = await prisma.rankingTeam.findFirst({
+      orderBy: {
+        generatedAt: 'desc'
+      },
+      select: {
+        generatedAt: true
+      }
+    });
+
+    // Store team rankings with historical data
+    const currentDate = new Date();
+    const monthYear = currentDate.toISOString().slice(0, 7); // Format: YYYY-MM
+
+    // Create team ranking records
+    const teamRankingRecords = teamRankings.map((ranking, index) => ({
+      teamId: ranking.teamId,
+      teamName: ranking.teamName,
+      scoreTotal: ranking.scoreTotal,
+      rankingPosition: index + 1,
+      rankingVariation: null, // Will be calculated in the next generation
+      generatedAt: currentDate
+    }));
+
+    // Store team rankings
+    await prisma.$transaction(
+      teamRankingRecords.map(record => 
+        prisma.rankingTeam.create({
+          data: record
+        })
+      )
+    );
+
+    // Store historical data
+    await prisma.$transaction(
+      teamRankings.map((ranking, index) => 
+        prisma.teamScoreHistory.create({
+          data: {
+            teamId: ranking.teamId,
+            score: ranking.scoreTotal,
+            date: currentDate
+          }
+        })
+      )
+    );
+
+    // Calculate and update ranking variations if there's a previous generation
+    if (latestGeneration) {
+      const previousRankings = await prisma.rankingTeam.findMany({
+        where: {
+          generatedAt: latestGeneration.generatedAt
+        }
+      });
+
+      const previousRankingMap = new Map(
+        previousRankings.map(ranking => [ranking.teamId, ranking.rankingPosition])
+      );
+
+      // Update variations for current rankings
+      await Promise.all(
+        teamRankings.map((ranking, index) => {
+          const previousPosition = previousRankingMap.get(ranking.teamId);
+          const variation = previousPosition ? previousPosition - (index + 1) : null;
+
+          return prisma.rankingTeam.updateMany({
+            where: {
+              teamId: ranking.teamId,
+              generatedAt: currentDate
+            },
+            data: {
+              rankingVariation: variation
+            }
+          });
+        })
+      );
+    }
+
+    // Calculate participant scores
     const activities = await prisma.activity.findMany({
       include: {
         team_relation: true,
@@ -35,129 +126,49 @@ export async function POST() {
       }
     });
 
-    // Calculate team scores from ALL activities
-    const teamScores = teams.map(team => {
-      const teamActivities = activities.filter(a => a.team_id === team.id);
-      const scoreTotal = teamActivities.reduce((sum, activity) => sum + (activity.calculated_score || 0), 0);
-      return {
-        teamId: team.id,
-        teamName: team.name,
-        scoreTotal
-      };
-    });
-
-    // Sort teams by score (including teams with 0 score)
-    teamScores.sort((a, b) => b.scoreTotal - a.scoreTotal);
-
-    // Get previous team rankings and store them before deletion
-    const previousTeamRankings = await prisma.rankingTeam.findMany({
-      orderBy: {
-        generatedAt: 'desc'
-      }
-    });
-
-    // Create new team rankings with variations
-    const teamRankings = teamScores.map((team, index) => {
-      // Find the most recent previous ranking for this team
-      const previousRanking = previousTeamRankings.find(r => r.teamId === team.teamId);
-      const newPosition = index + 1;
-      
-      // If there's a previous ranking, calculate variation
-      let rankingVariation = null;
-      let scoreDiff = null;
-      
-      if (previousRanking) {
-        // If position hasn't changed, keep the previous variation
-        if (previousRanking.rankingPosition === newPosition) {
-          rankingVariation = previousRanking.rankingVariation;
-        } else {
-          // If position changed, calculate new variation
-          rankingVariation = previousRanking.rankingPosition - newPosition;
-        }
-        scoreDiff = team.scoreTotal - previousRanking.scoreTotal;
-      }
-
-      return {
-        teamId: team.teamId,
-        teamName: team.teamName,
-        scoreTotal: team.scoreTotal,
-        rankingPosition: newPosition,
-        rankingVariation,
-        scoreDiff,
-        generatedAt: new Date()
-      };
-    });
-
-    // Delete all existing team rankings
-    await prisma.rankingTeam.deleteMany({});
-
-    // Save new team rankings
-    await prisma.rankingTeam.createMany({
-      data: teamRankings
-    });
-
-    // Calculate participant scores from ALL activities
-    const participantScores = activities.reduce((acc: Record<string, ParticipantScore>, activity) => {
+    const participantScores = activities.reduce((acc: Record<string, any>, activity) => {
       if (!activity.participant_id || !activity.participant_relation) return acc;
-      
-      const key = activity.participant_id;
-      if (!acc[key]) {
-        acc[key] = {
-          participantId: activity.participant_id,
+
+      const participantId = activity.participant_id;
+      if (!acc[participantId]) {
+        acc[participantId] = {
+          participantId,
           participantName: activity.participant_relation.name,
-          teamId: activity.team_id || 0,
+          teamId: activity.team_relation?.id || 0,
           scoreTotal: 0
         };
       }
-      acc[key].scoreTotal += activity.calculated_score || 0;
+
+      acc[participantId].scoreTotal += activity.calculated_score || 0;
       return acc;
     }, {});
 
-    // Get all participants to ensure we include those without activities
-    const allParticipants = await prisma.participant.findMany({
-      include: {
-        team: true
-      }
-    });
-
-    // Add participants without activities to the scores
-    allParticipants.forEach(participant => {
-      if (!participantScores[participant.id]) {
-        participantScores[participant.id] = {
-          participantId: participant.id,
-          participantName: participant.name,
-          teamId: participant.team_id,
-          scoreTotal: 0
-        };
-      }
-    });
-
     // Sort participants by score
-    const sortedParticipants = Object.values(participantScores).sort((a, b) => b.scoreTotal - a.scoreTotal);
+    const sortedParticipants = Object.values(participantScores).sort(
+      (a, b) => b.scoreTotal - a.scoreTotal
+    );
 
-    // Get previous participant rankings and store them before deletion
+    // Get previous participant rankings
     const previousParticipantRankings = await prisma.rankingParticipant.findMany({
-      orderBy: {
-        generatedAt: 'desc'
+      where: {
+        generatedAt: latestGeneration?.generatedAt
       }
     });
 
     // Create new participant rankings with variations
     const participantRankings = sortedParticipants.map((participant, index) => {
-      // Find the most recent previous ranking for this participant
-      const previousRanking = previousParticipantRankings.find(r => r.participantId === participant.participantId);
+      const previousRanking = previousParticipantRankings.find(
+        r => r.participantId === participant.participantId
+      );
       const newPosition = index + 1;
-      
-      // If there's a previous ranking, calculate variation
+
       let rankingVariation = null;
       let scoreDiff = null;
-      
+
       if (previousRanking) {
-        // If position hasn't changed, keep the previous variation
         if (previousRanking.rankingPosition === newPosition) {
           rankingVariation = previousRanking.rankingVariation;
         } else {
-          // If position changed, calculate new variation
           rankingVariation = previousRanking.rankingPosition - newPosition;
         }
         scoreDiff = participant.scoreTotal - previousRanking.scoreTotal;
@@ -171,7 +182,7 @@ export async function POST() {
         rankingPosition: newPosition,
         rankingVariation,
         scoreDiff,
-        generatedAt: new Date()
+        generatedAt: currentDate
       };
     });
 
@@ -183,15 +194,11 @@ export async function POST() {
       data: participantRankings
     });
 
-    // Delete existing distribution data
-    await prisma.teamScoreDistribution.deleteMany({});
-    await prisma.categoryDistribution.deleteMany({});
-
     // Calculate and save team score distribution
-    const totalScore = teamScores.reduce((sum, team) => sum + team.scoreTotal, 0);
+    const totalScore = teamRankings.reduce((sum, team) => sum + team.scoreTotal, 0);
     if (totalScore > 0) {
       await prisma.teamScoreDistribution.createMany({
-        data: teamScores.map(team => ({
+        data: teamRankings.map(team => ({
           teamId: team.teamId,
           scoreTotal: team.scoreTotal,
           percentage: (team.scoreTotal / totalScore) * 100
@@ -199,34 +206,7 @@ export async function POST() {
       });
     }
 
-    // Calculate and save category distribution
-    const categoryScores = activities.reduce((acc: Record<string, { category: string; totalScore: number }>, activity) => {
-      if (!activity.category) return acc;
-      
-      if (!acc[activity.category]) {
-        acc[activity.category] = {
-          category: activity.category,
-          totalScore: 0
-        };
-      }
-      acc[activity.category].totalScore += activity.calculated_score || 0;
-      return acc;
-    }, {});
-
-    await prisma.categoryDistribution.createMany({
-      data: Object.values(categoryScores).map(score => ({
-        teamId: 1, // Using a default teamId since we're aggregating by category
-        category: score.category,
-        totalScore: score.totalScore
-      }))
-    });
-
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Rankings and distributions generated successfully',
-      teamRankings,
-      participantRankings
-    });
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error generating rankings:', error);
     return NextResponse.json(

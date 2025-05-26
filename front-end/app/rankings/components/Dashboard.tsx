@@ -17,6 +17,7 @@ import {
   Cell,
 } from 'recharts';
 import { ACTIVITY_OPTIONS, ActivityOption } from '@/app/api/types/activityOptions';
+import TeamEvolutionChart from './TeamEvolutionChart';
 
 interface TeamRanking {
   teamId: number;
@@ -60,6 +61,28 @@ const Dashboard: React.FC = () => {
   const [categoryDistribution, setCategoryDistribution] = useState<CategoryDistribution[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const aggregateTeamScores = (data: TeamScoreDistribution[]) => {
+    const aggregatedData = data.reduce((acc, curr) => {
+      const existingTeam = acc.find(item => item.teamId === curr.teamId);
+      if (existingTeam) {
+        existingTeam.scoreTotal += curr.scoreTotal;
+        existingTeam.percentage += curr.percentage;
+      } else {
+        acc.push({ ...curr });
+      }
+      return acc;
+    }, [] as TeamScoreDistribution[]);
+
+    // Calculate final percentages
+    const totalScore = aggregatedData.reduce((sum, item) => sum + item.scoreTotal, 0);
+    return aggregatedData
+      .map(item => ({
+        ...item,
+        percentage: (item.scoreTotal / totalScore) * 100
+      }))
+      .sort((a, b) => b.scoreTotal - a.scoreTotal); // Sort by score in descending order
+  };
+
   const fetchData = async () => {
     try {
       setIsLoading(true);
@@ -78,11 +101,10 @@ const Dashboard: React.FC = () => {
 
         setTeamRankings(teamsData.teamRankings || []);
         setParticipantRankings(participantsData.participantRankings || []);
-        setTeamScoreDistribution(distributionData.teamScoreDistribution || []);
+        setTeamScoreDistribution(aggregateTeamScores(distributionData.teamScoreDistribution || []));
         setCategoryDistribution(distributionData.categoryDistribution || []);
       }
     } catch (error) {
-      // Error handling without console.log
       setTeamRankings([]);
       setParticipantRankings([]);
       setTeamScoreDistribution([]);
@@ -94,11 +116,7 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     fetchData();
-
-    // Set up an interval to refresh data every 30 seconds
     const interval = setInterval(fetchData, 30000);
-
-    // Clean up the interval on component unmount
     return () => clearInterval(interval);
   }, []);
 
@@ -112,6 +130,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <TeamEvolutionChart />
       <Tabs defaultValue="teams" className="space-y-6">
         <TabsList>
           <TabsTrigger value="teams">Team Rankings</TabsTrigger>
@@ -159,16 +178,18 @@ const Dashboard: React.FC = () => {
               <CardContent>
                 <div className="h-[400px]">
                   <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
+                    <PieChart margin={{ right: 200, left: 0, top: 0, bottom: 0 }}>
                       <Pie
                         data={teamScoreDistribution}
                         dataKey="scoreTotal"
                         nameKey="teamName"
-                        cx="50%"
+                        cx="35%"
                         cy="50%"
                         outerRadius={120}
                         innerRadius={60}
-                        label={false}
+                        label={({ name, percent }) => `${name} (${(percent * 100).toFixed(1)}%)`}
+                        labelLine={false}
+                        isAnimationActive={false}
                       >
                         {teamScoreDistribution.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -179,16 +200,16 @@ const Dashboard: React.FC = () => {
                         labelFormatter={(label) => label}
                       />
                       <Legend 
-                        wrapperStyle={{ fontSize: 12 }}
-                        layout="vertical"
-                        align="right"
+                        layout="vertical" 
+                        align="right" 
                         verticalAlign="middle"
-                        iconType="circle"
-                        payload={teamScoreDistribution.map((entry, index) => ({
-                          value: entry.teamName,
-                          type: 'circle',
-                          color: COLORS[index % COLORS.length]
-                        }))}
+                        wrapperStyle={{
+                          right: 0,
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          width: '180px'
+                        }}
+                        formatter={(value) => value}
                       />
                     </PieChart>
                   </ResponsiveContainer>
