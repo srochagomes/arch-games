@@ -25,9 +25,10 @@ export async function GET(request: Request) {
       where: {
         generatedAt: latestParticipantRanking.generatedAt
       },
-      orderBy: {
-        rankingPosition: 'asc'
-      },
+      orderBy: [
+        { scoreTotal: 'desc' },
+        { rankingPosition: 'asc' }
+      ],
       include: {
         team: true // Include team information
       },

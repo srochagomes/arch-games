@@ -63,24 +63,30 @@ const Dashboard: React.FC = () => {
   const fetchData = async () => {
     try {
       setIsLoading(true);
-      const [rankingsRes, distributionRes] = await Promise.all([
+      const [teamsRes, participantsRes, distributionRes] = await Promise.all([
         fetch('/api/rankings/teams'),
+        fetch('/api/rankings/participants'),
         fetch('/api/rankings/distribution')
       ]);
 
-      if (rankingsRes.ok && distributionRes.ok) {
-        const [rankingsData, distributionData] = await Promise.all([
-          rankingsRes.json(),
+      if (teamsRes.ok && participantsRes.ok && distributionRes.ok) {
+        const [teamsData, participantsData, distributionData] = await Promise.all([
+          teamsRes.json(),
+          participantsRes.json(),
           distributionRes.json()
         ]);
 
-        setTeamRankings(rankingsData.teamRankings);
-        setParticipantRankings(rankingsData.participantRankings);
-        setTeamScoreDistribution(distributionData.teamScoreDistribution);
-        setCategoryDistribution(distributionData.categoryDistribution);
+        setTeamRankings(teamsData.teamRankings || []);
+        setParticipantRankings(participantsData.participantRankings || []);
+        setTeamScoreDistribution(distributionData.teamScoreDistribution || []);
+        setCategoryDistribution(distributionData.categoryDistribution || []);
       }
     } catch (error) {
       // Error handling without console.log
+      setTeamRankings([]);
+      setParticipantRankings([]);
+      setTeamScoreDistribution([]);
+      setCategoryDistribution([]);
     } finally {
       setIsLoading(false);
     }
@@ -199,32 +205,53 @@ const Dashboard: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="h-[400px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart 
-                    data={participantRankings}
-                    margin={{ top: 20, right: 100, bottom: 20, left: 20 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis 
-                      dataKey="participantName" 
-                      angle={-45}
-                      textAnchor="end"
-                      height={100}
-                      tickFormatter={(value) => value.length > 25 ? `${value.substring(0, 25)}...` : value}
-                      tick={{ fontSize: 12 }}
-                    />
-                    <YAxis tick={{ fontSize: 12 }} />
-                    <Tooltip />
-                    <Legend 
-                      wrapperStyle={{ fontSize: 12 }}
-                      layout="vertical"
-                      align="right"
-                      verticalAlign="middle"
-                      iconType="circle"
-                    />
-                    <Bar dataKey="scoreTotal" fill="#82ca9d" name="Total Score" />
-                  </BarChart>
-                </ResponsiveContainer>
+                {participantRankings && participantRankings.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart 
+                      data={participantRankings}
+                      margin={{ top: 20, right: 30, left: 20, bottom: 100 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis 
+                        dataKey="participantName" 
+                        angle={-45}
+                        textAnchor="end"
+                        height={100}
+                        tickFormatter={(value) => value.length > 15 ? `${value.substring(0, 15)}...` : value}
+                        tick={{ fontSize: 12 }}
+                        interval={0}
+                      />
+                      <YAxis 
+                        tick={{ fontSize: 12 }}
+                        label={{ value: 'Score', angle: -90, position: 'insideLeft', style: { fontSize: 12 } }}
+                      />
+                      <Tooltip 
+                        formatter={(value: number) => [`${value} points`, 'Score']}
+                        labelFormatter={(label) => `Participant: ${label}`}
+                      />
+                      <Legend 
+                        wrapperStyle={{ fontSize: 12 }}
+                        layout="vertical"
+                        align="right"
+                        verticalAlign="middle"
+                      />
+                      <Bar 
+                        dataKey="scoreTotal" 
+                        name="Total Score"
+                        fill="#8884d8"
+                        radius={[4, 4, 0, 0]}
+                      >
+                        {participantRankings.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex items-center justify-center h-full">
+                    <p className="text-gray-500">No participant rankings available</p>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
