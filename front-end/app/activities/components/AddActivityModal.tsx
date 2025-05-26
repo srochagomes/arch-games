@@ -71,8 +71,9 @@ export default function AddActivityModal({ onClose, onAdd }: AddActivityModalPro
           throw new Error('Failed to fetch teams');
         }
         const data = await response.json();
-        setTeams(data.teams || []);
+        setTeams(Array.isArray(data) ? data : []);
       } catch (error) {
+        console.error('Error fetching teams:', error);
         setTeams([]);
       }
     };

@@ -13,6 +13,7 @@ interface ActivityOption {
 }
 
 const ACTIVITY_OPTIONS: ActivityOption[] = [
+  { value: 'not_found', label: 'Não Encontrado', category: 'not_found', base_score: 0, multiplier: 1 },
   { value: 'physical_activity', label: 'Atividade Física', category: 'physical_activity', base_score: 10, multiplier: 1 },
   { value: 'duolingo', label: 'Duolingo', category: 'duolingo', base_score: 5, multiplier: 1 },
   { value: 'professional_training', label: 'Treinamento Profissional', category: 'professional_training', base_score: 15, multiplier: 1 },
@@ -32,11 +33,14 @@ interface UpdateScoresModalProps {
 }
 
 export default function UpdateScoresModal({ activity, onClose, onUpdate }: UpdateScoresModalProps) {
+  // Find the matching activity option for the current activity
+  const currentActivityOption = ACTIVITY_OPTIONS.find(option => option.category === activity.category) || ACTIVITY_OPTIONS[0];
+
   const [scores, setScores] = useState({
     base_score: activity.base_score,
     multiplier: activity.multiplier,
     change_reason: '',
-    category: activity.category,
+    category: currentActivityOption.value, // Use the value property for the select
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -48,6 +52,12 @@ export default function UpdateScoresModal({ activity, onClose, onUpdate }: Updat
     }
 
     try {
+      // Find the selected activity option to get the correct category
+      const selectedOption = ACTIVITY_OPTIONS.find(option => option.value === scores.category);
+      if (!selectedOption) {
+        throw new Error('Invalid activity category selected');
+      }
+
       const response = await fetch(`/api/activities/${activity.id}`, {
         method: 'PATCH',
         headers: {
@@ -58,7 +68,7 @@ export default function UpdateScoresModal({ activity, onClose, onUpdate }: Updat
           multiplier: scores.multiplier,
           calculated_score: scores.base_score * scores.multiplier,
           change_reason: scores.change_reason,
-          category: scores.category,
+          category: selectedOption.category, // Send the category property to the API
         }),
       });
 
