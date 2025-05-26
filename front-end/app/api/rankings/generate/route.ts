@@ -46,7 +46,7 @@ export async function POST() {
       };
     });
 
-    // Sort teams by score
+    // Sort teams by score (including teams with 0 score)
     teamScores.sort((a, b) => b.scoreTotal - a.scoreTotal);
 
     // Get previous team rankings and store them before deletion
