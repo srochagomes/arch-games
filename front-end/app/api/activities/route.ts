@@ -66,28 +66,32 @@ export async function POST(request: Request) {
 
     // Parse the date and adjust for timezone
     let formattedDate = dateStr;
-    if (!dateStr.includes(':')) {
-      throw new Error('Invalid date format');
+    
+    // If the date doesn't include time, add default time (00:00:00)
+    if (!dateStr.includes('T')) {
+      formattedDate = `${dateStr}T00:00:00`;
     }
-    const timeParts = dateStr.split(':');
-    if (timeParts.length === 2) {
-      formattedDate = `${dateStr}:00`;
+    
+    // If the date has time but no seconds, add seconds
+    if (formattedDate.includes('T') && !formattedDate.includes(':')) {
+      formattedDate = `${formattedDate}:00`;
     }
 
     // Create a date object from the input string
     const inputDate = new Date(formattedDate);
     
-    // Adjust for timezone to prevent date shifting
-    const userTimezoneOffset = inputDate.getTimezoneOffset() * 60000;
-    const adjustedDate = new Date(inputDate.getTime() - userTimezoneOffset);
+    // Validate that the date is valid
+    if (isNaN(inputDate.getTime())) {
+      throw new Error('Invalid date format');
+    }
     
-    // Format the date with timezone offset
-    const year = adjustedDate.getFullYear();
-    const month = String(adjustedDate.getMonth() + 1).padStart(2, '0');
-    const day = String(adjustedDate.getDate()).padStart(2, '0');
-    const hours = String(adjustedDate.getHours()).padStart(2, '0');
-    const minutes = String(adjustedDate.getMinutes()).padStart(2, '0');
-    const seconds = String(adjustedDate.getSeconds()).padStart(2, '0');
+    // Format the date without timezone adjustments
+    const year = inputDate.getFullYear();
+    const month = String(inputDate.getMonth() + 1).padStart(2, '0');
+    const day = String(inputDate.getDate()).padStart(2, '0');
+    const hours = String(inputDate.getHours()).padStart(2, '0');
+    const minutes = String(inputDate.getMinutes()).padStart(2, '0');
+    const seconds = String(inputDate.getSeconds()).padStart(2, '0');
     
     formattedDate = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}Z`;
 

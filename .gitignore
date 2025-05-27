@@ -11,3 +11,6 @@ Untitled*.*
 front-end/log.txt
 /front-end/log.txt
 ./front-end/log.txt
+./backup-db.sh
+/backups/
+/backups/**
