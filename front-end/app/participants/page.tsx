@@ -35,7 +35,8 @@ export default function ParticipantsPage() {
   const [participantToDelete, setParticipantToDelete] = useState<Participant | null>(null);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [isSceneTriggered, setIsSceneTriggered] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
   const sceneTriggerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -43,9 +44,10 @@ export default function ParticipantsPage() {
     fetchTeams();
   }, []);
 
-  const fetchParticipants = async (pageNum: number, isRefresh = false) => {
+  const fetchParticipants = async (pageNum: number, isRefresh = false, searchQuery = '') => {
     try {
-      const response = await fetch(`/api/participants?page=${pageNum}&limit=10`);
+      const searchParam = searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : '';
+      const response = await fetch(`/api/participants?page=${pageNum}&limit=10${searchParam}`);
       if (!response.ok) throw new Error('Failed to fetch participants');
       const data = await response.json();
       
@@ -53,19 +55,11 @@ export default function ParticipantsPage() {
         setParticipants(data.data);
       } else {
         setParticipants(prev => {
-          // Create a map of existing participants by ID
-          const existingMap = new Map(prev.map(p => [p.id, p]));
-          
-          // Update or add new participants
-          data.data.forEach((participant: Participant) => {
-            if (participant && participant.id) {
-              existingMap.set(participant.id, participant);
-            }
-          });
-          
-          // Convert map back to array and sort by name
-          return Array.from(existingMap.values())
-            .sort((a, b) => a.name.localeCompare(b.name));
+          // Simply append new participants without re-sorting to maintain order
+          const newParticipants = data.data.filter((participant: Participant) => 
+            !prev.some(p => p.id === participant.id)
+          );
+          return [...prev, ...newParticipants];
         });
       }
 
@@ -80,17 +74,20 @@ export default function ParticipantsPage() {
     } finally {
       setLoading(false);
       setIsLoadingMore(false);
+      setIsSearching(false);
     }
   };
 
-  // Intersection Observer for infinite scroll
+  // Intersection Observer for infinite scroll (disabled during search)
   useEffect(() => {
+    // Don't enable infinite scroll when searching
+    if (searchTerm) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
         const [entry] = entries;
-        if (entry.isIntersecting && !isLoadingMore && !isSceneTriggered && hasMore) {
+        if (entry.isIntersecting && !isLoadingMore && hasMore) {
           console.log('Scene triggered - loading more participants');
-          setIsSceneTriggered(true);
           setIsLoadingMore(true);
           setPage(prev => prev + 1);
         }
@@ -111,21 +108,33 @@ export default function ParticipantsPage() {
         observer.unobserve(currentTrigger);
       }
     };
-  }, [isLoadingMore, isSceneTriggered, hasMore]);
+  }, [isLoadingMore, hasMore, searchTerm]);
 
   // Load more when page changes
   useEffect(() => {
     if (page > 1 && hasMore) {
-      fetchParticipants(page);
+      fetchParticipants(page, false, searchTerm);
     }
-  }, [page, hasMore]);
+  }, [page, hasMore, searchTerm]);
 
-  // Reset scene trigger after loading
+  // Search functionality with debouncing
   useEffect(() => {
-    if (!isLoadingMore) {
-      setIsSceneTriggered(false);
-    }
-  }, [isLoadingMore]);
+    const timeoutId = setTimeout(() => {
+      if (searchTerm !== '') {
+        setIsSearching(true);
+        setPage(1);
+        setHasMore(true);
+        fetchParticipants(1, true, searchTerm);
+      } else {
+        // Reset to show all participants when search is cleared
+        setPage(1);
+        setHasMore(true);
+        fetchParticipants(1, true);
+      }
+    }, 300); // 300ms debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm]);
 
   // Add a maximum page limit
   useEffect(() => {
@@ -345,6 +354,44 @@ export default function ParticipantsPage() {
         </form>
       </div>
 
+      {/* Search Field */}
+      <div className="bg-white rounded-lg shadow p-6 mb-8">
+        <h2 className="text-xl font-semibold mb-4">Buscar Participantes</h2>
+        <div className="relative">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full rounded-md border-gray-300 pl-10 pr-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            placeholder="Digite o nome do participante..."
+          />
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            {isSearching ? (
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+            ) : (
+              <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            )}
+          </div>
+          {searchTerm && (
+            <button
+              onClick={() => setSearchTerm('')}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+            >
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+        </div>
+        {searchTerm && (
+          <p className="text-sm text-gray-500 mt-2">
+            Buscando por: <span className="font-medium">"{searchTerm}"</span>
+          </p>
+        )}
+      </div>
+
       {/* Participants List */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
@@ -416,13 +463,26 @@ export default function ParticipantsPage() {
           </div>
         )}
 
-        {!loading && !hasMore && participants.length > 0 && (
+        {isSearching && (
+          <div className="flex justify-center py-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span className="ml-2 text-gray-600">Buscando...</span>
+          </div>
+        )}
+
+        {!loading && !isSearching && !hasMore && participants.length > 0 && !searchTerm && (
           <div className="text-gray-500 text-center py-4">
             Não há mais participantes para carregar
           </div>
         )}
 
-        {!loading && participants.length === 0 && (
+        {!loading && !isSearching && participants.length === 0 && searchTerm && (
+          <div className="text-gray-500 text-center py-4">
+            Nenhum participante encontrado para "{searchTerm}"
+          </div>
+        )}
+
+        {!loading && !isSearching && participants.length === 0 && !searchTerm && (
           <div className="text-gray-500 text-center py-4">
             Nenhum participante encontrado
           </div>

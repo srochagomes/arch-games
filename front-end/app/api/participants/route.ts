@@ -7,8 +7,20 @@ export async function GET(request: Request) {
     const teamId = searchParams.get('team_id');
     const page = searchParams.get('page');
     const limit = searchParams.get('limit');
+    const search = searchParams.get('search');
 
-    const where = teamId ? { team_id: parseInt(teamId) } : {};
+    let where: any = {};
+    
+    if (teamId) {
+      where.team_id = parseInt(teamId);
+    }
+    
+    if (search) {
+      where.name = {
+        contains: search,
+        mode: 'insensitive'
+      };
+    }
 
     // If pagination parameters are not provided, return all records
     if (!page || !limit) {
