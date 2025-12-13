@@ -7,12 +7,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import TeamRankingTable from './components/TeamRankingTable';
 import { ParticipantRankingTable } from './components/ParticipantRankingTable';
 import NotificationDialog from '@/components/NotificationDialog';
+import StatisticsPanel from './components/StatisticsPanel';
 
 export default function RankingsPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [showErrorDialog, setShowErrorDialog] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [statisticsRefreshKey, setStatisticsRefreshKey] = useState(0);
 
   const handleGenerateRankings = async () => {
     try {
@@ -26,6 +28,8 @@ export default function RankingsPage() {
       }
 
       setShowSuccessDialog(true);
+      // Update statistics refresh key to force refresh
+      setStatisticsRefreshKey(prev => prev + 1);
       // Refresh the page to show new rankings after a short delay
       setTimeout(() => {
         window.location.reload();
@@ -66,6 +70,9 @@ export default function RankingsPage() {
           )}
         </Button>
       </div>
+
+      {/* Statistics Panel */}
+      <StatisticsPanel refreshKey={statisticsRefreshKey} />
 
       <Tabs defaultValue="teams" className="space-y-6">
         <TabsList>
